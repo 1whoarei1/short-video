@@ -1,0 +1,3 @@
+window.__BEATS__=[{"text": "日常可以先减少", "start": 0.0, "end": 1.4166666666666667}, {"text": "加工肉出现的次数和分量。", "start": 1.4166666666666667, "end": 3.875}, {"text": "五十克是研究中的比较单位；", "start": 3.875, "end": 6.541666666666667}, {"text": "当时的评估没有确定", "start": 6.541666666666667, "end": 8.375}, {"text": "一个安全摄入量。", "start": 8.375, "end": 10.0}];
+window.__SEG__={"id": "07_action", "duration": 10.0, "speech_end": 0, "tail": 0};
+function _beat(t){const norm=s=>String(s).replace(/[\s，。、！？；：!?;:|]/g,'');const found=window.__BEATS__.filter(x=>norm(x.text)===norm(t));if(found.length!==1)throw new Error('Beat must match exactly once: '+t);return found[0];}window.B=t=>_beat(t).start;window.Be=t=>_beat(t).end;

@@ -1,0 +1,522 @@
+{
+  "fps": 24.0,
+  "segments": [
+    {
+      "id": "01_hook",
+      "duration_sec": 6.0,
+      "speech_end_sec": 0,
+      "tail_silence_sec": 0,
+      "blocks": [
+        {
+          "text": "火腿、培根、腊肠，",
+          "spoken": "火腿、培根、腊肠，",
+          "from": 0,
+          "to": 58,
+          "size": 44,
+          "local_start_sec": 0.0,
+          "global_start_sec": 0.0,
+          "global_end_sec": 2.4583333333333335
+        },
+        {
+          "text": "为什么会被列为一类致癌物？",
+          "spoken": "为什么会被列为一类致癌物？",
+          "from": 59,
+          "to": 143,
+          "size": 44,
+          "local_start_sec": 2.4583333333333335,
+          "global_start_sec": 2.4583333333333335,
+          "global_end_sec": 6.0
+        }
+      ]
+    },
+    {
+      "id": "02_evidence",
+      "duration_sec": 11.0,
+      "speech_end_sec": 0,
+      "tail_silence_sec": 0,
+      "blocks": [
+        {
+          "text": "国际癌症研究机构",
+          "spoken": "国际癌症研究机构",
+          "from": 0,
+          "to": 38,
+          "size": 44,
+          "local_start_sec": 0.0,
+          "global_start_sec": 6.0,
+          "global_end_sec": 7.625
+        },
+        {
+          "text": "把食用加工肉归为一类，",
+          "spoken": "把食用加工肉归为一类，",
+          "from": 39,
+          "to": 92,
+          "size": 44,
+          "local_start_sec": 1.625,
+          "global_start_sec": 7.625,
+          "global_end_sec": 9.875
+        },
+        {
+          "text": "意思是：有充分的人体证据，",
+          "spoken": "意思是：有充分的人体证据，",
+          "from": 93,
+          "to": 155,
+          "size": 44,
+          "local_start_sec": 3.875,
+          "global_start_sec": 9.875,
+          "global_end_sec": 12.5
+        },
+        {
+          "text": "确认它能导致癌症。",
+          "spoken": "确认它能导致癌症。",
+          "from": 156,
+          "to": 199,
+          "size": 44,
+          "local_start_sec": 6.5,
+          "global_start_sec": 12.5,
+          "global_end_sec": 14.333333333333334
+        },
+        {
+          "text": "这里证据明确的是结直肠癌。",
+          "spoken": "这里证据明确的是结直肠癌。",
+          "from": 200,
+          "to": 263,
+          "size": 44,
+          "local_start_sec": 8.333333333333334,
+          "global_start_sec": 14.333333333333334,
+          "global_end_sec": 17.0
+        }
+      ]
+    },
+    {
+      "id": "02a_meaning",
+      "duration_sec": 4.5,
+      "speech_end_sec": 0,
+      "tail_silence_sec": 0,
+      "blocks": [
+        {
+          "text": "一类，表达的是证据的确定性。",
+          "spoken": "一类，表达的是证据的确定性。",
+          "from": 0,
+          "to": 107,
+          "size": 44,
+          "local_start_sec": 0.0,
+          "global_start_sec": 17.0,
+          "global_end_sec": 21.5
+        }
+      ]
+    },
+    {
+      "id": "03_distinction",
+      "duration_sec": 8.0,
+      "speech_end_sec": 0,
+      "tail_silence_sec": 0,
+      "blocks": [
+        {
+          "text": "这个分类说的是证据有多充分。",
+          "spoken": "这个分类说的是证据有多充分。",
+          "from": 0,
+          "to": 59,
+          "size": 44,
+          "local_start_sec": 0.0,
+          "global_start_sec": 21.5,
+          "global_end_sec": 24.0
+        },
+        {
+          "text": "一个人实际增加多少风险，",
+          "spoken": "一个人实际增加多少风险，",
+          "from": 60,
+          "to": 110,
+          "size": 44,
+          "local_start_sec": 2.5,
+          "global_start_sec": 24.0,
+          "global_end_sec": 26.125
+        },
+        {
+          "text": "还要看吃多少、吃多久，",
+          "spoken": "还要看吃多少、吃多久，",
+          "from": 111,
+          "to": 157,
+          "size": 44,
+          "local_start_sec": 4.625,
+          "global_start_sec": 26.125,
+          "global_end_sec": 28.083333333333332
+        },
+        {
+          "text": "以及原有的风险。",
+          "spoken": "以及原有的风险。",
+          "from": 158,
+          "to": 191,
+          "size": 44,
+          "local_start_sec": 6.583333333333333,
+          "global_start_sec": 28.083333333333332,
+          "global_end_sec": 29.5
+        }
+      ]
+    },
+    {
+      "id": "03a_exposure",
+      "duration_sec": 4.5,
+      "speech_end_sec": 0,
+      "tail_silence_sec": 0,
+      "blocks": [
+        {
+          "text": "摄入量、持续时间和个人基础，",
+          "spoken": "摄入量、持续时间和个人基础，",
+          "from": 0,
+          "to": 68,
+          "size": 44,
+          "local_start_sec": 0.0,
+          "global_start_sec": 29.5,
+          "global_end_sec": 32.375
+        },
+        {
+          "text": "都影响实际风险。",
+          "spoken": "都影响实际风险。",
+          "from": 69,
+          "to": 107,
+          "size": 44,
+          "local_start_sec": 2.875,
+          "global_start_sec": 32.375,
+          "global_end_sec": 34.0
+        }
+      ]
+    },
+    {
+      "id": "04_definition",
+      "duration_sec": 11.0,
+      "speech_end_sec": 0,
+      "tail_silence_sec": 0,
+      "blocks": [
+        {
+          "text": "加工肉，主要指经过",
+          "spoken": "加工肉，主要指经过",
+          "from": 0,
+          "to": 40,
+          "size": 44,
+          "local_start_sec": 0.0,
+          "global_start_sec": 34.0,
+          "global_end_sec": 35.708333333333336
+        },
+        {
+          "text": "腌制、发酵、烟熏等处理，",
+          "spoken": "腌制、发酵、烟熏等处理，",
+          "from": 41,
+          "to": 95,
+          "size": 44,
+          "local_start_sec": 1.7083333333333333,
+          "global_start_sec": 35.708333333333336,
+          "global_end_sec": 38.0
+        },
+        {
+          "text": "来延长保存或增加风味的肉。",
+          "spoken": "来延长保存或增加风味的肉。",
+          "from": 96,
+          "to": 154,
+          "size": 44,
+          "local_start_sec": 4.0,
+          "global_start_sec": 38.0,
+          "global_end_sec": 40.458333333333336
+        },
+        {
+          "text": "新鲜的猪肉、牛肉属于红肉，",
+          "spoken": "新鲜的猪肉、牛肉属于红肉，",
+          "from": 155,
+          "to": 213,
+          "size": 44,
+          "local_start_sec": 6.458333333333333,
+          "global_start_sec": 40.458333333333336,
+          "global_end_sec": 42.916666666666664
+        },
+        {
+          "text": "在这套分类中是二A类。",
+          "spoken": "在这套分类中是二A类。",
+          "from": 214,
+          "to": 263,
+          "size": 44,
+          "local_start_sec": 8.916666666666666,
+          "global_start_sec": 42.916666666666664,
+          "global_end_sec": 45.0
+        }
+      ]
+    },
+    {
+      "id": "04a_overlap",
+      "duration_sec": 5.5,
+      "speech_end_sec": 0,
+      "tail_silence_sec": 0,
+      "blocks": [
+        {
+          "text": "红肉按来源定义，",
+          "spoken": "红肉按来源定义，",
+          "from": 0,
+          "to": 40,
+          "size": 44,
+          "local_start_sec": 0.0,
+          "global_start_sec": 45.0,
+          "global_end_sec": 46.708333333333336
+        },
+        {
+          "text": "加工肉按处理方式定义。",
+          "spoken": "加工肉按处理方式定义。",
+          "from": 41,
+          "to": 95,
+          "size": 44,
+          "local_start_sec": 1.7083333333333333,
+          "global_start_sec": 46.708333333333336,
+          "global_end_sec": 49.0
+        },
+        {
+          "text": "两者可以重叠。",
+          "spoken": "两者可以重叠。",
+          "from": 96,
+          "to": 131,
+          "size": 44,
+          "local_start_sec": 4.0,
+          "global_start_sec": 49.0,
+          "global_end_sec": 50.5
+        }
+      ]
+    },
+    {
+      "id": "05a_daily",
+      "duration_sec": 5.5,
+      "speech_end_sec": 0,
+      "tail_silence_sec": 0,
+      "blocks": [
+        {
+          "text": "这里比较的是每天的摄入量，",
+          "spoken": "这里比较的是每天的摄入量，",
+          "from": 0,
+          "to": 71,
+          "size": 44,
+          "local_start_sec": 0.0,
+          "global_start_sec": 50.5,
+          "global_end_sec": 53.5
+        },
+        {
+          "text": "五十克是研究比较单位。",
+          "spoken": "五十克是研究比较单位。",
+          "from": 72,
+          "to": 131,
+          "size": 44,
+          "local_start_sec": 3.0,
+          "global_start_sec": 53.5,
+          "global_end_sec": 56.0
+        }
+      ]
+    },
+    {
+      "id": "05_numbers",
+      "duration_sec": 12.0,
+      "speech_end_sec": 0,
+      "tail_silence_sec": 0,
+      "blocks": [
+        {
+          "text": "风险数字也要看清条件。",
+          "spoken": "风险数字也要看清条件。",
+          "from": 0,
+          "to": 45,
+          "size": 44,
+          "local_start_sec": 0.0,
+          "global_start_sec": 56.0,
+          "global_end_sec": 57.916666666666664
+        },
+        {
+          "text": "国际癌症研究机构",
+          "spoken": "国际癌症研究机构",
+          "from": 46,
+          "to": 78,
+          "size": 44,
+          "local_start_sec": 1.9166666666666667,
+          "global_start_sec": 57.916666666666664,
+          "global_end_sec": 59.291666666666664
+        },
+        {
+          "text": "二〇一五年的评估",
+          "spoken": "二〇一五年的评估",
+          "from": 79,
+          "to": 112,
+          "size": 44,
+          "local_start_sec": 3.2916666666666665,
+          "global_start_sec": 59.291666666666664,
+          "global_end_sec": 60.708333333333336
+        },
+        {
+          "text": "引用了十项研究的分析：",
+          "spoken": "引用了十项研究的分析：",
+          "from": 113,
+          "to": 158,
+          "size": 44,
+          "local_start_sec": 4.708333333333333,
+          "global_start_sec": 60.708333333333336,
+          "global_end_sec": 62.625
+        },
+        {
+          "text": "每天多吃五十克加工肉，",
+          "spoken": "每天多吃五十克加工肉，",
+          "from": 159,
+          "to": 204,
+          "size": 44,
+          "local_start_sec": 6.625,
+          "global_start_sec": 62.625,
+          "global_end_sec": 64.54166666666667
+        },
+        {
+          "text": "结直肠癌的相对风险",
+          "spoken": "结直肠癌的相对风险",
+          "from": 205,
+          "to": 241,
+          "size": 44,
+          "local_start_sec": 8.541666666666666,
+          "global_start_sec": 64.54166666666667,
+          "global_end_sec": 66.08333333333333
+        },
+        {
+          "text": "估计增加约百分之十八。",
+          "spoken": "估计增加约百分之十八。",
+          "from": 242,
+          "to": 287,
+          "size": 44,
+          "local_start_sec": 10.083333333333334,
+          "global_start_sec": 66.08333333333333,
+          "global_end_sec": 68.0
+        }
+      ]
+    },
+    {
+      "id": "06_relative",
+      "duration_sec": 8.0,
+      "speech_end_sec": 0,
+      "tail_silence_sec": 0,
+      "blocks": [
+        {
+          "text": "也就是原有风险乘以一点一八。",
+          "spoken": "也就是原有风险乘以一点一八。",
+          "from": 0,
+          "to": 62,
+          "size": 44,
+          "local_start_sec": 0.0,
+          "global_start_sec": 68.0,
+          "global_end_sec": 70.625
+        },
+        {
+          "text": "这个数字描述日常摄入的差别，",
+          "spoken": "这个数字描述日常摄入的差别，",
+          "from": 63,
+          "to": 124,
+          "size": 44,
+          "local_start_sec": 2.625,
+          "global_start_sec": 70.625,
+          "global_end_sec": 73.20833333333333
+        },
+        {
+          "text": "不能拿来计算偶尔吃一顿的后果。",
+          "spoken": "不能拿来计算偶尔吃一顿的后果。",
+          "from": 125,
+          "to": 191,
+          "size": 44,
+          "local_start_sec": 5.208333333333333,
+          "global_start_sec": 73.20833333333333,
+          "global_end_sec": 76.0
+        }
+      ]
+    },
+    {
+      "id": "06a_not_probability",
+      "duration_sec": 6.5,
+      "speech_end_sec": 0,
+      "tail_silence_sec": 0,
+      "blocks": [
+        {
+          "text": "相对增加约百分之十八，",
+          "spoken": "相对增加约百分之十八，",
+          "from": 0,
+          "to": 53,
+          "size": 44,
+          "local_start_sec": 0.0,
+          "global_start_sec": 76.0,
+          "global_end_sec": 78.25
+        },
+        {
+          "text": "不是增加十八个百分点，",
+          "spoken": "不是增加十八个百分点，",
+          "from": 54,
+          "to": 106,
+          "size": 44,
+          "local_start_sec": 2.25,
+          "global_start_sec": 78.25,
+          "global_end_sec": 80.45833333333333
+        },
+        {
+          "text": "也不是个人患癌概率。",
+          "spoken": "也不是个人患癌概率。",
+          "from": 107,
+          "to": 155,
+          "size": 44,
+          "local_start_sec": 4.458333333333333,
+          "global_start_sec": 80.45833333333333,
+          "global_end_sec": 82.5
+        }
+      ]
+    },
+    {
+      "id": "07_action",
+      "duration_sec": 10.0,
+      "speech_end_sec": 0,
+      "tail_silence_sec": 0,
+      "blocks": [
+        {
+          "text": "日常可以先减少",
+          "spoken": "日常可以先减少",
+          "from": 0,
+          "to": 33,
+          "size": 44,
+          "local_start_sec": 0.0,
+          "global_start_sec": 82.5,
+          "global_end_sec": 83.91666666666667
+        },
+        {
+          "text": "加工肉出现的次数和分量。",
+          "spoken": "加工肉出现的次数和分量。",
+          "from": 34,
+          "to": 92,
+          "size": 44,
+          "local_start_sec": 1.4166666666666667,
+          "global_start_sec": 83.91666666666667,
+          "global_end_sec": 86.375
+        },
+        {
+          "text": "五十克是研究中的比较单位；",
+          "spoken": "五十克是研究中的比较单位；",
+          "from": 93,
+          "to": 156,
+          "size": 44,
+          "local_start_sec": 3.875,
+          "global_start_sec": 86.375,
+          "global_end_sec": 89.04166666666667
+        },
+        {
+          "text": "当时的评估没有确定",
+          "spoken": "当时的评估没有确定",
+          "from": 157,
+          "to": 200,
+          "size": 44,
+          "local_start_sec": 6.541666666666667,
+          "global_start_sec": 89.04166666666667,
+          "global_end_sec": 90.875
+        },
+        {
+          "text": "一个安全摄入量。",
+          "spoken": "一个安全摄入量。",
+          "from": 201,
+          "to": 239,
+          "size": 44,
+          "local_start_sec": 8.375,
+          "global_start_sec": 90.875,
+          "global_end_sec": 92.5
+        }
+      ]
+    }
+  ],
+  "mode": "silent-author-timed"
+}

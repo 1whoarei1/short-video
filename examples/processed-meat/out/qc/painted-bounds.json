@@ -1,0 +1,371 @@
+{
+  "canvas": [
+    1920,
+    1080
+  ],
+  "safeBottom": 910,
+  "samples": 72,
+  "errors": 0,
+  "report": [
+    {
+      "id": "01_hook",
+      "time": 0,
+      "violations": []
+    },
+    {
+      "id": "01_hook",
+      "time": 0.36,
+      "violations": []
+    },
+    {
+      "id": "01_hook",
+      "time": 1.5,
+      "violations": []
+    },
+    {
+      "id": "01_hook",
+      "time": 3,
+      "violations": []
+    },
+    {
+      "id": "01_hook",
+      "time": 4.5,
+      "violations": []
+    },
+    {
+      "id": "01_hook",
+      "time": 5.76,
+      "violations": []
+    },
+    {
+      "id": "02_evidence",
+      "time": 0,
+      "violations": []
+    },
+    {
+      "id": "02_evidence",
+      "time": 0.6599999999999999,
+      "violations": []
+    },
+    {
+      "id": "02_evidence",
+      "time": 2.75,
+      "violations": []
+    },
+    {
+      "id": "02_evidence",
+      "time": 5.5,
+      "violations": []
+    },
+    {
+      "id": "02_evidence",
+      "time": 8.25,
+      "violations": []
+    },
+    {
+      "id": "02_evidence",
+      "time": 10.559999999999999,
+      "violations": []
+    },
+    {
+      "id": "02a_meaning",
+      "time": 0,
+      "violations": []
+    },
+    {
+      "id": "02a_meaning",
+      "time": 0.27,
+      "violations": []
+    },
+    {
+      "id": "02a_meaning",
+      "time": 1.125,
+      "violations": []
+    },
+    {
+      "id": "02a_meaning",
+      "time": 2.25,
+      "violations": []
+    },
+    {
+      "id": "02a_meaning",
+      "time": 3.375,
+      "violations": []
+    },
+    {
+      "id": "02a_meaning",
+      "time": 4.32,
+      "violations": []
+    },
+    {
+      "id": "03_distinction",
+      "time": 0,
+      "violations": []
+    },
+    {
+      "id": "03_distinction",
+      "time": 0.48,
+      "violations": []
+    },
+    {
+      "id": "03_distinction",
+      "time": 2,
+      "violations": []
+    },
+    {
+      "id": "03_distinction",
+      "time": 4,
+      "violations": []
+    },
+    {
+      "id": "03_distinction",
+      "time": 6,
+      "violations": []
+    },
+    {
+      "id": "03_distinction",
+      "time": 7.68,
+      "violations": []
+    },
+    {
+      "id": "03a_exposure",
+      "time": 0,
+      "violations": []
+    },
+    {
+      "id": "03a_exposure",
+      "time": 0.27,
+      "violations": []
+    },
+    {
+      "id": "03a_exposure",
+      "time": 1.125,
+      "violations": []
+    },
+    {
+      "id": "03a_exposure",
+      "time": 2.25,
+      "violations": []
+    },
+    {
+      "id": "03a_exposure",
+      "time": 3.375,
+      "violations": []
+    },
+    {
+      "id": "03a_exposure",
+      "time": 4.32,
+      "violations": []
+    },
+    {
+      "id": "04_definition",
+      "time": 0,
+      "violations": []
+    },
+    {
+      "id": "04_definition",
+      "time": 0.6599999999999999,
+      "violations": []
+    },
+    {
+      "id": "04_definition",
+      "time": 2.75,
+      "violations": []
+    },
+    {
+      "id": "04_definition",
+      "time": 5.5,
+      "violations": []
+    },
+    {
+      "id": "04_definition",
+      "time": 8.25,
+      "violations": []
+    },
+    {
+      "id": "04_definition",
+      "time": 10.559999999999999,
+      "violations": []
+    },
+    {
+      "id": "04a_overlap",
+      "time": 0,
+      "violations": []
+    },
+    {
+      "id": "04a_overlap",
+      "time": 0.32999999999999996,
+      "violations": []
+    },
+    {
+      "id": "04a_overlap",
+      "time": 1.375,
+      "violations": []
+    },
+    {
+      "id": "04a_overlap",
+      "time": 2.75,
+      "violations": []
+    },
+    {
+      "id": "04a_overlap",
+      "time": 4.125,
+      "violations": []
+    },
+    {
+      "id": "04a_overlap",
+      "time": 5.279999999999999,
+      "violations": []
+    },
+    {
+      "id": "05a_daily",
+      "time": 0,
+      "violations": []
+    },
+    {
+      "id": "05a_daily",
+      "time": 0.32999999999999996,
+      "violations": []
+    },
+    {
+      "id": "05a_daily",
+      "time": 1.375,
+      "violations": []
+    },
+    {
+      "id": "05a_daily",
+      "time": 2.75,
+      "violations": []
+    },
+    {
+      "id": "05a_daily",
+      "time": 4.125,
+      "violations": []
+    },
+    {
+      "id": "05a_daily",
+      "time": 5.279999999999999,
+      "violations": []
+    },
+    {
+      "id": "05_numbers",
+      "time": 0,
+      "violations": []
+    },
+    {
+      "id": "05_numbers",
+      "time": 0.72,
+      "violations": []
+    },
+    {
+      "id": "05_numbers",
+      "time": 3,
+      "violations": []
+    },
+    {
+      "id": "05_numbers",
+      "time": 6,
+      "violations": []
+    },
+    {
+      "id": "05_numbers",
+      "time": 9,
+      "violations": []
+    },
+    {
+      "id": "05_numbers",
+      "time": 11.52,
+      "violations": []
+    },
+    {
+      "id": "06_relative",
+      "time": 0,
+      "violations": []
+    },
+    {
+      "id": "06_relative",
+      "time": 0.48,
+      "violations": []
+    },
+    {
+      "id": "06_relative",
+      "time": 2,
+      "violations": []
+    },
+    {
+      "id": "06_relative",
+      "time": 4,
+      "violations": []
+    },
+    {
+      "id": "06_relative",
+      "time": 6,
+      "violations": []
+    },
+    {
+      "id": "06_relative",
+      "time": 7.68,
+      "violations": []
+    },
+    {
+      "id": "06a_not_probability",
+      "time": 0,
+      "violations": []
+    },
+    {
+      "id": "06a_not_probability",
+      "time": 0.39,
+      "violations": []
+    },
+    {
+      "id": "06a_not_probability",
+      "time": 1.625,
+      "violations": []
+    },
+    {
+      "id": "06a_not_probability",
+      "time": 3.25,
+      "violations": []
+    },
+    {
+      "id": "06a_not_probability",
+      "time": 4.875,
+      "violations": []
+    },
+    {
+      "id": "06a_not_probability",
+      "time": 6.24,
+      "violations": []
+    },
+    {
+      "id": "07_action",
+      "time": 0,
+      "violations": []
+    },
+    {
+      "id": "07_action",
+      "time": 0.6,
+      "violations": []
+    },
+    {
+      "id": "07_action",
+      "time": 2.5,
+      "violations": []
+    },
+    {
+      "id": "07_action",
+      "time": 5,
+      "violations": []
+    },
+    {
+      "id": "07_action",
+      "time": 7.5,
+      "violations": []
+    },
+    {
+      "id": "07_action",
+      "time": 9.6,
+      "violations": []
+    }
+  ]
+}

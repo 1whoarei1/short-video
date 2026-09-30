@@ -14,3 +14,12 @@ workspace/
 **/.studio/*.tmp
 *.log
 .DS_Store
+
+# Generated QA frames stay local; selected proofs are in out/preview-*.png
+examples/*/render/
+examples/*/out/qc/*.png
+# Rendered sample video is delivered separately; regenerate from source.
+examples/*/out/*.mp4
+examples/*/out/contact-sheet.png
+examples/*/_artifacts/
+examples/*/.studio/

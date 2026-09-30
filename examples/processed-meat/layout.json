@@ -1,0 +1,58 @@
+{
+  "01_hook": {
+    "start_sec": 0.0,
+    "duration_sec": 6.0
+  },
+  "02_evidence": {
+    "start_sec": 6.0,
+    "duration_sec": 11.0
+  },
+  "02a_meaning": {
+    "start_sec": 17.0,
+    "duration_sec": 4.5
+  },
+  "03_distinction": {
+    "start_sec": 21.5,
+    "duration_sec": 8.0
+  },
+  "03a_exposure": {
+    "start_sec": 29.5,
+    "duration_sec": 4.5
+  },
+  "04_definition": {
+    "start_sec": 34.0,
+    "duration_sec": 11.0
+  },
+  "04a_overlap": {
+    "start_sec": 45.0,
+    "duration_sec": 5.5
+  },
+  "05a_daily": {
+    "start_sec": 50.5,
+    "duration_sec": 5.5
+  },
+  "05_numbers": {
+    "start_sec": 56.0,
+    "duration_sec": 12.0
+  },
+  "06_relative": {
+    "start_sec": 68.0,
+    "duration_sec": 8.0
+  },
+  "06a_not_probability": {
+    "start_sec": 76.0,
+    "duration_sec": 6.5
+  },
+  "07_action": {
+    "start_sec": 82.5,
+    "duration_sec": 10.0
+  },
+  "_total": {
+    "audio_duration_sec": 0,
+    "video_duration_sec": 92.5,
+    "gap_sec": 0,
+    "fps": 24.0,
+    "total_frames": 2220,
+    "mode": "silent-author-timed"
+  }
+}

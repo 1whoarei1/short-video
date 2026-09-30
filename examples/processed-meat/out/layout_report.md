@@ -1,0 +1,222 @@
+# 几何体检 · processed-meat
+
+画布 1920×1080 · 安全线：内容底边 ≤ **y 910**（字幕带禁区上方）· 左右安全边 ±64px
+
+帧数 12 · **ERROR 46 · WARN 29 · INFO 0**
+
+## ERROR（46）
+
+- `01_hook` **侵入字幕禁区** — |svg 底边 y=1080 低于安全线 910（侵入 170px） — 「PROCESSED MEAT」
+  - A：`|svg` x 0→1920 / y 0→1080
+- `01_hook` **文字被遮挡** — |svg 压住了 .kicker|div「食物与证据 / 01」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.kicker|div` x 96→322 / y 76→101
+- `01_hook` **文字被遮挡** — |svg 压住了 .brand|div「一口科学 · FOOD & EVIDENCE」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.brand|div` x 1429→1824 / y 77→99
+- `01_hook` **文字被遮挡** — |svg 压住了 .title.serif|h1「一类致癌物，是什么意思？」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.title.serif|h1` x 96→642 / y 206→417
+- `01_hook` **文字被遮挡** — |svg 压住了 .opening-note.label|div「从火腿、培根、腊肠说起」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.opening-note.label|div` x 102→476 / y 494→526
+- `02_evidence` **侵入字幕禁区** — |svg 底边 y=1080 低于安全线 910（侵入 170px）
+  - A：`|svg` x 0→1920 / y 0→1080
+- `02_evidence` **文字被遮挡** — |svg 压住了 .kicker|div「食物与证据 / 02」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.kicker|div` x 96→322 / y 76→101
+- `02_evidence` **文字被遮挡** — |svg 压住了 .brand|div「一口科学 · FOOD & EVIDENCE」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.brand|div` x 1429→1824 / y 77→99
+- `02_evidence` **文字被遮挡** — |svg 压住了 .title|h1「分类的依据：人体证据充分」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.title|h1` x 96→960 / y 203→278
+- `02_evidence` **文字被遮挡** — |svg 压住了 .label.muted|div「食用加工肉」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.label.muted|div` x 103→273 / y 362→394
+- `02_evidence` **文字被遮挡** — |svg 压住了 .num|div「Group 1」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.num|div` x 103→832 / y 412→637
+- `02_evidence` **文字被遮挡** — |svg 压住了 .label|div「IARC 国际癌症研究机构」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.label|div` x 103→462 / y 656→688
+- `02a_meaning` **侵入字幕禁区** — |svg 底边 y=1080 低于安全线 910（侵入 170px）
+  - A：`|svg` x 0→1920 / y 0→1080
+- `02a_meaning` **文字被遮挡** — |svg 压住了 .kicker|div「食物与证据 / 02」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.kicker|div` x 96→322 / y 76→101
+- `02a_meaning` **文字被遮挡** — |svg 压住了 .brand|div「一口科学 · FOOD & EVIDENCE」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.brand|div` x 1429→1824 / y 77→99
+- `02a_meaning` **文字被遮挡** — |svg 压住了 .label.muted|div「读懂分类的第一步」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.label.muted|div` x 100→372 / y 237→269
+- `02a_meaning` **文字被遮挡** — |svg 压住了 .serif|h1「看的是证据的确定性」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.serif|h1` x 100→640 / y 334→550
+- `03a_exposure` **侵入字幕禁区** — |svg 底边 y=1080 低于安全线 910（侵入 170px） — 「量日常摄入多少时间持续多长时间基础个人原有风险」
+  - A：`|svg` x 0→1920 / y 0→1080
+- `03a_exposure` **文字被遮挡** — |svg 压住了 .kicker|div「食物与证据 / 03」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.kicker|div` x 96→322 / y 76→101
+- `03a_exposure` **文字被遮挡** — |svg 压住了 .brand|div「一口科学 · FOOD & EVIDENCE」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.brand|div` x 1429→1824 / y 77→99
+- `03a_exposure` **文字被遮挡** — |svg 压住了 .title.serif|h1「风险，要放回日常生活」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.title.serif|h1` x 96→886 / y 204→286
+- `04_definition` **侵入字幕禁区** — |svg 底边 y=1080 低于安全线 910（侵入 170px） — 「腌制发酵烟熏」
+  - A：`|svg` x 0→1920 / y 0→1080
+- `04_definition` **文字被遮挡** — |svg 压住了 .kicker|div「食物与证据 / 04」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.kicker|div` x 96→322 / y 76→101
+- `04_definition` **文字被遮挡** — |svg 压住了 .brand|div「一口科学 · FOOD & EVIDENCE」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.brand|div` x 1429→1824 / y 77→99
+- `04_definition` **文字被遮挡** — |svg 压住了 .title|h1「“加工”描述的是处理方式」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.title|h1` x 96→1044 / y 204→286
+- `04a_overlap` **侵入字幕禁区** — |svg 底边 y=1080 低于安全线 910（侵入 170px） — 「红肉按动物来源加工肉按处理方式例如：部分猪肉制成的火腿、腊肠」
+  - A：`|svg` x 0→1920 / y 0→1080
+- `04a_overlap` **文字被遮挡** — |svg 压住了 .kicker|div「食物与证据 / 04」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.kicker|div` x 96→322 / y 76→101
+- `04a_overlap` **文字被遮挡** — |svg 压住了 .brand|div「一口科学 · FOOD & EVIDENCE」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.brand|div` x 1429→1824 / y 77→99
+- `04a_overlap` **文字被遮挡** — |svg 压住了 .title.serif|h1「两种定义，可以重叠」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.title.serif|h1` x 96→807 / y 204→286
+- `05a_daily` **侵入字幕禁区** — |svg 底边 y=1080 低于安全线 910（侵入 170px） — 「日常摄入比较一二三四五六日」
+  - A：`|svg` x 0→1920 / y 0→1080
+- `05a_daily` **文字被遮挡** — |svg 压住了 .kicker|div「食物与证据 / 05」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.kicker|div` x 96→322 / y 76→101
+- `05a_daily` **文字被遮挡** — |svg 压住了 .brand|div「一口科学 · FOOD & EVIDENCE」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.brand|div` x 1429→1824 / y 77→99
+- `05a_daily` **文字被遮挡** — |svg 压住了 .title.serif|h1「这里的关键词是“每天”」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.title.serif|h1` x 96→965 / y 204→286
+- `05_numbers` **侵入字幕禁区** — |svg 底边 y=1080 低于安全线 910（侵入 170px）
+  - A：`|svg` x 0→1920 / y 0→1080
+- `05_numbers` **文字被遮挡** — |svg 压住了 .kicker|div「食物与证据 / 05」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.kicker|div` x 96→322 / y 76→101
+- `05_numbers` **文字被遮挡** — |svg 压住了 .brand|div「一口科学 · FOOD & EVIDENCE」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.brand|div` x 1429→1824 / y 77→99
+- `05_numbers` **文字被遮挡** — |svg 压住了 .title.serif|h1「风险数字，先看条件」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.title.serif|h1` x 96→807 / y 204→286
+- `05_numbers` **文字被遮挡** — |svg 压住了 .pill|span「IARC 2015 评估引用」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.pill|span` x 101→372 / y 358→416
+- `05_numbers` **文字被遮挡** — |svg 压住了 .pill|span「10 项研究分析」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.pill|span` x 376→584 / y 358→416
+- `05_numbers` **文字被遮挡** — |svg 压住了 .label.muted|div「每天多吃加工肉」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.label.muted|div` x 100→338 / y 462→494
+- `05_numbers` **文字被遮挡** — |svg 压住了 .num|div「+50 g」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.num|div` x 100→473 / y 524→714
+- `05_numbers` **文字被遮挡** — |svg 压住了 .label.muted|div「日常摄入量的比较」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.label.muted|div` x 100→372 / y 746→778
+- `07_action` **侵入字幕禁区** — |svg 底边 y=1080 低于安全线 910（侵入 170px） — 「一周餐桌 · 示意」
+  - A：`|svg` x 0→1920 / y 0→1080
+- `07_action` **文字被遮挡** — |svg 压住了 .kicker|div「食物与证据 / 07」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.kicker|div` x 96→322 / y 76→101
+- `07_action` **文字被遮挡** — |svg 压住了 .brand|div「一口科学 · FOOD & EVIDENCE」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.brand|div` x 1429→1824 / y 77→99
+- `07_action` **文字被遮挡** — |svg 压住了 .title.serif|h1「减少频率，也减少分量」100%（按文字自身面积算，读不全）
+  - A：`|svg` x 0→1920 / y 0→1080
+  - B：`.title.serif|h1` x 96→886 / y 204→286
+
+## WARN（29）
+
+- `01_hook` **文字压色块** — .source|div「WHO 问答 · 2026-09-23 / IARC 评估 · 2015」压在 |svg 上 100%（确认是刻意的）
+  - A：`.source|div` x 96→573 / y 870→892
+  - B：`|svg` x 0→1920 / y 0→1080
+- `01_hook` **SVG 内容偏心** — |svg 画的内容中心 (1328,548) 与自身框中心 (960,540) 差 368px （dx 368 / dy 8）—— viewBox 与元素框比例不一致，或图形本身没画在 viewBox 中心
+  - A：`|svg` x 0→1920 / y 0→1080
+- `02_evidence` **文字压色块** — .organ.label|div「明确的癌症结局：结直肠癌」压在 |svg 上 100%（确认是刻意的）
+  - A：`.organ.label|div` x 1211→1619 / y 817→849
+  - B：`|svg` x 0→1920 / y 0→1080
+- `02_evidence` **文字压色块** — .source|div「WHO 问答 · 2026-09-23 / IARC 评估 · 2015」压在 |svg 上 100%（确认是刻意的）
+  - A：`.source|div` x 96→573 / y 870→892
+  - B：`|svg` x 0→1920 / y 0→1080
+- `02_evidence` **SVG 内容偏心** — |svg 画的内容中心 (1410,551) 与自身框中心 (960,540) 差 450px （dx 450 / dy 11）—— viewBox 与元素框比例不一致，或图形本身没画在 viewBox 中心
+  - A：`|svg` x 0→1920 / y 0→1080
+- `02a_meaning` **文字压色块** — .source|div「WHO 问答 · 2026-09-23 / IARC 评估 · 2015」压在 |svg 上 100%（确认是刻意的）
+  - A：`.source|div` x 96→573 / y 870→892
+  - B：`|svg` x 0→1920 / y 0→1080
+- `02a_meaning` **SVG 内容偏心** — |svg 画的内容中心 (1286,515) 与自身框中心 (960,540) 差 327px （dx 326 / dy -25）—— viewBox 与元素框比例不一致，或图形本身没画在 viewBox 中心
+  - A：`|svg` x 0→1920 / y 0→1080
+- `03_distinction` **SVG 内容偏心** — |svg 画的内容中心 (426,686) 与自身框中心 (451,650) 差 44px （dx -25 / dy 36）—— viewBox 与元素框比例不一致，或图形本身没画在 viewBox 中心
+  - A：`|svg` x 101→801 / y 560→740
+- `03a_exposure` **文字压色块** — .source|div「WHO 问答 · 2026-09-23 / IARC 评估 · 2015」压在 |svg 上 100%（确认是刻意的）
+  - A：`.source|div` x 96→573 / y 870→892
+  - B：`|svg` x 0→1920 / y 0→1080
+- `03a_exposure` **SVG 内容偏心** — |svg 画的内容中心 (945,625) 与自身框中心 (960,540) 差 86px （dx -15 / dy 85）—— viewBox 与元素框比例不一致，或图形本身没画在 viewBox 中心
+  - A：`|svg` x 0→1920 / y 0→1080
+- `04_definition` **文字压色块** — .purpose.label|div「延长保存 / 增加风味」压在 |svg 上 100%（确认是刻意的）
+  - A：`.purpose.label|div` x 100→405 / y 769→801
+  - B：`|svg` x 0→1920 / y 0→1080
+- `04_definition` **文字压色块** — .redmeat|div「新鲜猪肉、牛肉：红肉 · Group 2A红肉按来源定义，与加工肉可以重叠」压在 |svg 上 100%（确认是刻意的）
+  - A：`.redmeat|div` x 880→1328 / y 765→838
+  - B：`|svg` x 0→1920 / y 0→1080
+- `04_definition` **文字压色块** — .source|div「WHO 问答 · 2026-09-23 / IARC 评估 · 2015」压在 |svg 上 100%（确认是刻意的）
+  - A：`.source|div` x 96→573 / y 870→892
+  - B：`|svg` x 0→1920 / y 0→1080
+- `04a_overlap` **文字压色块** — .source|div「WHO 问答 · 2026-09-23 / IARC 评估 · 2015」压在 |svg 上 100%（确认是刻意的）
+  - A：`.source|div` x 96→573 / y 870→892
+  - B：`|svg` x 0→1920 / y 0→1080
+- `04a_overlap` **SVG 内容偏心** — |svg 画的内容中心 (960,577) 与自身框中心 (960,540) 差 37px （dx 0 / dy 37）—— viewBox 与元素框比例不一致，或图形本身没画在 viewBox 中心
+  - A：`|svg` x 0→1920 / y 0→1080
+- `05a_daily` **文字压色块** — .label|div「每天多吃加工肉」压在 |svg 上 100%（确认是刻意的）
+  - A：`.label|div` x 1050→1288 / y 427→459
+  - B：`|svg` x 0→1920 / y 0→1080
+- `05a_daily` **文字压色块** — .num.accent|div「+50 g」压在 |svg 上 100%（确认是刻意的）
+  - A：`.num.accent|div` x 1050→1379 / y 479→654
+  - B：`|svg` x 0→1920 / y 0→1080
+- `05a_daily` **文字压色块** — .foot|div「50 g 是研究比较单位」压在 |svg 上 100%（确认是刻意的）
+  - A：`.foot|div` x 1050→1296 / y 673→700
+  - B：`|svg` x 0→1920 / y 0→1080
+- `05a_daily` **文字压色块** — .source|div「IARC 2015 评估引用 · 10 项研究分析」压在 |svg 上 100%（确认是刻意的）
+  - A：`.source|div` x 96→487 / y 870→892
+  - B：`|svg` x 0→1920 / y 0→1080
+- `05a_daily` **SVG 内容偏心** — |svg 画的内容中心 (482,565) 与自身框中心 (960,540) 差 479px （dx -478 / dy 25）—— viewBox 与元素框比例不一致，或图形本身没画在 viewBox 中心
+  - A：`|svg` x 0→1920 / y 0→1080
+- `05_numbers` **文字压色块** — .label|div「结直肠癌相对风险」压在 |svg 上 100%（确认是刻意的）
+  - A：`.label|div` x 1110→1382 / y 462→494
+  - B：`|svg` x 0→1920 / y 0→1080
+- `05_numbers` **文字压色块** — .num.accent|div「≈+18%」压在 |svg 上 100%（确认是刻意的）
+  - A：`.num.accent|div` x 1110→1530 / y 524→714
+  - B：`|svg` x 0→1920 / y 0→1080
+- `05_numbers` **文字压色块** — .label.muted|div「估计相对增加」压在 |svg 上 100%（确认是刻意的）
+  - A：`.label.muted|div` x 1110→1314 / y 746→778
+  - B：`|svg` x 0→1920 / y 0→1080
+- `05_numbers` **文字压色块** — .source|div「WHO 问答 · 2026-09-23 / IARC 评估 · 2015」压在 |svg 上 100%（确认是刻意的）
+  - A：`.source|div` x 96→573 / y 870→892
+  - B：`|svg` x 0→1920 / y 0→1080
+- `05_numbers` **SVG 内容偏心** — |svg 画的内容中心 (905,600) 与自身框中心 (960,540) 差 81px （dx -55 / dy 60）—— viewBox 与元素框比例不一致，或图形本身没画在 viewBox 中心
+  - A：`|svg` x 0→1920 / y 0→1080
+- `07_action` **文字压色块** — .closing-note|div「50 g 是研究比较单位原评估没有确定安全摄入量」压在 |svg 上 100%（确认是刻意的）
+  - A：`.closing-note|div` x 112→484 / y 779→860
+  - B：`|svg` x 0→1920 / y 0→1080
+- `07_action` **文字压色块** — .closing-note.foot|div「少一些日常频率少一些每次分量」压在 |svg 上 100%（确认是刻意的）
+  - A：`.closing-note.foot|div` x 1105→1294 / y 789→862
+  - B：`|svg` x 0→1920 / y 0→1080
+- `07_action` **文字压色块** — .source|div「WHO 问答 · 2026-09-23 / IARC 评估 · 2015」压在 |svg 上 100%（确认是刻意的）
+  - A：`.source|div` x 96→573 / y 870→892
+  - B：`|svg` x 0→1920 / y 0→1080
+- `07_action` **SVG 内容偏心** — |svg 画的内容中心 (846,544) 与自身框中心 (960,540) 差 114px （dx -114 / dy 4）—— viewBox 与元素框比例不一致，或图形本身没画在 viewBox 中心
+  - A：`|svg` x 0→1920 / y 0→1080
+
+## 无 ERROR 的帧（3/12）
+
+`03_distinction` · `06_relative` · `06a_not_probability`

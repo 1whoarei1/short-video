@@ -1,0 +1,28 @@
+{
+  "slug": "processed-meat",
+  "lang": "zh",
+  "fps": 24,
+  "width": 1920,
+  "height": 1080,
+  "gap": 0,
+  "order": [
+    "01_hook",
+    "02_evidence",
+    "02a_meaning",
+    "03_distinction",
+    "03a_exposure",
+    "04_definition",
+    "04a_overlap",
+    "05a_daily",
+    "05_numbers",
+    "06_relative",
+    "06a_not_probability",
+    "07_action"
+  ],
+  "theme": "editorial-cream",
+  "progress": true,
+  "provider": "none",
+  "audio": false,
+  "mode": "silent",
+  "audio_mode": "silent"
+}

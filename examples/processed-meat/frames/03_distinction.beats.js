@@ -1,0 +1,3 @@
+window.__BEATS__=[{"text": "这个分类说的是证据有多充分。", "start": 0.0, "end": 2.5}, {"text": "一个人实际增加多少风险，", "start": 2.5, "end": 4.625}, {"text": "还要看吃多少、吃多久，", "start": 4.625, "end": 6.583333333333333}, {"text": "以及原有的风险。", "start": 6.583333333333333, "end": 8.0}];
+window.__SEG__={"id": "03_distinction", "duration": 8.0, "speech_end": 0, "tail": 0};
+function _beat(t){const norm=s=>String(s).replace(/[\s，。、！？；：!?;:|]/g,'');const found=window.__BEATS__.filter(x=>norm(x.text)===norm(t));if(found.length!==1)throw new Error('Beat must match exactly once: '+t);return found[0];}window.B=t=>_beat(t).start;window.Be=t=>_beat(t).end;

@@ -1,0 +1,3 @@
+window.__BEATS__=[{"text": "国际癌症研究机构", "start": 0.0, "end": 1.625}, {"text": "把食用加工肉归为一类，", "start": 1.625, "end": 3.875}, {"text": "意思是：有充分的人体证据，", "start": 3.875, "end": 6.5}, {"text": "确认它能导致癌症。", "start": 6.5, "end": 8.333333333333334}, {"text": "这里证据明确的是结直肠癌。", "start": 8.333333333333334, "end": 11.0}];
+window.__SEG__={"id": "02_evidence", "duration": 11.0, "speech_end": 0, "tail": 0};
+function _beat(t){const norm=s=>String(s).replace(/[\s，。、！？；：!?;:|]/g,'');const found=window.__BEATS__.filter(x=>norm(x.text)===norm(t));if(found.length!==1)throw new Error('Beat must match exactly once: '+t);return found[0];}window.B=t=>_beat(t).start;window.Be=t=>_beat(t).end;

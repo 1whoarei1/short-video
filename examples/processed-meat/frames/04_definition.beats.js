@@ -1,0 +1,3 @@
+window.__BEATS__=[{"text": "加工肉，主要指经过", "start": 0.0, "end": 1.7083333333333333}, {"text": "腌制、发酵、烟熏等处理，", "start": 1.7083333333333333, "end": 4.0}, {"text": "来延长保存或增加风味的肉。", "start": 4.0, "end": 6.458333333333333}, {"text": "新鲜的猪肉、牛肉属于红肉，", "start": 6.458333333333333, "end": 8.916666666666666}, {"text": "在这套分类中是二A类。", "start": 8.916666666666666, "end": 11.0}];
+window.__SEG__={"id": "04_definition", "duration": 11.0, "speech_end": 0, "tail": 0};
+function _beat(t){const norm=s=>String(s).replace(/[\s，。、！？；：!?;:|]/g,'');const found=window.__BEATS__.filter(x=>norm(x.text)===norm(t));if(found.length!==1)throw new Error('Beat must match exactly once: '+t);return found[0];}window.B=t=>_beat(t).start;window.Be=t=>_beat(t).end;
