@@ -25,9 +25,9 @@ description: 用户要制作、修改或导出视频时，启动本地视频工�
 ## 六个阶段
 1. requirements：目标、受众、时长/画幅、平台、参考、事实与语气边界。缺少影响方向的内容再问。
 2. research：优先原始来源。保存每项关键说法的来源、日期、支持的结论、限制和待核实问题。来源必须实际阅读。使用 sources.json 记录来源；`python -m app.sources workspace/sources.json` 检查结构，不替代事实核对。
-3. narration：读取 video-narration skill，写完整讲述文本；暂不合成音频。把画面/字幕文本与实际时长写入引擎 narration.json。短幕要有足够阅读时间，避免只为快而难读。
+3. narration：读取 video-narration skill，写完整讲述文本，先确认文稿。无声模式把画面/字幕文本与阅读时长写入引擎 narration.json；配音模式按对应 Edge/Azure 接入说明合成已批准文本，使用真实音频和词边界生成字幕及时间轴。短幕要有足够阅读时间，避免只为快而难读。
 4. preview：自由编写 HTML 场景，真实渲染截图；按视觉角色选择，例如开场、关系解释、数字比较、关键限制、结尾。不能按固定三等分，也不能把文字卡或设计示意图称为真实截图。注册 PNG/JPEG，并写明选择理由。
-5. production：静态确认后才制作完整动画/视频。读取 `.studio/workflow.json` 中 annotations；针对对应截图、时间段、版本和归一化框选坐标修改代码。不依赖固定元素 ID。记录如何处理意见，不覆盖批注。当前无声、烧录字幕。
+5. production：静态确认后才制作完整动画/视频。读取 `.studio/workflow.json` 中 annotations；针对对应截图、时间段、版本和归一化框选坐标修改代码。不依赖固定元素 ID。记录如何处理意见，不覆盖批注。按已选模式制作无声或 Edge/Azure 配音视频，并烧录字幕。
 6. export：检查实际视频时长、画幅、fps、字幕清晰度、节奏、动画边界、文件是否能播放。注册 MP4、字幕与必要源文件；未实测项目明确说明。
 
 ## 渲染接口
@@ -47,4 +47,4 @@ description: 用户要制作、修改或导出视频时，启动本地视频工�
 ## 修订与恢复
 注册产物会复制至 `_artifacts/` 内容哈希路径，源文件后来变化不会改变历史预览。CLI 和 UI 使用跨进程锁。每次修改 HTML、字幕脚本或引擎配置前，通过 Git 或项目内版本备份保留实际源码；工作流 `undo` 仅恢复状态，不会回写已被手工修改的源码。UI 自动检查 Codex 产生的新状态，未保存输入不会被自动覆盖。
 
-需求确认后、编写场景之前运行 `python scripts/engine.py configure workspace`。它把工作台 settings 中的 width/height/fps 同步到引擎 project.json，保留场景顺序与 slug，设置无声模式并准备 GSAP/frames。目标时长和视觉方向由你作为创作约束落实，不是自动转成固定模板。
+需求确认后、编写场景之前运行 `python scripts/engine.py configure workspace`。它把工作台 settings 中的 width/height/fps 同步到引擎 project.json，保留场景顺序与 slug，同步无声或 Edge/Azure 配音设置并准备 GSAP/frames。目标时长和视觉方向由你作为创作约束落实，不是自动转成固定模板。

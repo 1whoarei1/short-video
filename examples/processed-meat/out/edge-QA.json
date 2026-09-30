@@ -1,0 +1,22 @@
+{
+  "narration_byte_identical": true,
+  "html_byte_identical": true,
+  "scenes": 12,
+  "captions": 42,
+  "max_caption_quantization_error_seconds": 0.03929300000000002,
+  "video": {
+    "audio_duration_sec": 70.583333,
+    "encoded_audio_duration_sec": 70.632,
+    "video_duration_sec": 70.58333333333333,
+    "total_frames": 1694,
+    "fps": 24.0,
+    "gap_sec": 0,
+    "mode": "edge-word-boundaries"
+  },
+  "voice": "zh-CN-YunxiNeural",
+  "rate": "+40%",
+  "decode_errors_bytes": 0,
+  "visual_review": "12 scenes actual MP4 extracted subtitle frames reviewed, no visible clipping; twelve end-of-scene browser previews reviewed",
+  "layout_caveat": "46 SVG bounding-box heuristic errors and 29 warnings; transparent full-viewport SVGs falsely treated as opaque blockers; no pass claimed",
+  "subjective_audio_review": "Not performed; verified provider events, complete spoken-character coverage, non-silent audio and full decode"
+}

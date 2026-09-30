@@ -285,6 +285,18 @@ async function main() {
   if (!fs.existsSync(pjPath)) die(`没有 project.json：${pjPath}`);
   const pj = JSON.parse(fs.readFileSync(pjPath, 'utf8'));
 
+  // Spoken modes must never silently fall back to a video without narration.
+  // Check before rendering, and again before muxing in case inputs disappear.
+  const audioPath = path.join(projectDir, 'audio', 'narration-full.mp3');
+  const requiresSpeech = pj.audio_mode === 'azure' || pj.audio_mode === 'edge';
+  const requireSpeechAudio = () => {
+    if (!requiresSpeech) return;
+    let present = false;
+    try { const stat = fs.statSync(audioPath); present = stat.isFile() && stat.size > 0; } catch {}
+    if (!present) die('Spoken audio is missing or empty; run synthesize and timeline before render. No silent fallback was used.');
+  };
+  requireSpeechAudio();
+
   const fps = args.fps || pj.fps || 30;
   const W = pj.width || 1920, H = pj.height || 1080;
   const order = pj.order || [];
@@ -521,7 +533,7 @@ async function main() {
   }
 
   // ---------- ffmpeg 合成 ----------
-  const audioPath = path.join(projectDir, 'audio', 'narration-full.mp3');
+  requireSpeechAudio();
   const hasAudio = pj.audio_mode !== 'silent' && fs.existsSync(audioPath);
   const cmd = [
     '-hide_banner', '-loglevel', 'error', '-xerror', '-y',

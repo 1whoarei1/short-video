@@ -2,7 +2,7 @@
 
 一个与 Codex 协作的视频工作台：先把问题讲清楚，再确认画面，最后导出视频。
 
-UI 负责输入、审核、批注和版本；Codex 负责调研、写稿、创作 HTML、渲染和检查。没有模型 API 配置，没有强制画面组件模板。当前默认是 **无声、带字幕视频**；语音生成暂缓。
+UI 负责输入、审核、批注和版本；Codex 负责调研、写稿、创作 HTML、渲染和检查。没有模型 API 配置，没有强制画面组件模板。默认制作 **无声、带字幕视频**，也可选择 **Microsoft Edge 或 Azure Speech 配音**，按真实音频时间生成字幕和场景时长。接入说明见 [Edge TTS](docs/edge-tts.md) 和 [Azure TTS](docs/azure-tts.md)。
 
 ## 新对话里开始
 
@@ -100,7 +100,7 @@ python -m unittest discover -s tests -v
 
 应用不包含后台模型任务队列，也不会隐藏执行或自动支付。安全默认值是本地文件协作、明确审核和可追溯输出。
 
-也可通过统一入口运行 `python scripts/engine.py timeline|preview|render|layout 项目目录`；具体参数看 `python scripts/engine.py --help`。注册产物时复制到项目 `_artifacts/` 的内容哈希路径，已审核截图不会被同名文件覆盖。撤销仅恢复工作流状态；修改 HTML/脚本前，Codex 应通过 Git 或显式备份保留源代码版本。
+也可通过统一入口运行 `python scripts/engine.py synthesize|timeline|preview|render|layout 项目目录`；具体参数看 `python scripts/engine.py --help`。注册产物时复制到项目 `_artifacts/` 的内容哈希路径，已审核截图不会被同名文件覆盖。撤销仅恢复工作流状态；修改 HTML/脚本前，Codex 应通过 Git 或显式备份保留源代码版本。
 
 工作台配置区保存画幅、宽高、帧率、目标时长、视觉方向与制作备注，由 Codex 读取并落实到引擎。参考文件可直接从 UI 导入；支持文档、图片和视频，单文件上限 8 MB，大素材由 Codex 放入所选项目目录。UI 每 3 秒检查外部项目更新，保留未保存输入并提示冲突。
 
@@ -113,3 +113,15 @@ python -m unittest discover -s tests -v
 加工肉样片为 92.5 秒无声字幕视频，成片以会话附件交付。仓库保存完整场景源码、字幕、三张代表性预览和核验报告，MP4 与本地审核状态可通过制作流程重新生成。首次从仓库打开示例工作区时会建立新的审核状态。
 
 运行示例目录内 README 的复现命令即可导出。仓库使用正常阶段审核，新制作任务按 UI 逐步确认。
+
+## 配音模式
+
+工作台的需求配置可选择无声、Edge 或 Azure。Edge 默认云希，Azure 默认晓晓；音色和语速分别保存。音频产物可直接在工作台试听。修改配音设置后会沿用现有流程标记后续内容需要更新。
+
+- Edge：免 Azure 密钥，需联网及可选 edge-tts 包。加工肉配音示范使用云希、语速 +40%
+- Azure：可选官方 SDK，使用你自己的 Speech F0 资源及本机安全配置。项目无法验证资源层级或剩余额度
+- 配音流程：configure → synthesize → timeline → preview/render。实际语音时间决定每幕长度与字幕，缓存可复用未变化的配音
+
+[Azure 本机配置](docs/azure-tts.md) · [Edge 接入说明](docs/edge-tts.md) · [复现 +40% 配音样片](docs/reproduce-edge-sample.md)
+
+可选配音 UI 测试：`BROWSER_PATH=/实际浏览器路径 node tests/voice-ui-smoke.cjs`，覆盖模式切换、独立语速、旧项目兼容与手机宽度。Azure 接口的离线测试使用模拟 SDK；真实账号合成需你完成本机配置后验证。

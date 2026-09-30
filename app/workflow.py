@@ -1,10 +1,26 @@
 """File-backed, revisioned local workflow. No hosted service or model credentials."""
-import json, os, uuid, threading, copy, math, hashlib, shutil, time, subprocess
+import json, os, uuid, threading, copy, math, hashlib, shutil, time, subprocess, re
 from contextlib import contextmanager
 from pathlib import Path
 from datetime import datetime, timezone
 STAGES = ['requirements','research','narration','preview','production','export']
 LABELS = ['需求沟通','资料调研','旁白文案','静态预览','视频制作','导出交付']
+AUDIO_DEFAULTS = {'audio_mode':'silent','azure_voice':'zh-CN-XiaoxiaoNeural','azure_rate':'0%','edge_voice':'zh-CN-YunxiNeural','edge_rate':'0%'}
+SETTING_KEYS = {'aspect','width','height','fps','duration','styleDirection','qualityNote',*AUDIO_DEFAULTS}
+def validate_settings(settings):
+ if not isinstance(settings,dict):raise ValueError('项目配置格式不正确')
+ if set(settings)-SETTING_KEYS:raise ValueError('不支持的配置字段；密钥只能由你在进程环境中配置，不可存入项目')
+ settings={**AUDIO_DEFAULTS,**settings}
+ for key in ('width','height','fps','duration'):
+  if isinstance(settings.get(key),bool) or not isinstance(settings.get(key),(int,float)) or not math.isfinite(settings[key]):raise ValueError('配置参数必须为有限数字')
+ if not (128<=settings['width']<=7680 and 128<=settings['height']<=7680 and 1<=settings['fps']<=120 and 1<=settings['duration']<=3600):raise ValueError('画幅、帧率或时长超出合理范围')
+ if settings['audio_mode'] not in ('silent','azure','edge'):raise ValueError('音频模式仅支持 silent、azure 或 edge')
+ for provider in ('azure','edge'):
+  voice=settings[f'{provider}_voice'];rate=settings[f'{provider}_rate']
+  if not isinstance(voice,str) or len(voice)>100 or not re.fullmatch(r'[a-z]{2,3}-[A-Z]{2}-[A-Za-z][A-Za-z0-9]*Neural',voice):raise ValueError('请填写有效的标准 Neural 音色名称')
+  if not isinstance(rate,str) or not re.fullmatch(r'[+-]?\d{1,3}%',rate) or not -50<=int(rate[:-1])<=100:raise ValueError('语速必须是 -50% 至 +100% 的整数百分比')
+  settings[f'{provider}_rate']=f"{int(rate[:-1])}%"
+ return settings
 LOCK = threading.RLock()
 def now(): return datetime.now(timezone.utc).isoformat()
 @contextmanager
@@ -77,11 +93,8 @@ class Workflow:
     value=str(payload.get('text',''))
     settings=payload.get('settings') if s=='requirements' else None
     if settings is not None:
-     if not isinstance(settings,dict):raise ValueError('项目配置格式不正确')
-     for key in ('width','height','fps','duration'):
-      if not isinstance(settings.get(key),(int,float)) or not math.isfinite(settings[key]):raise ValueError('配置参数必须为有限数字')
-     if not (128<=settings['width']<=7680 and 128<=settings['height']<=7680 and 1<=settings['fps']<=120 and 1<=settings['duration']<=3600):raise ValueError('画幅、帧率或时长超出合理范围')
-    if value!=stage['text'] or (settings is not None and settings!=d.get('settings')): invalidate(); stage['text']=value
+     settings=validate_settings(settings)
+    if value!=stage['text'] or (settings is not None and settings!={**AUDIO_DEFAULTS,**d.get('settings',{})}): invalidate(); stage['text']=value
     if settings is not None:d['settings']=settings
     if s=='requirements' and payload.get('title'): d['title']=str(payload['title'])[:200]
    elif action=='artifact':
