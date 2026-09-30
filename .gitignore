@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+node_modules/
+.cache/
+.venv/
+.env
+.env.*
+!*.env.example
+**/tts.env
+workspace/
+**/render/frames/
+**/.studio/history/
+**/.studio/*.lock
+**/.studio/*.tmp
+*.log
+.DS_Store
