@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=1280"><meta name="description" content="HTML-rendered concept preview; original/custom design remains available"><title>Data Rollup — 视觉方向示例</title><style>@font-face {
+  font-family: 'Archivo Black';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(fonts/archivo-black-0.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 800;
+  font-stretch: normal;
+  font-display: block;
+  src: url(fonts/archivo-0.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Caveat';
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url(fonts/caveat-0.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: normal;
+  font-weight: 800;
+  font-display: block;
+  src: url(fonts/eb-garamond-0.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url(fonts/ibm-plex-mono-0.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: normal;
+  font-display: block;
+  src: url(fonts/ibm-plex-sans-0.woff2) format('woff2');
+}
+@font-face{font-family:'Inter';font-style:normal;font-weight:200;src:url(fonts/inter-light.woff2) format('woff2');font-display:block}
+@font-face {
+  font-family: 'Inter Tight';
+  font-style: normal;
+  font-weight: 800;
+  font-display: block;
+  src: url(fonts/inter-tight-0.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 800;
+  font-display: block;
+  src: url(fonts/inter-0.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 800;
+  font-display: block;
+  src: url(fonts/jetbrains-mono-0.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Libre Baskerville';
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url(fonts/libre-baskerville-0.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Libre Franklin';
+  font-style: normal;
+  font-weight: 800;
+  font-display: block;
+  src: url(fonts/libre-franklin-0.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 800;
+  font-display: block;
+  src: url(fonts/manrope-0.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-weight: 800;
+  font-display: block;
+  src: url(fonts/nunito-0.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 800;
+  font-display: block;
+  src: url(fonts/outfit-0.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Shrikhand';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(fonts/shrikhand-0.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 800;
+  font-display: block;
+  src: url(fonts/source-serif-4-0.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url(fonts/space-grotesk-0.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Space Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(fonts/space-mono-0.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 800;
+  font-display: block;
+  src: url(fonts/syne-0.woff2) format('woff2');
+}
+@font-face{font-family:"Noto Preview";src:url(fonts/noto-sc-regular.woff2);font-weight:100 500;font-display:block}@font-face{font-family:"Noto Preview";src:url(fonts/noto-sc-bold.woff2);font-weight:600 900;font-display:block}@font-face{font-family:"Noto Preview Serif";src:url(fonts/noto-serif-sc.woff2);font-weight:100 900;font-display:block}*{box-sizing:border-box}html,body{width:1280px;height:720px;margin:0;overflow:hidden}main{position:relative;width:1280px;height:720px;overflow:hidden}h1,h2,p{margin:0}.copy{position:absolute;z-index:2;line-height:1.3;white-space:nowrap}.art{position:absolute;inset:0;width:1280px;height:720px}.grain{opacity:.085;pointer-events:none;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' seed='23'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E")}main{background:#0E0E10;color:#F5F5F2;font-family:"Inter","Noto Preview",sans-serif}</style></head><body><main aria-label="Data Rollup 视觉方向示例"><div class="copy" style="left:60px;top:42px;font-size:14px;font-family:&quot;Space Mono&quot;;letter-spacing:1.5px;color:#94a3b8">LIVE NUMBERS / CATALOG</div><div class="copy" style="left:930px;top:42px;font-size:14px;font-family:&quot;Space Mono&quot;;letter-spacing:1px;color:#94a3b8">DATA ROLLUP</div><div class="copy" style="left:62px;top:103px;font-size:53px;font-weight:700">看见数字的力量</div><div class="copy" style="left:65px;top:184px;font-size:20px;color:#94a3b8">23 个主题 · 按分类计数</div><div aria-hidden="true" style="position:absolute;left:97px;top:316.0px;width:120px;height:240.0px;background:#FF5A2C;border-radius:12px 12px 0 0"></div><div class="copy" style="left:97px;top:262.0px;font-size:38px;width:120px;text-align:center;font-weight:700">10</div><div class="copy" style="left:77px;top:582px;font-size:16px;width:160px;text-align:center;color:#cbd5e1">标题与陈述</div><div aria-hidden="true" style="position:absolute;left:279px;top:460.0px;width:120px;height:96.0px;background:#FF5A2C;border-radius:12px 12px 0 0"></div><div class="copy" style="left:279px;top:406.0px;font-size:38px;width:120px;text-align:center;font-weight:700">4</div><div class="copy" style="left:259px;top:582px;font-size:16px;width:160px;text-align:center;color:#cbd5e1">数据图表</div><div aria-hidden="true" style="position:absolute;left:461px;top:508.0px;width:120px;height:48.0px;background:#FF5A2C;border-radius:12px 12px 0 0"></div><div class="copy" style="left:461px;top:454.0px;font-size:38px;width:120px;text-align:center;font-weight:700">2</div><div class="copy" style="left:441px;top:582px;font-size:16px;width:160px;text-align:center;color:#cbd5e1">图解与流程</div><div aria-hidden="true" style="position:absolute;left:643px;top:508.0px;width:120px;height:48.0px;background:#FF5A2C;border-radius:12px 12px 0 0"></div><div class="copy" style="left:643px;top:454.0px;font-size:38px;width:120px;text-align:center;font-weight:700">2</div><div class="copy" style="left:623px;top:582px;font-size:16px;width:160px;text-align:center;color:#cbd5e1">竖屏短片</div><div aria-hidden="true" style="position:absolute;left:825px;top:508.0px;width:120px;height:48.0px;background:#FF5A2C;border-radius:12px 12px 0 0"></div><div class="copy" style="left:825px;top:454.0px;font-size:38px;width:120px;text-align:center;font-weight:700">2</div><div class="copy" style="left:805px;top:582px;font-size:16px;width:160px;text-align:center;color:#cbd5e1">产品演示</div><div aria-hidden="true" style="position:absolute;left:1007px;top:484.0px;width:120px;height:72.0px;background:#FF5A2C;border-radius:12px 12px 0 0"></div><div class="copy" style="left:1007px;top:430.0px;font-size:38px;width:120px;text-align:center;font-weight:700">3</div><div class="copy" style="left:987px;top:582px;font-size:16px;width:160px;text-align:center;color:#cbd5e1">其他</div><div class="copy" style="left:60px;top:655px;font-size:15px;color:#94a3b8">静态终态示意 · 原生方案为滚动计数与弹性柱形</div><div class="copy" style="left:1000px;top:655px;font-size:13px;font-family:&quot;Space Mono&quot;;color:#94a3b8">COUNT / 23</div></main></body></html>

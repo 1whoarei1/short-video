@@ -1,0 +1,592 @@
+{
+  "frame-bold-poster": {
+    "catalog_name": "Bold Poster",
+    "catalog_source": "vendor/html-explainer/references/style-catalog.json",
+    "upstream_commit": "f1a0b60c6cd1c9f5c735ae5645e47244b468e71c",
+    "palette": [
+      "#1C1410",
+      "#D8000F",
+      "#F5F2EF"
+    ],
+    "source_files_reviewed": [
+      {
+        "path": "source/index.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-bold-poster/source/index.html",
+        "sha256": "9bf8772fdf32e8788c416300ff3e9b510bbbdd8ec935c12142aea9d08c194c35"
+      }
+    ],
+    "adaptation": "Original, content-bearing static HTML concept based on catalog and source palette, typography and visual motifs. Not an upstream animation screenshot.",
+    "data_note": ""
+  },
+  "frame-bold-signal": {
+    "catalog_name": "Bold Signal",
+    "catalog_source": "vendor/html-explainer/references/style-catalog.json",
+    "upstream_commit": "f1a0b60c6cd1c9f5c735ae5645e47244b468e71c",
+    "palette": [
+      "#1a1a1a",
+      "#2d2d2d",
+      "#FF5722"
+    ],
+    "source_files_reviewed": [
+      {
+        "path": "source/index.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-bold-signal/source/index.html",
+        "sha256": "6103d2098cbb24a49aef79dac4a88ed914f5729d4b361cb5f4a99e6ea8078978"
+      }
+    ],
+    "adaptation": "Original, content-bearing static HTML concept based on catalog and source palette, typography and visual motifs. Not an upstream animation screenshot.",
+    "data_note": ""
+  },
+  "frame-build-minimal": {
+    "catalog_name": "Build Minimal",
+    "catalog_source": "vendor/html-explainer/references/style-catalog.json",
+    "upstream_commit": "f1a0b60c6cd1c9f5c735ae5645e47244b468e71c",
+    "palette": [
+      "#FAFAF8",
+      "#1A1A18",
+      "#CBC7C0",
+      "#B0ACA4",
+      "#D4A574"
+    ],
+    "source_files_reviewed": [
+      {
+        "path": "source/index.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-build-minimal/source/index.html",
+        "sha256": "2f7354970df48e26b7701e107aeaadf7174efb8389222587685c0aa643948291"
+      }
+    ],
+    "adaptation": "Original, content-bearing static HTML concept based on catalog and source palette, typography and visual motifs. Not an upstream animation screenshot.",
+    "data_note": ""
+  },
+  "frame-creative-voltage": {
+    "catalog_name": "Creative Voltage",
+    "catalog_source": "vendor/html-explainer/references/style-catalog.json",
+    "upstream_commit": "f1a0b60c6cd1c9f5c735ae5645e47244b468e71c",
+    "palette": [
+      "#0d0d14",
+      "#2f4bff",
+      "#6f86ff"
+    ],
+    "source_files_reviewed": [
+      {
+        "path": "source/index.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-creative-voltage/source/index.html",
+        "sha256": "2b610deb978808fdf087d17fb4a8b3ac7aaaddc1d249d6dbba792e863b3055a0"
+      }
+    ],
+    "adaptation": "Original, content-bearing static HTML concept based on catalog and source palette, typography and visual motifs. Not an upstream animation screenshot.",
+    "data_note": ""
+  },
+  "frame-data-chart-nyt": {
+    "catalog_name": "NYT Data Chart",
+    "catalog_source": "vendor/html-explainer/references/style-catalog.json",
+    "upstream_commit": "f1a0b60c6cd1c9f5c735ae5645e47244b468e71c",
+    "palette": [
+      "#f7f5ee",
+      "#1a1a1a",
+      "#a91d1d"
+    ],
+    "source_files_reviewed": [
+      {
+        "path": "source/index.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-data-chart-nyt/source/index.html",
+        "sha256": "94f100fd770dfa6636c0edfe380341f9f2e0b0866c3db9a95a843785e5889874"
+      }
+    ],
+    "adaptation": "Original, content-bearing static HTML concept based on catalog and source palette, typography and visual motifs. Not an upstream animation screenshot.",
+    "data_note": "Numbers are real counts from the 23-entry catalog or the app’s five stages, not invented performance statistics."
+  },
+  "frame-data-rollup": {
+    "catalog_name": "Data Rollup",
+    "catalog_source": "vendor/html-explainer/references/style-catalog.json",
+    "upstream_commit": "f1a0b60c6cd1c9f5c735ae5645e47244b468e71c",
+    "palette": [
+      "#0E0E10",
+      "#F5F5F2",
+      "#FF5A2C"
+    ],
+    "source_files_reviewed": [
+      {
+        "path": "source/DataRollup.tsx",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-data-rollup/source/DataRollup.tsx",
+        "sha256": "af3bea37764c04e571bdf158748e3442b9cc788dbc7e94226c6519586d752e15"
+      },
+      {
+        "path": "source/Root.tsx",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-data-rollup/source/Root.tsx",
+        "sha256": "613d7be4f5fe24f2f15280791af69fe871ac9a365ff68ff5d4a46b6e9a0d5b15"
+      },
+      {
+        "path": "source/entry.ts",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-data-rollup/source/entry.ts",
+        "sha256": "a70203d7cd74c6bf063461f10a968e4ceb796dd8f181f27416c8469687c92268"
+      }
+    ],
+    "adaptation": "Original, content-bearing static HTML concept based on catalog and source palette, typography and visual motifs. Not an upstream animation screenshot.",
+    "data_note": "Numbers are real counts from the 23-entry catalog or the app’s five stages, not invented performance statistics."
+  },
+  "frame-decision-tree": {
+    "catalog_name": "Decision Tree",
+    "catalog_source": "vendor/html-explainer/references/style-catalog.json",
+    "upstream_commit": "f1a0b60c6cd1c9f5c735ae5645e47244b468e71c",
+    "palette": [
+      "#ffffff",
+      "#e8d44d",
+      "#c2e8a0",
+      "#f5c5a3",
+      "#d4c5f9",
+      "#a8d8f0",
+      "#f8b4c8"
+    ],
+    "source_files_reviewed": [
+      {
+        "path": "source/compositions/decision_tree.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-decision-tree/source/compositions/decision_tree.html",
+        "sha256": "c717644dda14c899877e41e6174e4eaf3ef2b0d5e9c4032f1ce54e218dc1d927"
+      },
+      {
+        "path": "source/index.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-decision-tree/source/index.html",
+        "sha256": "e08c8c8fbc0e9170efb5d0e59e8b75dce4bc074ba8d169afee449011fad04311"
+      }
+    ],
+    "adaptation": "Original, content-bearing static HTML concept based on catalog and source palette, typography and visual motifs. Not an upstream animation screenshot.",
+    "data_note": ""
+  },
+  "frame-electric-studio": {
+    "catalog_name": "Electric Studio",
+    "catalog_source": "vendor/html-explainer/references/style-catalog.json",
+    "upstream_commit": "f1a0b60c6cd1c9f5c735ae5645e47244b468e71c",
+    "palette": [
+      "#0a0a0a",
+      "#4361ee"
+    ],
+    "source_files_reviewed": [
+      {
+        "path": "source/index.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-electric-studio/source/index.html",
+        "sha256": "9e5987fcfd46933b0d770b0fbedbffeb15c0fd8d857c144a2686ba59d3ad1b4a"
+      }
+    ],
+    "adaptation": "Original, content-bearing static HTML concept based on catalog and source palette, typography and visual motifs. Not an upstream animation screenshot.",
+    "data_note": ""
+  },
+  "frame-glitch-title": {
+    "catalog_name": "Glitch Title",
+    "catalog_source": "vendor/html-explainer/references/style-catalog.json",
+    "upstream_commit": "f1a0b60c6cd1c9f5c735ae5645e47244b468e71c",
+    "palette": [
+      "#0d0e10",
+      "#f5f5f7",
+      "#00f0ff",
+      "#ff2bd6",
+      "#ffb547"
+    ],
+    "source_files_reviewed": [
+      {
+        "path": "source/index.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-glitch-title/source/index.html",
+        "sha256": "f0a413e45846ac10345cb7c7e995481cd96c23d17d0c15307a78aac524e270eb"
+      }
+    ],
+    "adaptation": "Original, content-bearing static HTML concept based on catalog and source palette, typography and visual motifs. Not an upstream animation screenshot.",
+    "data_note": ""
+  },
+  "frame-kinetic-type": {
+    "catalog_name": "Kinetic Type",
+    "catalog_source": "vendor/html-explainer/references/style-catalog.json",
+    "upstream_commit": "f1a0b60c6cd1c9f5c735ae5645e47244b468e71c",
+    "palette": [
+      "#0a0a0f"
+    ],
+    "source_files_reviewed": [
+      {
+        "path": "source/index.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-kinetic-type/source/index.html",
+        "sha256": "56e9c398d972d7f75de5bdc6e3590d2349314c3d8813e103cbdc28dc620add68"
+      },
+      {
+        "path": "source/compositions/main-graphics.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-kinetic-type/source/compositions/main-graphics.html",
+        "sha256": "80593f6c21888f7ef350ab0a0259625b89ece33c2d9fa8b8152625af59efc8e8"
+      }
+    ],
+    "adaptation": "Original, content-bearing static HTML concept based on catalog and source palette, typography and visual motifs. Not an upstream animation screenshot.",
+    "data_note": ""
+  },
+  "frame-light-leak-cinema": {
+    "catalog_name": "Light Leak Cinema",
+    "catalog_source": "vendor/html-explainer/references/style-catalog.json",
+    "upstream_commit": "f1a0b60c6cd1c9f5c735ae5645e47244b468e71c",
+    "palette": [
+      "#1a0d08",
+      "#ffb547",
+      "#ff7e3f",
+      "#d97757",
+      "#2a1410"
+    ],
+    "source_files_reviewed": [
+      {
+        "path": "source/index.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-light-leak-cinema/source/index.html",
+        "sha256": "e14fd7fc946943f6ef1bbf76e5bb63a42fddc6415b10bc391675ab8a60e4c8ec"
+      }
+    ],
+    "adaptation": "Original, content-bearing static HTML concept based on catalog and source palette, typography and visual motifs. Not an upstream animation screenshot.",
+    "data_note": ""
+  },
+  "frame-liquid-bg-hero": {
+    "catalog_name": "Liquid Background Hero",
+    "catalog_source": "vendor/html-explainer/references/style-catalog.json",
+    "upstream_commit": "f1a0b60c6cd1c9f5c735ae5645e47244b468e71c",
+    "palette": [
+      "#1e1b4b",
+      "#fafaf8",
+      "#a78bfa",
+      "#7c5cff",
+      "#ec4899"
+    ],
+    "source_files_reviewed": [
+      {
+        "path": "source/index.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-liquid-bg-hero/source/index.html",
+        "sha256": "ea9069067c5f1ad7575e3fb0cd63300409e8c5ed53bb3d8e47711f9c3bcabb11"
+      }
+    ],
+    "adaptation": "Original, content-bearing static HTML concept based on catalog and source palette, typography and visual motifs. Not an upstream animation screenshot.",
+    "data_note": ""
+  },
+  "frame-logo-outro": {
+    "catalog_name": "Logo Outro Frame",
+    "catalog_source": "vendor/html-explainer/references/style-catalog.json",
+    "upstream_commit": "f1a0b60c6cd1c9f5c735ae5645e47244b468e71c",
+    "palette": [
+      "#1a1535",
+      "#08090c",
+      "#f5f5f7",
+      "#7c5cff"
+    ],
+    "source_files_reviewed": [
+      {
+        "path": "source/index.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-logo-outro/source/index.html",
+        "sha256": "74897d35497b68af9783e5c71baff3e826330d3b344de1883aefac3700c1ea66"
+      }
+    ],
+    "adaptation": "Original, content-bearing static HTML concept based on catalog and source palette, typography and visual motifs. Not an upstream animation screenshot.",
+    "data_note": ""
+  },
+  "frame-nyt-graph": {
+    "catalog_name": "NYT Graph",
+    "catalog_source": "vendor/html-explainer/references/style-catalog.json",
+    "upstream_commit": "f1a0b60c6cd1c9f5c735ae5645e47244b468e71c",
+    "palette": [
+      "#FAF9F6",
+      "#333333",
+      "#5C5C5C",
+      "#326FA8"
+    ],
+    "source_files_reviewed": [
+      {
+        "path": "source/index.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-nyt-graph/source/index.html",
+        "sha256": "51d1bc501c5660c1b369c45cc200830bbe969b087a2e4041c375e92fd82aa0e8"
+      },
+      {
+        "path": "source/compositions/nyt-chart.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-nyt-graph/source/compositions/nyt-chart.html",
+        "sha256": "040924497025c94dc4722b426d7b005b7ac9eba77dd9f97f0d10239a4723fc69"
+      }
+    ],
+    "adaptation": "Original, content-bearing static HTML concept based on catalog and source palette, typography and visual motifs. Not an upstream animation screenshot.",
+    "data_note": "Numbers are real counts from the 23-entry catalog or the app’s five stages, not invented performance statistics."
+  },
+  "frame-pentagram-stat": {
+    "catalog_name": "Pentagram Stat",
+    "catalog_source": "vendor/html-explainer/references/style-catalog.json",
+    "upstream_commit": "f1a0b60c6cd1c9f5c735ae5645e47244b468e71c",
+    "palette": [
+      "#E63946"
+    ],
+    "source_files_reviewed": [
+      {
+        "path": "source/index.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-pentagram-stat/source/index.html",
+        "sha256": "6309075a752021c2a70ee5870b0bad75851c5ba1dddf9ed11bace25340f6f7db"
+      }
+    ],
+    "adaptation": "Original, content-bearing static HTML concept based on catalog and source palette, typography and visual motifs. Not an upstream animation screenshot.",
+    "data_note": "Numbers are real counts from the 23-entry catalog or the app’s five stages, not invented performance statistics."
+  },
+  "frame-play-mode": {
+    "catalog_name": "Play Mode",
+    "catalog_source": "vendor/html-explainer/references/style-catalog.json",
+    "upstream_commit": "f1a0b60c6cd1c9f5c735ae5645e47244b468e71c",
+    "palette": [
+      "#0057FF",
+      "#FF2D8A",
+      "#FFE500",
+      "#7FFF00",
+      "#FFFFFF"
+    ],
+    "source_files_reviewed": [
+      {
+        "path": "source/compositions/captions.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-play-mode/source/compositions/captions.html",
+        "sha256": "5fe700bf6243fc13d46b215c077e1df24d015f0c76545b94abcda8a67b1d39af"
+      },
+      {
+        "path": "source/index.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-play-mode/source/index.html",
+        "sha256": "c37f9f42b32f93500c3054e20e2daf9010f08f877dc2db21355a40611a0d1f89"
+      },
+      {
+        "path": "source/compositions/intro.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-play-mode/source/compositions/intro.html",
+        "sha256": "dfc4ca832cf7eeff5156c8fc311e6805a040162c94ded3d1fda6144ecbcc4f38"
+      },
+      {
+        "path": "source/compositions/stats.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-play-mode/source/compositions/stats.html",
+        "sha256": "661533184a97f4cb476d2d62ca4ff0c5f33fc1c9ef0a2f7c4436bd761584930b"
+      }
+    ],
+    "adaptation": "Original, content-bearing static HTML concept based on catalog and source palette, typography and visual motifs. Not an upstream animation screenshot.",
+    "data_note": ""
+  },
+  "frame-product-promo": {
+    "catalog_name": "Product Promo",
+    "catalog_source": "vendor/html-explainer/references/style-catalog.json",
+    "upstream_commit": "f1a0b60c6cd1c9f5c735ae5645e47244b468e71c",
+    "palette": [
+      "#0A0A0F",
+      "#A259FF",
+      "#1ABCFE",
+      "#0ACF83",
+      "#F24E1E"
+    ],
+    "source_files_reviewed": [
+      {
+        "path": "source/index.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-product-promo/source/index.html",
+        "sha256": "e034b782a21af52da4364c42f119de45f8d2cfb396922ee16bf6d1f865c31df1"
+      },
+      {
+        "path": "source/compositions/scene1-logo-intro.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-product-promo/source/compositions/scene1-logo-intro.html",
+        "sha256": "d3ebbb915107e95eee57c96acd071aac5b839fa68bc7e615789728939f332cb9"
+      },
+      {
+        "path": "source/compositions/scene2-4-canvas.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-product-promo/source/compositions/scene2-4-canvas.html",
+        "sha256": "9ab7a3801398c570287902e6b636d7fc633f76e7fa65df0c250123c92b5b0ca3"
+      },
+      {
+        "path": "source/compositions/scene5-logo-outro.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-product-promo/source/compositions/scene5-logo-outro.html",
+        "sha256": "5ab56972f6d8813b2855cfdce6bea6567be5c64da77451fd5748114ee3d831d9"
+      }
+    ],
+    "adaptation": "Original, content-bearing static HTML concept based on catalog and source palette, typography and visual motifs. Not an upstream animation screenshot.",
+    "data_note": ""
+  },
+  "frame-product-promo-30s": {
+    "catalog_name": "Product Promo · 30s",
+    "catalog_source": "vendor/html-explainer/references/style-catalog.json",
+    "upstream_commit": "f1a0b60c6cd1c9f5c735ae5645e47244b468e71c",
+    "palette": [
+      "#000000",
+      "#FFFFFF",
+      "#888888",
+      "#5E6AD2",
+      "#A9B0F0"
+    ],
+    "source_files_reviewed": [
+      {
+        "path": "source/compositions/01-problem-type.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-product-promo-30s/source/compositions/01-problem-type.html",
+        "sha256": "93c132454a970c508d69f6c757e92268bbcabdb393309b6f9305a4a9e666fd04"
+      },
+      {
+        "path": "source/compositions/02-card-to-logo.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-product-promo-30s/source/compositions/02-card-to-logo.html",
+        "sha256": "d4a70c327f7edf1d2c0a283ef61c495de57b1f9c92458f588437a6f02688ff3f"
+      },
+      {
+        "path": "source/compositions/03-brand-reveal.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-product-promo-30s/source/compositions/03-brand-reveal.html",
+        "sha256": "31597c8e05b991eff8c0dd87f52ebb2f050cd4cdbe8ffa714f38c4fc1895b3a2"
+      },
+      {
+        "path": "source/compositions/04-benefits-flowchart.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-product-promo-30s/source/compositions/04-benefits-flowchart.html",
+        "sha256": "68ba26c31e91cb79baa22863f9ce7cdc498db0a706fb0d032cff1a8b76c0d2e1"
+      },
+      {
+        "path": "source/compositions/05-product-surfaces.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-product-promo-30s/source/compositions/05-product-surfaces.html",
+        "sha256": "830bd976dcba7e77a010c10bf1a5f880d9711e28d588f19566bb6b535a9de35d"
+      },
+      {
+        "path": "source/compositions/06-wheel-pillars.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-product-promo-30s/source/compositions/06-wheel-pillars.html",
+        "sha256": "13e075567aa82f85c3e791027bdc5f333e9890cf13f3d402fc6e1db53850f67d"
+      },
+      {
+        "path": "source/compositions/07-foundation.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-product-promo-30s/source/compositions/07-foundation.html",
+        "sha256": "a7a5a054c877a983071830be3cf2bd9738f4b54ea5f5c3b4c8cc45d690026724"
+      },
+      {
+        "path": "source/compositions/08-cta-outro.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-product-promo-30s/source/compositions/08-cta-outro.html",
+        "sha256": "49b1013d4deb4526a938a80184a5e9e7b4673f85f41d6490484df5dc63f1daaa"
+      },
+      {
+        "path": "source/index.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-product-promo-30s/source/index.html",
+        "sha256": "30daaac0ebe280476ab9b9a38b9d14ef5d75404f45cf15fa7c4aee856396a238"
+      }
+    ],
+    "adaptation": "Original, content-bearing static HTML concept based on catalog and source palette, typography and visual motifs. Not an upstream animation screenshot.",
+    "data_note": ""
+  },
+  "frame-swiss-grid": {
+    "catalog_name": "Swiss Grid",
+    "catalog_source": "vendor/html-explainer/references/style-catalog.json",
+    "upstream_commit": "f1a0b60c6cd1c9f5c735ae5645e47244b468e71c",
+    "palette": [
+      "#F2F2F2",
+      "#0A1E3D",
+      "#D4A017"
+    ],
+    "source_files_reviewed": [
+      {
+        "path": "source/compositions/captions.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-swiss-grid/source/compositions/captions.html",
+        "sha256": "f4e1fef05723356901e3a81712c339e87902288c3ffb2f05ab2149642cffdf21"
+      },
+      {
+        "path": "source/compositions/graphics.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-swiss-grid/source/compositions/graphics.html",
+        "sha256": "cee6886629f691e7639322f755e20b99190ba1ec756c13fce9520a8a35f3f7e5"
+      },
+      {
+        "path": "source/index.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-swiss-grid/source/index.html",
+        "sha256": "b88a8cca022e6c6be5ae973781b8687e074fd134440355ba76b06e3fe9552b0f"
+      },
+      {
+        "path": "source/compositions/intro.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-swiss-grid/source/compositions/intro.html",
+        "sha256": "ea8facd2e2fcc2acfc8c696564028efd90ffd93cd367eccf4782b674c8b0a01c"
+      }
+    ],
+    "adaptation": "Original, content-bearing static HTML concept based on catalog and source palette, typography and visual motifs. Not an upstream animation screenshot.",
+    "data_note": "Numbers are real counts from the 23-entry catalog or the app’s five stages, not invented performance statistics."
+  },
+  "frame-takram-organic": {
+    "catalog_name": "Takram Organic",
+    "catalog_source": "vendor/html-explainer/references/style-catalog.json",
+    "upstream_commit": "f1a0b60c6cd1c9f5c735ae5645e47244b468e71c",
+    "palette": [
+      "#EFEAE0",
+      "#3A3A34",
+      "#7A9E7F",
+      "#2E2E28",
+      "#C98A5E"
+    ],
+    "source_files_reviewed": [
+      {
+        "path": "source/index.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-takram-organic/source/index.html",
+        "sha256": "1b3a290a6f0c9a348222f5c2e0fbcf93d8e24c8e0ae59717aa5f8d0e343a0fd3"
+      }
+    ],
+    "adaptation": "Original, content-bearing static HTML concept based on catalog and source palette, typography and visual motifs. Not an upstream animation screenshot.",
+    "data_note": ""
+  },
+  "frame-vignelli": {
+    "catalog_name": "Vignelli",
+    "catalog_source": "vendor/html-explainer/references/style-catalog.json",
+    "upstream_commit": "f1a0b60c6cd1c9f5c735ae5645e47244b468e71c",
+    "palette": [
+      "#1a1a1a",
+      "#cc0000"
+    ],
+    "source_files_reviewed": [
+      {
+        "path": "source/compositions/captions.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-vignelli/source/compositions/captions.html",
+        "sha256": "f9f8d01f295a8a5011357fa504bc096dbd61e5adcd0ea07050d0de17155370dc"
+      },
+      {
+        "path": "source/index.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-vignelli/source/index.html",
+        "sha256": "e32a876e43ee108ae608f2f8d60aa04482dd76c13defef5a750274354172e956"
+      },
+      {
+        "path": "source/compositions/overlays.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-vignelli/source/compositions/overlays.html",
+        "sha256": "c3875436e4e550c0cf2d4d1b15fe0c8208e9574a729ae8f3508f07b617477b5c"
+      }
+    ],
+    "adaptation": "Original, content-bearing static HTML concept based on catalog and source palette, typography and visual motifs. Not an upstream animation screenshot.",
+    "data_note": "Numbers are real counts from the 23-entry catalog or the app’s five stages, not invented performance statistics."
+  },
+  "frame-warm-grain": {
+    "catalog_name": "Warm Grain",
+    "catalog_source": "vendor/html-explainer/references/style-catalog.json",
+    "upstream_commit": "f1a0b60c6cd1c9f5c735ae5645e47244b468e71c",
+    "palette": [
+      "#F5F0E0",
+      "#3B5E3A",
+      "#CC8832",
+      "#C45D3E"
+    ],
+    "source_files_reviewed": [
+      {
+        "path": "source/compositions/captions.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-warm-grain/source/compositions/captions.html",
+        "sha256": "3d11d80f8e26be4df3892f2461c809c3f14ebe3cf2fbad449afac459c4dc2412"
+      },
+      {
+        "path": "source/compositions/graphics.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-warm-grain/source/compositions/graphics.html",
+        "sha256": "da386d72e376dade45fe38329b2c3188aa7869f2a955b9f73df9008b81f733ee"
+      },
+      {
+        "path": "source/index.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-warm-grain/source/index.html",
+        "sha256": "9cd29a9cbf557ecb260271811d0389a2caf8445e045c48341df44128d6256b8d"
+      },
+      {
+        "path": "source/compositions/intro.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/frame-warm-grain/source/compositions/intro.html",
+        "sha256": "1204b534a09e060e5fb481da739fbc8bfe0fe7f33ce268299526287c4b579574"
+      }
+    ],
+    "adaptation": "Original, content-bearing static HTML concept based on catalog and source palette, typography and visual motifs. Not an upstream animation screenshot.",
+    "data_note": "Numbers are real counts from the 23-entry catalog or the app’s five stages, not invented performance statistics."
+  },
+  "vfx-text-cursor": {
+    "catalog_name": "Text + Cursor VFX",
+    "catalog_source": "vendor/html-explainer/references/style-catalog.json",
+    "upstream_commit": "f1a0b60c6cd1c9f5c735ae5645e47244b468e71c",
+    "palette": [
+      "#06070a",
+      "#f5f5f7",
+      "#ff3b6f",
+      "#00d4ff"
+    ],
+    "source_files_reviewed": [
+      {
+        "path": "source/index.html",
+        "url": "https://github.com/nexu-io/open-design/blob/f1a0b60c6cd1c9f5c735ae5645e47244b468e71c/plugins/_official/video-templates/vfx-text-cursor/source/index.html",
+        "sha256": "6443bbe992f4f5986a8741292271c8579bc9a58530f1fb060a76ab7852de2fa1"
+      }
+    ],
+    "adaptation": "Original, content-bearing static HTML concept based on catalog and source palette, typography and visual motifs. Not an upstream animation screenshot.",
+    "data_note": ""
+  }
+}

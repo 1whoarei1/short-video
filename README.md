@@ -10,7 +10,7 @@ UI 负责输入、审核、批注和版本；Codex 负责调研、写稿、创�
 2. 在新对话里说：**我要制作视频了**
 3. Codex 会读 `AGENTS.md` 和项目技能，检查环境，启动本地工作台并引导你确认需求
 
-这依赖 Codex 实际打开仓库并读取项目说明，不是网页内置聊天机器人。网页的保存操作不会自动调用模型。
+这依赖 Codex 实际打开仓库并读取项目说明。网页不调用模型、也不能唤醒空闲对话；活跃 Codex 使用 `python -m app.cli --workspace workspace wait --timeout 300` 等待你确认需求，收到请求后按模式继续到人工检查点或导出。等待超时可回到 Codex 说「继续当前视频项目」。详见 [运行模式与文件桥接](docs/workflow-modes.md)。
 
 ## 手动启动
 
@@ -50,15 +50,18 @@ node vendor/html-explainer/scripts/check_layout.mjs workspace
 
 ## 创作顺序
 
-需求沟通 → 资料调研 → 旁白文案 → 静态预览 → 视频制作 → 导出交付
+需求沟通 → 文案（AI 调研并写口播稿）→ 静态预览 → 视频制作 → 导出交付
 
-- 正常项目每阶段提交后由你确认；明示授权的测试样片可以自审
+- 全流程手动：每阶段由你确认；半自动：需求和静态预览由你确认；全自动：需求确认后由 Codex 完成到导出
+- 时长支持约数或区间，只是创作提示；以内容、自然口播和真实音频决定实际时间
+- 调研合并到文案，需求页可直接上传参考资料；无需单独审核调研阶段
 - 回改前面内容会标记下游为“需要更新”，旧文件与历史记录保留
 - 静态预览展示实际场景截图，按内容与视觉角色选择
 - 图片和视频支持框选批注，保存原始截图、播放时间范围、版本、归一化区域坐标和文字意见
 - 批注与作品分开存储，不要求生成代码带任何可编辑组件或固定元素 ID
 - 支持撤销项目状态；不会删除已经生成的产物文件
-- 系列主题包可选，原创视觉方向始终可用
+- 内置 23 个系列主题的本地概念样图、5 种中文音色的本地试听，首次打开即可浏览，不触发在线生成
+- 自定义主题保存在当前项目，可导出/导入含图片的主题包跨项目复用；原创视觉方向始终可用
 
 ## 文件边界
 
@@ -80,10 +83,10 @@ node vendor/html-explainer/scripts/check_layout.mjs workspace
 python -m app.cli --workspace workspace status
 python -m app.cli --workspace workspace save --stage requirements --file brief.md
 python -m app.cli --workspace workspace artifact --stage preview --path output/scene-01.png --label 开场 --role 建立问题
-python -m app.cli --workspace workspace submit --stage requirements
+python -m app.cli --workspace workspace wait --timeout 300
 ```
 
-自审仅在明确授权的项目上使用 `mode --self-review on`，随后 `approve --stage requirements --by agent --note 实际检查记录`。完整工作法见项目技能。结构化来源可运行 `python -m app.sources workspace/sources.json`，它检查字段和 URL 格式，不代替事实查证。
+运行模式用 `mode --workflow-mode manual|semi|auto` 记录用户选择；需求仍由用户提交和确认。代理后续写入使用任务 ID 和最新 revision，详见 [执行约定](docs/workflow-modes.md)。测试自审仅在明确授权的项目上使用 `mode --self-review on`，随后 `approve --stage requirements --by agent --note 实际检查记录`。完整工作法见项目技能。结构化来源可运行 `python -m app.sources workspace/sources.json`，它检查字段和 URL 格式，不代替事实查证。
 
 ## 检查与排错
 

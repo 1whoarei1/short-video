@@ -39,7 +39,7 @@ class VoiceSettingsTests(unittest.TestCase):
                     self.assertFalse((Path(self.temp.name)/'.studio/history').exists())
     def test_audio_change_invalidates_downstream(self):
         self.save()
-        for stage in ['requirements','research','narration']:
+        for stage in ['requirements','narration']:
             if stage != 'requirements':
                 self.flow.mutate('save', {'stage':stage,'text':'Reviewed'})
             self.flow.mutate('submit', {'stage':stage})
@@ -47,7 +47,7 @@ class VoiceSettingsTests(unittest.TestCase):
         before = self.flow.read()
         after = self.save(audio_mode='azure')
         self.assertEqual(after['stages']['requirements']['version'], before['stages']['requirements']['version'] + 1)
-        for stage in ['research','narration']:
+        for stage in ['narration']:
             self.assertEqual(after['stages'][stage]['status'],'stale')
         self.assertEqual(after['stages']['requirements']['status'],'draft')
     def test_voice_and_rate_changes_version_requirements(self):

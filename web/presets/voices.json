@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "sampleText": "你好，欢迎来到视频创作工作台。选一个喜欢的声音，把每一个想法讲清楚，让故事更有温度。",
+  "sampleProvider": "edge",
+  "sampleRate": "0%",
+  "generatedAt": "2026-10-01T06:49:57+00:00",
+  "generator": {
+    "client": "edge-tts",
+    "version": "7.2.8"
+  },
+  "referenceNote": "预置试听由 Microsoft Edge 在线朗读生成，语速为 0%。Azure 选项使用同名 Edge 参考音频，并非 Azure 实际合成结果。",
+  "descriptionNote": "音色描述为选用参考，不代表指定情绪或风格效果；实际效果以试听和成片为准。",
+  "voices": [
+    {
+      "id": "zh-CN-XiaoxiaoNeural",
+      "name": "晓晓",
+      "gender": "女声",
+      "description": "温暖亲切，可用于日常讲解",
+      "locale": "zh-CN",
+      "sampleVoice": "zh-CN-XiaoxiaoNeural",
+      "sampleProvider": "edge",
+      "sampleRate": "0%",
+      "sampleText": "你好，欢迎来到视频创作工作台。选一个喜欢的声音，把每一个想法讲清楚，让故事更有温度。",
+      "sampleUrl": "/presets/voices/zh-CN-XiaoxiaoNeural.mp3",
+      "serviceFriendlyName": "Microsoft Xiaoxiao Online (Natural) - Chinese (Mainland)",
+      "serviceGender": "Female",
+      "serviceVoiceTags": {
+        "ContentCategories": [
+          "News",
+          "Novel"
+        ],
+        "VoicePersonalities": [
+          "Warm"
+        ]
+      },
+      "wordBoundaryCount": 21,
+      "wordBoundaryEndSeconds": 8.525,
+      "durationSeconds": 9.12,
+      "decodedDurationSeconds": 9.12,
+      "sampleRateHz": 24000,
+      "channels": 1,
+      "bytes": 54720,
+      "sha256": "bc80272f4091d5cd6feaae260a0dc4fbf2847d5f416f5371e51bff071e43a18e",
+      "peakDbfs": -2.259,
+      "rmsDbfs": -19.439,
+      "clippedSamples": 0
+    },
+    {
+      "id": "zh-CN-XiaoyiNeural",
+      "name": "晓伊",
+      "gender": "女声",
+      "description": "轻快活泼，可用于故事表达",
+      "locale": "zh-CN",
+      "sampleVoice": "zh-CN-XiaoyiNeural",
+      "sampleProvider": "edge",
+      "sampleRate": "0%",
+      "sampleText": "你好，欢迎来到视频创作工作台。选一个喜欢的声音，把每一个想法讲清楚，让故事更有温度。",
+      "sampleUrl": "/presets/voices/zh-CN-XiaoyiNeural.mp3",
+      "serviceFriendlyName": "Microsoft Xiaoyi Online (Natural) - Chinese (Mainland)",
+      "serviceGender": "Female",
+      "serviceVoiceTags": {
+        "ContentCategories": [
+          "Cartoon",
+          "Novel"
+        ],
+        "VoicePersonalities": [
+          "Lively"
+        ]
+      },
+      "wordBoundaryCount": 21,
+      "wordBoundaryEndSeconds": 8.45,
+      "durationSeconds": 9.312,
+      "decodedDurationSeconds": 9.312,
+      "sampleRateHz": 24000,
+      "channels": 1,
+      "bytes": 55872,
+      "sha256": "a6bb99fdbb5acce68788622beca2ba8bbfab27001e0e421ae62bcf5d159bafae",
+      "peakDbfs": -8.848,
+      "rmsDbfs": -22.91,
+      "clippedSamples": 0
+    },
+    {
+      "id": "zh-CN-YunxiNeural",
+      "name": "云希",
+      "gender": "男声",
+      "description": "明快自然，可用于轻松讲述",
+      "locale": "zh-CN",
+      "sampleVoice": "zh-CN-YunxiNeural",
+      "sampleProvider": "edge",
+      "sampleRate": "0%",
+      "sampleText": "你好，欢迎来到视频创作工作台。选一个喜欢的声音，把每一个想法讲清楚，让故事更有温度。",
+      "sampleUrl": "/presets/voices/zh-CN-YunxiNeural.mp3",
+      "serviceFriendlyName": "Microsoft Yunxi Online (Natural) - Chinese (Mainland)",
+      "serviceGender": "Male",
+      "serviceVoiceTags": {
+        "ContentCategories": [
+          "Novel"
+        ],
+        "VoicePersonalities": [
+          "Lively",
+          "Sunshine"
+        ]
+      },
+      "wordBoundaryCount": 21,
+      "wordBoundaryEndSeconds": 7.95,
+      "durationSeconds": 8.832,
+      "decodedDurationSeconds": 8.832,
+      "sampleRateHz": 24000,
+      "channels": 1,
+      "bytes": 52992,
+      "sha256": "1ed18abf0a18761eef7c7b4e7577d21da29dd1a5d666bd63232de829cdf684b0",
+      "peakDbfs": -2.741,
+      "rmsDbfs": -25.366,
+      "clippedSamples": 0
+    },
+    {
+      "id": "zh-CN-YunjianNeural",
+      "name": "云健",
+      "gender": "男声",
+      "description": "饱满有力，可用于热情表达",
+      "locale": "zh-CN",
+      "sampleVoice": "zh-CN-YunjianNeural",
+      "sampleProvider": "edge",
+      "sampleRate": "0%",
+      "sampleText": "你好，欢迎来到视频创作工作台。选一个喜欢的声音，把每一个想法讲清楚，让故事更有温度。",
+      "sampleUrl": "/presets/voices/zh-CN-YunjianNeural.mp3",
+      "serviceFriendlyName": "Microsoft Yunjian Online (Natural) - Chinese (Mainland)",
+      "serviceGender": "Male",
+      "serviceVoiceTags": {
+        "ContentCategories": [
+          "Sports",
+          " Novel"
+        ],
+        "VoicePersonalities": [
+          "Passion"
+        ]
+      },
+      "wordBoundaryCount": 21,
+      "wordBoundaryEndSeconds": 8.4875,
+      "durationSeconds": 9.384,
+      "decodedDurationSeconds": 9.384,
+      "sampleRateHz": 24000,
+      "channels": 1,
+      "bytes": 56304,
+      "sha256": "3b67f36d7b12f84b5a21edd34a3f059165c6a662d2f39ce2e43aaf70c750235e",
+      "peakDbfs": -5.39,
+      "rmsDbfs": -23.886,
+      "clippedSamples": 0
+    },
+    {
+      "id": "zh-CN-YunyangNeural",
+      "name": "云扬",
+      "gender": "男声",
+      "description": "稳重清晰，可用于资讯讲解",
+      "locale": "zh-CN",
+      "sampleVoice": "zh-CN-YunyangNeural",
+      "sampleProvider": "edge",
+      "sampleRate": "0%",
+      "sampleText": "你好，欢迎来到视频创作工作台。选一个喜欢的声音，把每一个想法讲清楚，让故事更有温度。",
+      "sampleUrl": "/presets/voices/zh-CN-YunyangNeural.mp3",
+      "serviceFriendlyName": "Microsoft Yunyang Online (Natural) - Chinese (Mainland)",
+      "serviceGender": "Male",
+      "serviceVoiceTags": {
+        "ContentCategories": [
+          "News"
+        ],
+        "VoicePersonalities": [
+          "Professional",
+          "Reliable"
+        ]
+      },
+      "wordBoundaryCount": 21,
+      "wordBoundaryEndSeconds": 7.7375,
+      "durationSeconds": 8.328,
+      "decodedDurationSeconds": 8.328,
+      "sampleRateHz": 24000,
+      "channels": 1,
+      "bytes": 49968,
+      "sha256": "a00fdc2e1e3c404283ca378993e6d4bf058f8fa336949b1beb3459d8c24f83b6",
+      "peakDbfs": -2.415,
+      "rmsDbfs": -26.116,
+      "clippedSamples": 0
+    }
+  ]
+}

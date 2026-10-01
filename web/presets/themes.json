@@ -1,0 +1,647 @@
+{
+  "schema_version": 1,
+  "preview_kind": "rendered-concept",
+  "count": 23,
+  "custom_style_allowed": true,
+  "themes": [
+    {
+      "id": "frame-bold-poster",
+      "name": "Bold Poster",
+      "zh_name": "大胆海报帧",
+      "display_name": "大胆海报帧",
+      "description": "暖白纸底、番红强调、倾斜巨字，像一张会动的社论海报",
+      "category": "标题与陈述",
+      "category_id": "presentation",
+      "subcategory": "statement-title",
+      "palette": [
+        "#1C1410",
+        "#D8000F",
+        "#F5F2EF"
+      ],
+      "best_for": [
+        "Brand manifesto / vision statement",
+        "Editorial or cultural pitch opener",
+        "A few words that should feel like a magazine cover"
+      ],
+      "preview": "/presets/themes/frame-bold-poster.webp",
+      "preview_html": "/presets/themes/frame-bold-poster.html",
+      "width": 1280,
+      "height": 720,
+      "native_aspects": "16:9 · 9:16 · 1:1",
+      "source": "vendor/html-explainer/references/style-catalog.json",
+      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+    },
+    {
+      "id": "frame-bold-signal",
+      "name": "Bold Signal",
+      "zh_name": "大胆信号卡帧",
+      "display_name": "大胆信号卡帧",
+      "description": "深灰渐变与橙色大卡片，以章节编号和粗体标题制造冲击",
+      "category": "标题与陈述",
+      "category_id": "presentation",
+      "subcategory": "section-title",
+      "palette": [
+        "#1a1a1a",
+        "#2d2d2d",
+        "#FF5722"
+      ],
+      "best_for": [
+        "Section / chapter divider",
+        "Bold launch statement",
+        "High-impact title card"
+      ],
+      "preview": "/presets/themes/frame-bold-signal.webp",
+      "preview_html": "/presets/themes/frame-bold-signal.html",
+      "width": 1280,
+      "height": 720,
+      "native_aspects": "16:9 · 9:16 · 1:1",
+      "source": "vendor/html-explainer/references/style-catalog.json",
+      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+    },
+    {
+      "id": "frame-build-minimal",
+      "name": "Build Minimal",
+      "zh_name": "奢华极简留白帧",
+      "display_name": "奢华极简留白帧",
+      "description": "超细字体、暖金细线与大量留白，安静而克制",
+      "category": "标题与陈述",
+      "category_id": "presentation",
+      "subcategory": "hero",
+      "palette": [
+        "#FAFAF8",
+        "#1A1A18",
+        "#CBC7C0",
+        "#B0ACA4",
+        "#D4A574"
+      ],
+      "best_for": [
+        "Premium product / brand hero",
+        "Calm single-word statement",
+        "Elegant title card"
+      ],
+      "preview": "/presets/themes/frame-build-minimal.webp",
+      "preview_html": "/presets/themes/frame-build-minimal.html",
+      "width": 1280,
+      "height": 720,
+      "native_aspects": "16:9 · 1:1",
+      "source": "vendor/html-explainer/references/style-catalog.json",
+      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+    },
+    {
+      "id": "frame-creative-voltage",
+      "name": "Creative Voltage",
+      "zh_name": "创意电压分屏帧",
+      "display_name": "创意电压分屏帧",
+      "description": "电光蓝与暗色错位分屏，搭配描边大字和手写线条",
+      "category": "标题与陈述",
+      "category_id": "presentation",
+      "subcategory": "title-card",
+      "palette": [
+        "#0d0d14",
+        "#2f4bff",
+        "#6f86ff"
+      ],
+      "best_for": [
+        "Energetic brand / campaign title",
+        "Creative reveal with a human, hand-drawn accent",
+        "Retro-modern hero"
+      ],
+      "preview": "/presets/themes/frame-creative-voltage.webp",
+      "preview_html": "/presets/themes/frame-creative-voltage.html",
+      "width": 1280,
+      "height": 720,
+      "native_aspects": "16:9 · 1:1",
+      "source": "vendor/html-explainer/references/style-catalog.json",
+      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+    },
+    {
+      "id": "frame-data-chart-nyt",
+      "name": "NYT Data Chart",
+      "zh_name": "NYT 风数据图表帧",
+      "display_name": "NYT 风数据图表帧",
+      "description": "暖白新闻纸、编辑式标题与克制的红色重点，适合解释数据",
+      "category": "数据图表",
+      "category_id": "data-viz",
+      "subcategory": "bar-chart",
+      "palette": [
+        "#f7f5ee",
+        "#1a1a1a",
+        "#a91d1d"
+      ],
+      "best_for": [
+        "Editorial data viz",
+        "Annual report",
+        "Comparison reveal"
+      ],
+      "preview": "/presets/themes/frame-data-chart-nyt.webp",
+      "preview_html": "/presets/themes/frame-data-chart-nyt.html",
+      "width": 1280,
+      "height": 720,
+      "native_aspects": "16:9 · 9:16 · 1:1",
+      "source": "vendor/html-explainer/references/style-catalog.json",
+      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+    },
+    {
+      "id": "frame-data-rollup",
+      "name": "Data Rollup",
+      "zh_name": "数据滚动帧",
+      "display_name": "数据滚动帧",
+      "description": "柱形与计数同步增长；这里展示原生数据动画的静态终态",
+      "category": "数据图表",
+      "category_id": "data-viz",
+      "subcategory": "bar-chart",
+      "palette": [
+        "#0E0E10",
+        "#F5F5F2",
+        "#FF5A2C"
+      ],
+      "best_for": [
+        "A data frame where the numbers should animate, not sit static",
+        "Weekly metrics / growth bars driven by real values",
+        "Enhancing one data segment of an otherwise hyperframes video"
+      ],
+      "preview": "/presets/themes/frame-data-rollup.webp",
+      "preview_html": "/presets/themes/frame-data-rollup.html",
+      "width": 1280,
+      "height": 720,
+      "native_aspects": "16:9 · 9:16 · 1:1",
+      "source": "vendor/html-explainer/references/style-catalog.json",
+      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+    },
+    {
+      "id": "frame-decision-tree",
+      "name": "Decision Tree",
+      "zh_name": "",
+      "display_name": "决策树",
+      "description": "点阵白板、彩色便签与分支连线，让选择过程一目了然",
+      "category": "图解与流程",
+      "category_id": "explainer",
+      "subcategory": "flowchart",
+      "palette": [
+        "#ffffff",
+        "#e8d44d",
+        "#c2e8a0",
+        "#f5c5a3",
+        "#d4c5f9",
+        "#a8d8f0",
+        "#f8b4c8"
+      ],
+      "best_for": [
+        "How-to flow",
+        "Decision branching",
+        "Process diagram"
+      ],
+      "preview": "/presets/themes/frame-decision-tree.webp",
+      "preview_html": "/presets/themes/frame-decision-tree.html",
+      "width": 1280,
+      "height": 720,
+      "native_aspects": "16:9",
+      "source": "vendor/html-explainer/references/style-catalog.json",
+      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+    },
+    {
+      "id": "frame-electric-studio",
+      "name": "Electric Studio",
+      "zh_name": "电光工作室分屏帧",
+      "display_name": "电光工作室分屏帧",
+      "description": "白与电光蓝上下分屏，用跨屏引言形成鲜明对比",
+      "category": "标题与陈述",
+      "category_id": "presentation",
+      "subcategory": "quote-card",
+      "palette": [
+        "#0a0a0a",
+        "#4361ee"
+      ],
+      "best_for": [
+        "Pull-quote / testimonial reveal",
+        "Mission statement card",
+        "Clean high-contrast title"
+      ],
+      "preview": "/presets/themes/frame-electric-studio.webp",
+      "preview_html": "/presets/themes/frame-electric-studio.html",
+      "width": 1280,
+      "height": 720,
+      "native_aspects": "16:9 · 1:1",
+      "source": "vendor/html-explainer/references/style-catalog.json",
+      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+    },
+    {
+      "id": "frame-glitch-title",
+      "name": "Glitch Title",
+      "zh_name": "故障艺术标题帧",
+      "display_name": "故障艺术标题帧",
+      "description": "暗色网格、RGB 错位、扫描线与信号噪声，呈现数字故障感",
+      "category": "标题与陈述",
+      "category_id": "presentation",
+      "subcategory": "text-card",
+      "palette": [
+        "#0d0e10",
+        "#f5f5f7",
+        "#00f0ff",
+        "#ff2bd6",
+        "#ffb547"
+      ],
+      "best_for": [
+        "Tech product reveal",
+        "Cyberpunk aesthetic",
+        "Hacker vibe"
+      ],
+      "preview": "/presets/themes/frame-glitch-title.webp",
+      "preview_html": "/presets/themes/frame-glitch-title.html",
+      "width": 1280,
+      "height": 720,
+      "native_aspects": "16:9 · 9:16 · 1:1",
+      "source": "vendor/html-explainer/references/style-catalog.json",
+      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+    },
+    {
+      "id": "frame-kinetic-type",
+      "name": "Kinetic Type",
+      "zh_name": "",
+      "display_name": "动态排字",
+      "description": "暗底巨型排字，以文字的大小、位置与节奏撑起画面",
+      "category": "标题与陈述",
+      "category_id": "presentation",
+      "subcategory": "text-card",
+      "palette": [
+        "#0a0a0f"
+      ],
+      "best_for": [
+        "Promo headline",
+        "Bold statement",
+        "Punchy intro"
+      ],
+      "preview": "/presets/themes/frame-kinetic-type.webp",
+      "preview_html": "/presets/themes/frame-kinetic-type.html",
+      "width": 1280,
+      "height": 720,
+      "native_aspects": "16:9",
+      "source": "vendor/html-explainer/references/style-catalog.json",
+      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+    },
+    {
+      "id": "frame-light-leak-cinema",
+      "name": "Light Leak Cinema",
+      "zh_name": "胶片漏光电影帧",
+      "display_name": "胶片漏光电影帧",
+      "description": "宽银幕黑边、暖橙漏光、细颗粒和衬线字，营造胶片叙事",
+      "category": "电影氛围",
+      "category_id": "ambient",
+      "subcategory": "cinematic",
+      "palette": [
+        "#1a0d08",
+        "#ffb547",
+        "#ff7e3f",
+        "#d97757",
+        "#2a1410"
+      ],
+      "best_for": [
+        "Cinematic intro",
+        "Documentary cold open",
+        "Mood / b-roll"
+      ],
+      "preview": "/presets/themes/frame-light-leak-cinema.webp",
+      "preview_html": "/presets/themes/frame-light-leak-cinema.html",
+      "width": 1280,
+      "height": 720,
+      "native_aspects": "16:9 · 9:16 · 1:1",
+      "source": "vendor/html-explainer/references/style-catalog.json",
+      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+    },
+    {
+      "id": "frame-liquid-bg-hero",
+      "name": "Liquid Background Hero",
+      "zh_name": "流体背景 Hero 帧",
+      "display_name": "流体背景 Hero 帧",
+      "description": "紫与粉色的柔焦流体铺满画面，适合自由感的主视觉",
+      "category": "产品营销",
+      "category_id": "marketing",
+      "subcategory": "hero",
+      "palette": [
+        "#1e1b4b",
+        "#fafaf8",
+        "#a78bfa",
+        "#7c5cff",
+        "#ec4899"
+      ],
+      "best_for": [
+        "Product launch hero",
+        "SaaS landing video",
+        "Editorial cover"
+      ],
+      "preview": "/presets/themes/frame-liquid-bg-hero.webp",
+      "preview_html": "/presets/themes/frame-liquid-bg-hero.html",
+      "width": 1280,
+      "height": 720,
+      "native_aspects": "16:9 · 9:16 · 1:1",
+      "source": "vendor/html-explainer/references/style-catalog.json",
+      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+    },
+    {
+      "id": "frame-logo-outro",
+      "name": "Logo Outro Frame",
+      "zh_name": "品牌 Logo 收尾帧",
+      "display_name": "品牌 Logo 收尾帧",
+      "description": "深色晕影、紫色几何标志与简洁品牌文字，用于片尾收束",
+      "category": "片头片尾",
+      "category_id": "intro-outro",
+      "subcategory": "outro",
+      "palette": [
+        "#1a1535",
+        "#08090c",
+        "#f5f5f7",
+        "#7c5cff"
+      ],
+      "best_for": [
+        "Video closing card",
+        "Brand outro",
+        "Channel sign-off"
+      ],
+      "preview": "/presets/themes/frame-logo-outro.webp",
+      "preview_html": "/presets/themes/frame-logo-outro.html",
+      "width": 1280,
+      "height": 720,
+      "native_aspects": "16:9 · 9:16 · 1:1",
+      "source": "vendor/html-explainer/references/style-catalog.json",
+      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+    },
+    {
+      "id": "frame-nyt-graph",
+      "name": "NYT Graph",
+      "zh_name": "",
+      "display_name": "新闻数据图",
+      "description": "新闻式衬线标题、灰柱与蓝线双层图表，强调准确与可读性",
+      "category": "数据图表",
+      "category_id": "data-viz",
+      "subcategory": "editorial",
+      "palette": [
+        "#FAF9F6",
+        "#333333",
+        "#5C5C5C",
+        "#326FA8"
+      ],
+      "best_for": [
+        "News-style stat reveal",
+        "Line chart over time",
+        "Editorial data point"
+      ],
+      "preview": "/presets/themes/frame-nyt-graph.webp",
+      "preview_html": "/presets/themes/frame-nyt-graph.html",
+      "width": 1280,
+      "height": 720,
+      "native_aspects": "16:9",
+      "source": "vendor/html-explainer/references/style-catalog.json",
+      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+    },
+    {
+      "id": "frame-pentagram-stat",
+      "name": "Pentagram Stat",
+      "zh_name": "瑞士网格数据帧",
+      "display_name": "瑞士网格数据帧",
+      "description": "纯白瑞士网格、巨型指标、单一红色强调与黑色数据底栏",
+      "category": "数据图表",
+      "category_id": "data-viz",
+      "subcategory": "stat-card",
+      "palette": [
+        "#E63946"
+      ],
+      "best_for": [
+        "Single hero metric / benchmark reveal",
+        "Editorial data slide",
+        "Rational, high-contrast brand moment"
+      ],
+      "preview": "/presets/themes/frame-pentagram-stat.webp",
+      "preview_html": "/presets/themes/frame-pentagram-stat.html",
+      "width": 1280,
+      "height": 720,
+      "native_aspects": "16:9 · 1:1",
+      "source": "vendor/html-explainer/references/style-catalog.json",
+      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+    },
+    {
+      "id": "frame-play-mode",
+      "name": "Play Mode",
+      "zh_name": "",
+      "display_name": "趣味贴纸",
+      "description": "亮蓝、热粉与黄色贴纸，倾斜圆润大字带来轻松活力",
+      "category": "竖屏短片",
+      "category_id": "social-shorts",
+      "subcategory": "playful",
+      "palette": [
+        "#0057FF",
+        "#FF2D8A",
+        "#FFE500",
+        "#7FFF00",
+        "#FFFFFF"
+      ],
+      "best_for": [
+        "Playful social ad",
+        "Casual intro",
+        "Fun product"
+      ],
+      "preview": "/presets/themes/frame-play-mode.webp",
+      "preview_html": "/presets/themes/frame-play-mode.html",
+      "width": 1280,
+      "height": 720,
+      "native_aspects": "16:9",
+      "source": "vendor/html-explainer/references/style-catalog.json",
+      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+    },
+    {
+      "id": "frame-product-promo",
+      "name": "Product Promo",
+      "zh_name": "",
+      "display_name": "产品宣传",
+      "description": "暗色产品舞台、多彩几何与界面卡片，适合功能展示",
+      "category": "产品演示",
+      "category_id": "product-demo",
+      "subcategory": "multi-scene",
+      "palette": [
+        "#0A0A0F",
+        "#A259FF",
+        "#1ABCFE",
+        "#0ACF83",
+        "#F24E1E"
+      ],
+      "best_for": [
+        "Product showcase",
+        "Multi-feature reel",
+        "Hero promo"
+      ],
+      "preview": "/presets/themes/frame-product-promo.webp",
+      "preview_html": "/presets/themes/frame-product-promo.html",
+      "width": 1280,
+      "height": 720,
+      "native_aspects": "16:9",
+      "source": "vendor/html-explainer/references/style-catalog.json",
+      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+    },
+    {
+      "id": "frame-product-promo-30s",
+      "name": "Product Promo · 30s",
+      "zh_name": "",
+      "display_name": "30 秒产品宣传",
+      "description": "黑色网格、金属感文字与产品流程，面向多场景 30 秒宣传",
+      "category": "产品演示",
+      "category_id": "product-demo",
+      "subcategory": "multi-scene",
+      "palette": [
+        "#000000",
+        "#FFFFFF",
+        "#888888",
+        "#5E6AD2",
+        "#A9B0F0"
+      ],
+      "best_for": [
+        "30-second product promo",
+        "B2B SaaS launch",
+        "Multi-feature reel with sound"
+      ],
+      "preview": "/presets/themes/frame-product-promo-30s.webp",
+      "preview_html": "/presets/themes/frame-product-promo-30s.html",
+      "width": 1280,
+      "height": 720,
+      "native_aspects": "16:9",
+      "source": "vendor/html-explainer/references/style-catalog.json",
+      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+    },
+    {
+      "id": "frame-swiss-grid",
+      "name": "Swiss Grid",
+      "zh_name": "",
+      "display_name": "瑞士网格",
+      "description": "海军蓝、赭金和浅灰，严格对齐的字体与统计模块",
+      "category": "标题与陈述",
+      "category_id": "presentation",
+      "subcategory": "corporate",
+      "palette": [
+        "#F2F2F2",
+        "#0A1E3D",
+        "#D4A017"
+      ],
+      "best_for": [
+        "Corporate slide",
+        "Minimal report card",
+        "Typography-led title"
+      ],
+      "preview": "/presets/themes/frame-swiss-grid.webp",
+      "preview_html": "/presets/themes/frame-swiss-grid.html",
+      "width": 1280,
+      "height": 720,
+      "native_aspects": "16:9",
+      "source": "vendor/html-explainer/references/style-catalog.json",
+      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+    },
+    {
+      "id": "frame-takram-organic",
+      "name": "Takram Organic",
+      "zh_name": "东方柔和有机帧",
+      "display_name": "东方柔和有机帧",
+      "description": "米色、鼠尾草绿与陶土橙，柔和卡片和自然生长的节点图",
+      "category": "图解与流程",
+      "category_id": "explainer",
+      "subcategory": "concept-diagram",
+      "palette": [
+        "#EFEAE0",
+        "#3A3A34",
+        "#7A9E7F",
+        "#2E2E28",
+        "#C98A5E"
+      ],
+      "best_for": [
+        "System / architecture concept reveal",
+        "Warm, human product story",
+        "Network or memory-graph explainer"
+      ],
+      "preview": "/presets/themes/frame-takram-organic.webp",
+      "preview_html": "/presets/themes/frame-takram-organic.html",
+      "width": 1280,
+      "height": 720,
+      "native_aspects": "16:9 · 1:1",
+      "source": "vendor/html-explainer/references/style-catalog.json",
+      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+    },
+    {
+      "id": "frame-vignelli",
+      "name": "Vignelli",
+      "zh_name": "",
+      "display_name": "维涅利竖版",
+      "description": "黑白红的 9:16 竖版，粗体字、网格秩序和红色强调条",
+      "category": "竖屏短片",
+      "category_id": "social-shorts",
+      "subcategory": "portrait-bold",
+      "palette": [
+        "#1a1a1a",
+        "#cc0000"
+      ],
+      "best_for": [
+        "Portrait social",
+        "Bold statement card",
+        "Red-accent promo"
+      ],
+      "preview": "/presets/themes/frame-vignelli.webp",
+      "preview_html": "/presets/themes/frame-vignelli.html",
+      "width": 1280,
+      "height": 720,
+      "native_aspects": "9:16",
+      "source": "vendor/html-explainer/references/style-catalog.json",
+      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。 此方向原生支持 9:16。"
+    },
+    {
+      "id": "frame-warm-grain",
+      "name": "Warm Grain",
+      "zh_name": "",
+      "display_name": "温暖颗粒",
+      "description": "奶油纸底、森林绿、赭黄与陶土色，圆润形状和细颗粒",
+      "category": "标题与陈述",
+      "category_id": "presentation",
+      "subcategory": "hero",
+      "palette": [
+        "#F5F0E0",
+        "#3B5E3A",
+        "#CC8832",
+        "#C45D3E"
+      ],
+      "best_for": [
+        "Product launch",
+        "Lifestyle brand",
+        "Magazine-style intro"
+      ],
+      "preview": "/presets/themes/frame-warm-grain.webp",
+      "preview_html": "/presets/themes/frame-warm-grain.html",
+      "width": 1280,
+      "height": 720,
+      "native_aspects": "16:9",
+      "source": "vendor/html-explainer/references/style-catalog.json",
+      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+    },
+    {
+      "id": "vfx-text-cursor",
+      "name": "Text + Cursor VFX",
+      "zh_name": "VFX 文字光标",
+      "display_name": "VFX 文字光标",
+      "description": "暗色背景、粉色发光光标与双色色散，像正在写入的故事",
+      "category": "标题与陈述",
+      "category_id": "presentation",
+      "subcategory": "text-card",
+      "palette": [
+        "#06070a",
+        "#f5f5f7",
+        "#ff3b6f",
+        "#00d4ff"
+      ],
+      "best_for": [
+        "Code demo intro",
+        "Tech narrative",
+        "Terminal vibe"
+      ],
+      "preview": "/presets/themes/vfx-text-cursor.webp",
+      "preview_html": "/presets/themes/vfx-text-cursor.html",
+      "width": 1280,
+      "height": 720,
+      "native_aspects": "16:9 · 9:16 · 1:1",
+      "source": "vendor/html-explainer/references/style-catalog.json",
+      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+    }
+  ]
+}

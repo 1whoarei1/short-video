@@ -12,8 +12,8 @@ class WorkflowTests(unittest.TestCase):
   self.write('narration')
   with self.assertRaises(ValueError):self.flow.mutate('submit',{'stage':'narration'})
  def test_stale(self):
-  self.write('requirements'); self.approve('requirements'); self.write('research'); self.approve('research'); self.write('requirements','change')
-  self.assertEqual(self.flow.read()['stages']['research']['status'],'stale')
+  self.write('requirements'); self.approve('requirements'); self.write('narration'); self.approve('narration'); self.write('requirements','change')
+  self.assertEqual(self.flow.read()['stages']['narration']['status'],'stale')
  def test_self_review_explicit(self):
   self.write('requirements');self.flow.mutate('submit',{'stage':'requirements'})
   with self.assertRaises(ValueError):self.flow.mutate('approve',{'stage':'requirements','by':'agent','note':'checked'})
@@ -35,9 +35,9 @@ class WorkflowTests(unittest.TestCase):
   (self.root/'screen.png').write_bytes(b'png')
   with self.assertRaises(ValueError):self.flow.mutate('annotation',{'asset':'screen.png','comment':'test','start':4,'end':1})
  def test_approved_artifact_invalidates(self):
-  self.write('requirements');self.approve('requirements');self.write('research');self.approve('research')
+  self.write('requirements');self.approve('requirements');self.write('narration');self.approve('narration')
   (self.root/'brief.txt').write_text('new');self.flow.mutate('artifact',{'stage':'requirements','path':'brief.txt'})
-  self.assertEqual(self.flow.read()['stages']['research']['status'],'stale')
+  self.assertEqual(self.flow.read()['stages']['narration']['status'],'stale')
  def test_immutable_artifacts(self):
   f=self.root/'a.png';f.write_bytes(b'first');self.flow.mutate('artifact',{'stage':'preview','path':'a.png'});f.write_bytes(b'second')
   a=self.flow.read()['stages']['preview']['artifacts'][0];self.assertEqual(self.flow.asset(a['path']).read_bytes(),b'first')
@@ -47,7 +47,7 @@ class WorkflowTests(unittest.TestCase):
    with self.assertRaises(ValueError):self.flow.mutate('annotation',{'asset':'a.png','comment':'bad','start':value})
    with self.assertRaises(ValueError):self.flow.mutate('annotation',{'asset':'a.png','comment':'bad','box':[0,0,value,.2]})
  def test_fake_preview_rejected(self):
-  for stage in ['requirements','research','narration']:
+  for stage in ['requirements','narration']:
    self.write(stage);self.approve(stage)
   (self.root/'fake.txt').write_text('not a frame');self.flow.mutate('artifact',{'stage':'preview','path':'fake.txt'})
   with self.assertRaises(ValueError):self.flow.mutate('submit',{'stage':'preview'})
