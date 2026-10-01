@@ -7,3 +7,8 @@ dialog{border:1px solid var(--line);border-radius:16px;background:var(--paper);c
 .feedback-error{color:#a6552d!important}input:disabled,textarea:disabled,select:disabled{opacity:.7}
 
 .voice-preview-rate{border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:16px;background:#f0f4ea}.voice-preview-rate label{font-size:13px;color:var(--ink)}.voice-preview-rate output{font-size:12px;color:var(--green);font-variant-numeric:tabular-nums;white-space:nowrap}.voice-rate-controls{display:flex;align-items:center;gap:14px}.voice-rate-controls input{flex:1;width:100%;padding:0;accent-color:var(--green)}.voice-rate-controls button{font-size:11px;flex-shrink:0}.voice-preview-rate .field-help{margin:8px 0 0}
+
+.bgm-settings h3{margin-bottom:12px}.bgm-settings>select{width:100%;margin:6px 0 12px}#bgm_direction{min-height:105px;margin-top:6px;font-size:12px}#bgmUploadName{overflow-wrap:anywhere}.bgm-settings .upload-row{flex-wrap:wrap}.bgm-settings .upload-row input{width:100%}
+#bgmSourceAudio{width:100%;max-width:100%;height:40px}
+
+.project-actions{margin:-14px 0 18px}.project-actions button{width:100%;font-size:12px}#newVideoDialog{max-width:510px}@media(max-width:700px){.project-actions{grid-column:1/-1;margin:0;text-align:right}.project-actions button{width:auto;font-size:11px;padding:6px 12px}}

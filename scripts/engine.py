@@ -4,7 +4,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 VENDOR=ROOT/'vendor/html-explainer'
 def main():
- p=argparse.ArgumentParser();p.add_argument('action',choices=['configure','synthesize','timeline','preview','render','layout']);p.add_argument('project');p.add_argument('--scene');p.add_argument('--at',default='50');p.add_argument('--concurrency',type=int,default=2);a=p.parse_args()
+ p=argparse.ArgumentParser();p.add_argument('action',choices=['configure','synthesize','timeline','preview','render','layout','bgm-prepare','soundtrack']);p.add_argument('project');p.add_argument('--scene');p.add_argument('--at',default='50');p.add_argument('--concurrency',type=int,default=2);p.add_argument('--source');p.add_argument('--cues');p.add_argument('--retain-source',action='append',default=[]);p.add_argument('--stem',action='append',default=[]);a=p.parse_args()
  project=Path(a.project).resolve()
  if a.action=='configure':
   workflow=json.loads((project/'.studio/workflow.json').read_text(encoding='utf-8'))
@@ -16,9 +16,13 @@ def main():
   mode=settings.get('audio_mode','silent')
   if mode not in ('silent','azure','edge'):raise ValueError('Unknown audio_mode')
   config.update(gap=0,audio_mode=mode,provider=mode if mode!='silent' else 'none',azure_voice=settings.get('azure_voice','zh-CN-XiaoxiaoNeural'),azure_rate=settings.get('azure_rate','0%'),edge_voice=settings.get('edge_voice','zh-CN-YunxiNeural'),edge_rate=settings.get('edge_rate','0%'))
+  from soundtrack import DEFAULTS
+  config.update({key:settings.get(key,value) for key,value in DEFAULTS.items()})
   if before != config:
    from azure_tts import invalidate
-   invalidate(project)
+   # Music-only changes do not erase measured narration or alter scene timing.
+   if any(before.get(k)!=config.get(k) for k in ('width','height','fps','audio_mode','azure_voice','azure_rate','edge_voice','edge_rate')):invalidate(project)
+   (project/'audio/soundtrack.json').unlink(missing_ok=True)
   target.write_text(json.dumps(config,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
   (project/'frames').mkdir(exist_ok=True);(project/'assets').mkdir(exist_ok=True)
   shutil.copy2(VENDOR/'assets/gsap.min.js',project/'assets/gsap.min.js')
@@ -28,8 +32,17 @@ def main():
  config=json.loads((project/'project.json').read_text(encoding='utf-8'))
  mode=config.get('audio_mode','silent')
  if mode not in ('silent','azure','edge'):raise ValueError('Unknown audio_mode')
- if a.action in ('preview','render','layout') and mode!='silent':
+ if a.action in ('preview','render','layout','soundtrack') and mode!='silent':
   from audio_timeline import validate_ready
+  validate_ready(project)
+ if a.action=='bgm-prepare':
+  from soundtrack import prepare
+  print(json.dumps(prepare(project,a.source,a.cues,a.retain_source,a.stem),ensure_ascii=False,indent=2));return 0
+ if a.action=='soundtrack':
+  from soundtrack import mix
+  print(json.dumps(mix(project),ensure_ascii=False,indent=2));return 0
+ if a.action=='render' and (config.get('bgm_mode','none')!='none' or config.get('sound_effects')):
+  from soundtrack import validate_ready
   validate_ready(project)
  if a.action=='synthesize':
   if mode=='silent':raise ValueError('Select Azure or Edge audio mode and run configure first')

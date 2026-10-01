@@ -7,6 +7,7 @@ def write(path, data):
 
 def build(project):
     p=Path(project).resolve()
+    (p/'audio/soundtrack.json').unlink(missing_ok=True)
     pj=json.loads((p/'project.json').read_text(encoding='utf-8'))
     items=json.loads((p/'narration.json').read_text(encoding='utf-8'))
     if isinstance(items,dict): items=items['items']

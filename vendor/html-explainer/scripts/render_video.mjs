@@ -44,6 +44,7 @@
  */
 import { createRequire } from 'node:module';
 import fs from 'node:fs';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { execFileSync } from 'node:child_process';
@@ -283,19 +284,43 @@ async function main() {
   const projectDir = path.resolve(args._[0] || '.');
   const pjPath = path.join(projectDir, 'project.json');
   if (!fs.existsSync(pjPath)) die(`没有 project.json：${pjPath}`);
-  const pj = JSON.parse(fs.readFileSync(pjPath, 'utf8'));
+  const pjBytes = fs.readFileSync(pjPath, 'utf8');
+  const pj = JSON.parse(pjBytes);
+  if (pj.bgm_mode !== undefined && !['none','ai','upload'].includes(pj.bgm_mode)) die('Invalid BGM mode');
+  if (pj.bgm_ducking !== undefined && typeof pj.bgm_ducking !== 'boolean') die('Invalid BGM ducking setting');
+  const workflowPath = path.join(projectDir, '.studio', 'workflow.json');
+  const briefSettings = () => fs.existsSync(workflowPath) ? JSON.stringify(JSON.parse(fs.readFileSync(workflowPath, 'utf8')).settings || {}) : null;
+  const initialBrief = briefSettings();
+  if (initialBrief !== null) {
+    const saved = JSON.parse(initialBrief);
+    const defaults = {bgm_mode:'none',bgm_direction:'',bgm_upload:'',bgm_gain_db:0,bgm_ducking:true,bgm_fade_out:1.5};
+    for (const [key, value] of Object.entries(defaults)) if ((saved[key] ?? value) !== (pj[key] ?? value)) die('BGM settings changed; run engine configure and rebuild soundtrack');
+  }
+  const requireUnchangedInputs = () => {
+    if (fs.readFileSync(pjPath, 'utf8') !== pjBytes || briefSettings() !== initialBrief || fs.readFileSync(layoutPath, 'utf8') !== layoutBytes) die('Project settings changed during rendering; configure, rebuild soundtrack and render again');
+  };
 
   // Spoken modes must never silently fall back to a video without narration.
   // Check before rendering, and again before muxing in case inputs disappear.
-  const audioPath = path.join(projectDir, 'audio', 'narration-full.mp3');
+  let audioPath = path.join(projectDir, 'audio', 'narration-full.mp3');
   const requiresSpeech = pj.audio_mode === 'azure' || pj.audio_mode === 'edge';
   const requireSpeechAudio = () => {
     if (!requiresSpeech) return;
     let present = false;
-    try { const stat = fs.statSync(audioPath); present = stat.isFile() && stat.size > 0; } catch {}
+    try { const stat = fs.statSync(path.join(projectDir, 'audio', 'narration-full.mp3')); present = stat.isFile() && stat.size > 0; } catch {}
     if (!present) die('Spoken audio is missing or empty; run synthesize and timeline before render. No silent fallback was used.');
   };
   requireSpeechAudio();
+  const requiresSoundtrack = (pj.bgm_mode && pj.bgm_mode !== 'none') || (pj.sound_effects && pj.sound_effects.length);
+  const requireSoundtrack = () => {
+    if (!requiresSoundtrack) return;
+    const helper = path.resolve(SKILL_ROOT, '../../scripts/soundtrack.py');
+    try { execFileSync(process.env.PY || (process.platform === 'win32' ? 'python' : 'python3'), [helper, 'validate', projectDir], {stdio: ['ignore', 'pipe', 'pipe']}); }
+    catch (e) { die(`Soundtrack missing or stale; run bgm-prepare then soundtrack. No silent fallback was used. ${e.stderr || e.message}`); }
+    audioPath = path.join(projectDir, 'audio', 'soundtrack.wav');
+  };
+  requireSoundtrack();
+  if (requiresSoundtrack && args.fps && args.fps !== pj.fps) die('Soundtrack requires timeline fps; configure and rebuild for a new fps');
 
   const fps = args.fps || pj.fps || 30;
   const W = pj.width || 1920, H = pj.height || 1080;
@@ -304,7 +329,8 @@ async function main() {
 
   const layoutPath = path.join(projectDir, 'layout.json');
   if (!fs.existsSync(layoutPath)) die(`没有 layout.json（先跑 timeline_build.py）：${layoutPath}`);
-  const layout = JSON.parse(fs.readFileSync(layoutPath, 'utf8'));
+  const layoutBytes = fs.readFileSync(layoutPath, 'utf8');
+  const layout = JSON.parse(layoutBytes);
 
   let subs = { fps, segments: [] };
   const subsPath = path.join(projectDir, 'subs.json');
@@ -533,8 +559,11 @@ async function main() {
   }
 
   // ---------- ffmpeg 合成 ----------
+  requireUnchangedInputs();
   requireSpeechAudio();
-  const hasAudio = pj.audio_mode !== 'silent' && fs.existsSync(audioPath);
+  requireSoundtrack();
+  const muxSoundtrackSha = requiresSoundtrack ? createHash('sha256').update(fs.readFileSync(audioPath)).digest('hex') : null;
+  const hasAudio = requiresSoundtrack || (pj.audio_mode !== 'silent' && fs.existsSync(audioPath));
   const cmd = [
     '-hide_banner', '-loglevel', 'error', '-xerror', '-y',
     '-framerate', String(fps), '-i', path.join(framesDir, `f_%06d.${ext}`),
@@ -567,6 +596,13 @@ async function main() {
   log(hasAudio ? `合成：${totalFrames} 帧 + ${audioPath}` : '合成：无音轨（配音还没生成）');
   execFileSync(ffmpeg, cmd, { stdio: 'inherit' });
 
+  requireUnchangedInputs();
+  if (requiresSoundtrack) {
+    requireSoundtrack();
+    const sha256 = file => createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+    if (sha256(audioPath) !== muxSoundtrackSha) die('Soundtrack changed during mux; render again');
+    fs.writeFileSync(outPath + '.soundtrack.json', JSON.stringify({videoSha256: sha256(outPath), soundtrackSha256: muxSoundtrackSha}));
+  }
   log(`✓ 成片：${outPath}`);
   log(`  帧目录：${framesDir}（--keep-frames 未指定且为完整渲时，保留供 QC）`);
 

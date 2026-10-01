@@ -100,7 +100,7 @@ def cache_key(item, options):
 def invalidate(project):
     """Never let a failed/new synthesis look like a valid old timeline."""
     p = Path(project)
-    for name in ('layout.json', 'subs.json', 'subtitles.srt', 'audio-manifest.json', 'audio/narration-full.mp3', 'audio/azure-timeline.json'):
+    for name in ('layout.json', 'subs.json', 'subtitles.srt', 'audio-manifest.json', 'audio/narration-full.mp3', 'audio/azure-timeline.json', 'audio/soundtrack.json'):
         (p / name).unlink(missing_ok=True)
     for path in (p / 'frames').glob('*.beats.js'): path.unlink()
 

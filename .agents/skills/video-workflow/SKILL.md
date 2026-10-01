@@ -7,7 +7,7 @@ description: 用户要制作、修改或导出视频时，启动本地视频工�
 ## 环境与启动
 从仓库根目录操作，Python 3.10+ 即可启动 UI：`python -m app.server --open`。只监听本机。运行 `python scripts/setup.py` 检查渲染所需 Node.js、FFmpeg、浏览器和锁定依赖；安装获准后运行 `python scripts/setup.py --install`。可用 BROWSER_PATH 指定浏览器，不要求用户提供模型 API。
 
-默认项目 `workspace/`，样例 `examples/processed-meat/`。项目选择器独立查看二者。自定义项目使用 `--workspace path/to/project`，后续 CLI 和服务必须同一目录。
+默认项目目录 `workspace/`；先运行 `python -m app.cli status` 获取网页当前所选项目的绝对 workspace 路径，领取任务后全部命令固定传入该路径。样例 `examples/processed-meat/`。项目选择器独立查看二者。自定义项目使用 `--workspace path/to/project`，后续 CLI 和服务必须同一目录。
 
 ## 三种模式与真实执行桥接
 详细接口和恢复策略见 `docs/workflow-modes.md`。五个阶段固定为 requirements、narration、preview、production、export。
@@ -17,7 +17,7 @@ description: 用户要制作、修改或导出视频时，启动本地视频工�
 - `auto`（全自动）：需求由用户确认；代理完成所有后续阶段并逐一实测审核，直到导出
 - 需求始终由用户提交和确认。只有明示授权的测试兼容 `mode --self-review on`；不能把它当正常自动模式
 
-网页保存状态和任务请求，不内置模型、不自动唤醒 Codex。启动 UI 后在**仍活跃的当前任务**运行 `python -m app.cli --workspace workspace wait --timeout 300`，它真正等待用户需求确认，不会因 nextAction 是 human 立即返回。收到 request 后读取最新状态，`claim --id ID --revision REV`，按 nextAction 执行直到当前模式的人工检查点或导出完成。到人工检查点提示用户看实际内容，再次运行有界 wait 等待批准。timeout 表示等待结束且没有自动唤醒承诺；提示用户回到当前 Codex 对话继续，不能假报已在生成。
+网页保存状态和任务请求，不内置模型、不自动唤醒 Codex。启动 UI 后在**仍活跃的当前任务**运行 `python -m app.cli --workspace PROJECT_PATH wait --timeout 300`，它真正等待用户需求确认，不会因 nextAction 是 human 立即返回。收到 request 后读取最新状态，`claim --id ID --revision REV`，按 nextAction 执行直到当前模式的人工检查点或导出完成。到人工检查点提示用户看实际内容，再次运行有界 wait 等待批准。timeout 表示等待结束且没有自动唤醒承诺；提示用户回到当前 Codex 对话继续，不能假报已在生成。
 
 每个阶段和每次写入前重新读取 status：
 - 仅当前 request ID 可继续；取消、任务替换、模式变更后停止旧工作
@@ -64,3 +64,8 @@ description: 用户要制作、修改或导出视频时，启动本地视频工�
 无声模式 `python scripts/silent_timeline.py workspace` 从 narration.json 的 id/text/duration/captions? 生成时间轴。配音见 docs/edge-tts.md 或 docs/azure-tts.md，用真实音频/词边界，文案或声音改变后重建下游。优先使用 `scripts/engine.py` 的 configure/synthesize/timeline/preview/render/layout 命令。
 
 工作流文件受跨进程锁保护，网页刷新不会覆盖未保存输入。源码修改前另外备份，workflow undo 不会回写源码。旧状态迁移备份在项目内部，不删除；undo 读取旧快照时也自动迁移，旧研究材料不会丢失。
+
+## 背景音乐（不新增阶段）
+读取 AGENTS.md「自由作曲与整片声音」及 docs/bgm-workbench.md。选择 ai 后由代理自由作曲，不套固定 MIDI 模板；选择 upload 使用已授权文件。bgm-prepare 只渲染与保留输入，库不负责作曲。静态预览阶段注册 audio/bgm/preview.wav 和真实图片，按原有模式一起审核；制作阶段由真实镜头时间轴确定 soundtrack 长度。最终 render 只用独立源重混，严格验证来源、设置、时间轴和成片绑定，不反复叠加音乐。配音 silent 与 BGM none 含义不同，二者独立。
+
+网页“新视频”创建独立项目。CLI 未带 --workspace 时跟随所选项目，首次 status 的 workspace 是后续所有操作必须固定使用的路径；领取任务后不可随网页切换而改写目标。

@@ -21,8 +21,9 @@ LABELS = ['需求沟通', '文案', '静态预览', '视频制作', '导出交�
 MODES = ('manual', 'semi', 'auto')
 LEGACY_STAGES = STAGES + ['research']
 AUDIO_DEFAULTS = {'audio_mode': 'silent', 'azure_voice': 'zh-CN-XiaoxiaoNeural', 'azure_rate': '0%', 'edge_voice': 'zh-CN-YunxiNeural', 'edge_rate': '0%'}
+BGM_DEFAULTS = {'bgm_mode': 'none', 'bgm_direction': '', 'bgm_upload': '', 'bgm_gain_db': 0, 'bgm_ducking': True, 'bgm_fade_out': 1.5}
 CREATIVE_DEFAULTS = {'durationMode': 'approx', 'themeId': 'original', 'voicePresetId': ''}
-SETTING_KEYS = {'aspect', 'width', 'height', 'fps', 'duration', 'durationMode', 'durationMin', 'durationMax', 'styleDirection', 'qualityNote', 'themeId', 'voicePresetId', *AUDIO_DEFAULTS}
+SETTING_KEYS = {'aspect', 'width', 'height', 'fps', 'duration', 'durationMode', 'durationMin', 'durationMax', 'styleDirection', 'qualityNote', 'themeId', 'voicePresetId', *AUDIO_DEFAULTS, *BGM_DEFAULTS}
 LOCK = threading.RLock()
 
 
@@ -39,7 +40,7 @@ def validate_settings(settings):
         raise ValueError('项目配置格式不正确')
     if set(settings) - SETTING_KEYS:
         raise ValueError('不支持的配置字段；密钥只能由你在进程环境中配置，不可存入项目')
-    settings = {**AUDIO_DEFAULTS, **CREATIVE_DEFAULTS, **settings}
+    settings = {**AUDIO_DEFAULTS, **BGM_DEFAULTS, **CREATIVE_DEFAULTS, **settings}
     for key in ('width', 'height', 'fps'):
         if not finite_number(settings.get(key)):
             raise ValueError('画幅和帧率必须为有限数字')
@@ -71,6 +72,18 @@ def validate_settings(settings):
     for key in ('aspect', 'styleDirection', 'qualityNote'):
         if key in settings and (not isinstance(settings[key], str) or len(settings[key]) > 20000):
             raise ValueError('创作说明必须是合理长度的文字')
+    if settings['bgm_mode'] not in ('none', 'ai', 'upload'):
+        raise ValueError('BGM 模式仅支持 none、ai 或 upload')
+    if not isinstance(settings['bgm_direction'], str) or len(settings['bgm_direction']) > 20000:
+        raise ValueError('音乐方向文字过长')
+    upload = settings['bgm_upload']
+    if not isinstance(upload, str) or len(upload) > 500 or '\\' in upload or (upload and (Path(upload).is_absolute() or '..' in Path(upload).parts or ':' in upload)):
+        raise ValueError('BGM 上传文件必须是项目内相对路径')
+    if not isinstance(settings['bgm_ducking'], bool):
+        raise ValueError('旁白压低音乐必须为布尔值')
+    for key, low, high in [('bgm_gain_db', -60, 6), ('bgm_fade_out', 0, 30)]:
+        if not finite_number(settings[key]) or not low <= settings[key] <= high:
+            raise ValueError('BGM 音量或淡出时间无效')
     return settings
 
 
@@ -232,6 +245,14 @@ class Workflow:
             raise ValueError('文件不存在或路径超出项目目录')
         return target
 
+    def validate_soundtrack_artifacts(self, data, stage):
+        if data.get('settings', {}).get('bgm_mode', 'none') == 'none':
+            return
+        from scripts.soundtrack import validate_ready
+        marker = validate_ready(self.root)
+        if not any(a.get('version') == stage['version'] and a.get('soundtrackSha256') == marker['sha256'] and hashlib.sha256(self.asset(a['path']).read_bytes()).hexdigest() == a.get('sha256') and self.valid_media(a, video=True) for a in stage['artifacts']):
+            raise ValueError('视频与当前混音不匹配；请重新渲染并注册视频，而非沿用旧视频')
+
     def valid_media(self, artifact, video=False):
         p = self.asset(artifact['path'])
         ext = p.suffix.lower()
@@ -362,7 +383,7 @@ class Workflow:
                 settings = payload.get('settings') if s == 'requirements' else None
                 if settings is not None:
                     settings = validate_settings(settings)
-                old_settings = {**AUDIO_DEFAULTS, **CREATIVE_DEFAULTS, **d.get('settings', {})}
+                old_settings = {**AUDIO_DEFAULTS, **BGM_DEFAULTS, **CREATIVE_DEFAULTS, **d.get('settings', {})}
                 if value != stage['text'] or (settings is not None and settings != old_settings):
                     invalidate()
                     stage['text'] = value
@@ -376,15 +397,30 @@ class Workflow:
                 if stage['status'] in ('approved', 'review', 'stale'):
                     invalidate()
                 digest = hashlib.sha256(source.read_bytes()).hexdigest()
+                soundtrack_sha = None
+                if s in ('production', 'export') and source.suffix.lower() in ('.mp4', '.webm') and d.get('settings', {}).get('bgm_mode', 'none') != 'none':
+                    from scripts.soundtrack import validate_ready
+                    current_mix = validate_ready(self.root)
+                    try:
+                        binding = json.loads(Path(str(source) + '.soundtrack.json').read_text(encoding='utf-8'))
+                    except (OSError, ValueError):
+                        raise ValueError('BGM 视频缺少混音验证记录；请使用 engine render 重新渲染') from None
+                    if binding.get('videoSha256') != digest or binding.get('soundtrackSha256') != current_mix['sha256']:
+                        raise ValueError('视频与当前混音不匹配，请重新渲染')
+                    soundtrack_sha = current_mix['sha256']
                 dest = self.root / '_artifacts' / (digest + source.suffix.lower())
                 dest.parent.mkdir(exist_ok=True)
                 if not dest.resolve().is_relative_to(self.root):
                     raise ValueError('产物存储路径超出项目目录')
                 if not dest.exists():
                     shutil.copyfile(source, dest)
-                stage['artifacts'].append({'id': uuid.uuid4().hex, 'path': dest.relative_to(self.root).as_posix(), 'sourcePath': p, 'sha256': digest, 'label': str(payload.get('label', Path(p).name)), 'role': str(payload.get('role', '')), 'version': stage['version'], 'created': now()})
+                stage['artifacts'].append({'id': uuid.uuid4().hex, 'path': dest.relative_to(self.root).as_posix(), 'sourcePath': p, 'sha256': digest, 'label': str(payload.get('label', Path(p).name)), 'role': str(payload.get('role', '')), 'version': stage['version'], 'created': now(), **({'soundtrackSha256': soundtrack_sha} if soundtrack_sha else {})})
                 stage['status'] = 'draft'
             elif action == 'submit':
+                if s == 'requirements' and d.get('settings', {}).get('bgm_mode') == 'upload':
+                    self.asset(d.get('settings', {}).get('bgm_upload', ''))
+                if s in ('production', 'export'):
+                    self.validate_soundtrack_artifacts(d, stage)
                 if s == 'requirements' and payload.get('by') == 'agent' and not d.get('selfReview'):
                     raise ValueError('需求必须由用户提交；运行模式不授权代理代替需求确认')
                 if idx and any(d['stages'][x]['status'] != 'approved' for x in STAGES[:idx]):
@@ -399,6 +435,8 @@ class Workflow:
                 stage['submittedBy'] = payload.get('by', 'human' if s == 'requirements' else 'agent')
                 d['active'] = s
             elif action == 'approve':
+                if s in ('production', 'export'):
+                    self.validate_soundtrack_artifacts(d, stage)
                 if stage['status'] != 'review':
                     raise ValueError('请先提交审核')
                 if any(d['stages'][x]['status'] != 'approved' for x in STAGES[:idx]):

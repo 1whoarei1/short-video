@@ -6,6 +6,9 @@ ROOT=Path(__file__).resolve().parents[1]
 def main():
     p=argparse.ArgumentParser();p.add_argument('--install',action='store_true');a=p.parse_args()
     missing=[]
+    from setup_bgm import check as check_bgm
+    bgm = check_bgm()
+    print('Sampled BGM (optional): '+('ready' if bgm['ready'] else 'not ready; see docs/bgm-setup.md'))
     try: print('Edge TTS (optional): '+version('edge-tts'))
     except PackageNotFoundError: print('Edge TTS (optional): not installed; see docs/edge-tts.md')
     try: print('Azure Speech SDK (optional): '+version('azure-cognitiveservices-speech'))

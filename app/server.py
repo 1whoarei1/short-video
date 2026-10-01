@@ -3,6 +3,10 @@ import argparse
 import base64
 import json
 import mimetypes
+import math
+import shutil
+import subprocess
+import tempfile
 import re
 import secrets
 import sys
@@ -13,9 +17,37 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, unquote, parse_qs
 from .workflow import Workflow
+from .project_catalog import ProjectCatalog
 from .credentials import CredentialSettings, CredentialError
 
 BASE = Path(__file__).resolve().parent.parent
+
+
+def validate_bgm_audio(raw, extension):
+    """Probe bounded local uploads without enabling playlists or network protocols."""
+    probe = shutil.which('ffprobe')
+    if not probe:
+        raise ValueError('导入音乐需要 FFmpeg / ffprobe；请让 Codex 检查本机安装后重试')
+    with tempfile.TemporaryDirectory(prefix='studio-bgm-') as folder:
+        candidate = Path(folder) / ('upload' + extension)
+        candidate.write_bytes(raw)
+        try:
+            result = subprocess.run([probe, '-v', 'error', '-protocol_whitelist', 'file,pipe',
+                                     '-format_whitelist', 'wav,mp3,mov,ogg,flac',
+                                     '-show_entries', 'format=duration:stream=codec_type,sample_rate,channels:stream_disposition=attached_pic',
+                                     '-of', 'json', str(candidate)], capture_output=True, timeout=15, check=True)
+            metadata = json.loads(result.stdout)
+            duration = float(metadata.get('format', {}).get('duration', 0))
+            streams = metadata.get('streams', [])
+            audio = [stream for stream in streams if stream.get('codec_type') == 'audio']
+            if not math.isfinite(duration) or not 0 < duration <= 3600 or len(audio) != 1:
+                raise ValueError()
+            if any(stream.get('codec_type') != 'audio' and not stream.get('disposition', {}).get('attached_pic') for stream in streams):
+                raise ValueError()
+            if not 1 <= int(audio[0].get('channels', 0)) <= 8 or not 8000 <= int(audio[0].get('sample_rate', 0)) <= 192000:
+                raise ValueError()
+        except (subprocess.SubprocessError, OSError, ValueError, TypeError, KeyError, AttributeError):
+            raise ValueError('音乐文件无法验证：需要有效的单音轨音频，时长不超过 60 分钟') from None
 
 
 def create_server(root, port=8765, credential_settings=None):
@@ -24,10 +56,9 @@ def create_server(root, port=8765, credential_settings=None):
     # Lazy initialization: unsupported or locked vault must not prevent UI startup.
     def credentials():
         return credential_settings if credential_settings is not None else CredentialSettings()
-    projects = {'default': default_flow}
     sample = BASE / 'examples' / 'processed-meat'
-    if sample.exists() and sample.resolve() != default_flow.root:
-        projects['sample'] = Workflow(sample)
+    catalog = ProjectCatalog(root, sample if sample.exists() and sample.resolve() != default_flow.root else None)
+    projects = {'default': default_flow}
 
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, format, *args):
@@ -48,9 +79,10 @@ def create_server(root, port=8765, credential_settings=None):
             self.wfile.write(data)
 
         def get_flow(self):
-            key = parse_qs(urlparse(self.path).query).get('project', ['default'])[0]
+            key = parse_qs(urlparse(self.path).query).get('project', [catalog.active_id()])[0]
+            workspace = catalog.workspace(key)
             if key not in projects:
-                raise ValueError('未知项目')
+                projects[key] = Workflow(workspace)
             return projects[key]
 
         def valid_host(self):
@@ -118,11 +150,20 @@ def create_server(root, port=8765, credential_settings=None):
                 return self.reply(403, {'error': '仅允许本机访问'})
             path = unquote(urlparse(self.path).path)
             try:
+                if path == '/' and 'project' not in parse_qs(urlparse(self.path).query):
+                    selected = catalog.active_id()
+                    if selected != 'default':
+                        self.send_response(302)
+                        self.send_header('Location', '/?project=' + selected)
+                        self.send_header('Content-Length', '0')
+                        self.send_header('Cache-Control', 'no-store')
+                        self.end_headers()
+                        return
                 flow = self.get_flow()
                 if path == '/api/projects':
-                    return self.reply(200, {'projects': [{'id': key, 'title': ('当前项目' if key == 'default' else '示例：加工肉与癌症')} for key in projects]})
+                    return self.reply(200, {'projects': catalog.list(), 'active': catalog.active_id()})
                 if path == '/api/state':
-                    return self.reply(200, {'project': flow.read(), 'token': token})
+                    return self.reply(200, {'project': flow.read(), 'token': token, 'workspace': str(flow.root)})
                 if path == '/api/themes/export':
                     theme_id = parse_qs(urlparse(self.path).query).get('id', [''])[0]
                     return self.reply(200, flow.export_theme(theme_id))
@@ -196,7 +237,8 @@ def create_server(root, port=8765, credential_settings=None):
             try:
                 flow = self.get_flow()
                 length = int(self.headers.get('Content-Length', '0'))
-                if not 0 < length <= 12_000_000:
+                limit = 45 * 1024 * 1024 if path == '/api/bgm-upload' else 12_000_000
+                if not 0 < length <= limit:
                     raise ValueError('请求长度无效或过大')
                 data = json.loads(self.rfile.read(length))
                 if not isinstance(data, dict):
@@ -205,8 +247,36 @@ def create_server(root, port=8765, credential_settings=None):
                 if not path.startswith('/api/'):
                     raise ValueError('未知 API 操作')
                 action = path.removeprefix('/api/')
+                if action == 'projects/create':
+                    return self.reply(200, {'created': catalog.create(data.get('title'))})
+                if action == 'projects/select':
+                    return self.reply(200, {'selected': catalog.select(data.get('id'))})
                 if action == 'theme-import':
                     return self.reply(200, {'project': flow.import_theme(data.get('pack'), data.get('revision'))})
+                if action == 'bgm-upload':
+                    if 'revision' not in data:
+                        raise ValueError('音乐导入需要项目版本，请刷新后重试')
+                    current = flow.read()
+                    if data['revision'] != current['revision']:
+                        raise ValueError('项目已被其他窗口更新，请刷新后重试')
+                    filename = Path(str(data.get('name', 'music.wav'))).name
+                    extension = Path(filename).suffix.lower()
+                    if extension not in ('.wav', '.mp3', '.m4a', '.ogg', '.flac'):
+                        raise ValueError('音乐仅支持 WAV、MP3、M4A、OGG 或 FLAC')
+                    raw = base64.b64decode(data['data'].split(',', 1)[-1], validate=True)
+                    if not raw or len(raw) > 32 * 1024 * 1024:
+                        raise ValueError('音乐文件需为 32 MiB 以内的非空音频')
+                    validate_bgm_audio(raw, extension)
+                    safe = re.sub(r'[^\w.\-]', '_', Path(filename).stem)[:90] + extension
+                    name = self.save_blob(flow, '_artifacts', f'bgm-{uuid.uuid4().hex}-{safe}', raw)
+                    try:
+                        project = flow.mutate('save', {'stage': 'requirements', 'text': current['stages']['requirements']['text'],
+                                                      'settings': {**current.get('settings', {}), 'bgm_upload': name},
+                                                      'revision': data['revision']})
+                    except Exception:
+                        flow.asset(name).unlink(missing_ok=True)
+                        raise
+                    return self.reply(200, {'project': project, 'path': name})
                 if action == 'upload':
                     filename = Path(str(data.get('name', 'material.txt'))).name
                     extension = Path(filename).suffix.lower()

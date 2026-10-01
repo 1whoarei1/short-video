@@ -5,8 +5,8 @@
 1. 读取 `.agents/skills/video-workflow/SKILL.md`；写稿前读取 `.agents/skills/video-narration/SKILL.md`。
 2. 确认当前目录和操作系统。运行 `python scripts/setup.py`（Windows 可用 `py -3`）。缺少 Python 时给官方安装指引。UI 仅需 Python 3.10+，无需先装渲染依赖。
 3. 启动 `python -m app.server --open`，保留服务进程，检查 `http://127.0.0.1:8765/api/health`，告诉用户打开本机地址。端口占用时先检查是否本项目服务，否则用 `--port 8766`。不关闭无关进程。
-4. 读取 `python -m app.cli --workspace workspace status`。让用户在需求页填写主题、受众、时长提示和参考资料，选择「全流程手动 / 半自动 / 全自动」，再提交需求。只有方向确实不足时才追问。
-5. **保持当前 Codex 任务活跃，运行 `python -m app.cli --workspace workspace wait --timeout 300` 等待网页提交**。等待是本地文件观察；保存按钮和网页都不能唤醒已经空闲或关闭的 Codex。超时就清楚说明尚未生成，提示用户回到 Codex 说「继续当前视频项目」。不声称存在后台模型任务。
+4. 读取 `python -m app.cli status`，取返回的绝对 `workspace` 路径，后续命令固定传入该路径。让用户在需求页填写主题、受众、时长提示和参考资料，选择「全流程手动 / 半自动 / 全自动」，再提交需求。只有方向确实不足时才追问。
+5. **保持当前 Codex 任务活跃，运行 `python -m app.cli --workspace PROJECT_PATH wait --timeout 300` 等待网页提交**。等待是本地文件观察；保存按钮和网页都不能唤醒已经空闲或关闭的 Codex。超时就清楚说明尚未生成，提示用户回到 Codex 说「继续当前视频项目」。不声称存在后台模型任务。
 6. 收到请求后读取 `taskRequest.id`、`revision`、`nextAction`，用 `claim --id ID --revision REV` 领取。你是执行者：调研并直接写完整口播稿、创作、渲染、核验、注册产物；按已选择模式一直推进到**人工确认点或导出完成**。每次操作前重读状态，所有代理写入带 `--task-id ID --revision REV`，遇到取消、请求替换、模式变更立即停止旧请求。
 7. 到人工确认点，告诉用户在网页看什么，并再次运行有界 `wait --timeout 300`，等待其批准后继续；不要把半自动停在「生成文案」，也不要把全自动停在「静态预览」。模式语义和完整命令见 `docs/workflow-modes.md`。
 
@@ -23,3 +23,13 @@
 - 用户暂停请求只阻止下一次有检查的工作流写入，不代表已杀掉外部渲染进程。先检查状态，再决定是否可注册结果。
 - 用户未授权安装或外部执行时，先检查环境并说明必要依赖；不修改其安全设置。使用官方 Python、Node、FFmpeg 和 Chrome/Chromium/Edge。
 - 不提交密钥、私密素材、node_modules、用户 workspace 历史或缓存。发布前确认文件范围。
+
+## 自由作曲与整片声音
+- 背景音乐独立于配音：需求 `bgm_mode=none|ai|upload`、`bgm_direction`、`bgm_upload`。默认 none；silent 配音仍可有 BGM。没有音乐模型 API；由当前 Codex 自由创作任意 MIDI、编曲、源代码、分轨与 cue map。FluidSynth/FluidR3 GM 只提供真实采样演奏，不复制《初光》的固定旋律、结构或配器。
+- 先运行 `python scripts/setup_bgm.py` 检查；依用户安装授权再运行 `--install-soundfont`。官方来源、许可证、校验与 Windows 指引见 `docs/bgm-setup.md`。网页不自动下载，不把音色库提交 Git。
+- 当前项目路径：未指定 `--workspace` 的 `python -m app.cli status` 跟随网页当前项目；读取返回的 `workspace`，领取任务后所有命令固定传入该绝对路径。用户切换项目不能把进行中的制作写进另一项目。
+- 内容与真实 TTS 决定镜头时长；音乐不能拉长视频、机械伸缩旁白。静态预览阶段同时注册画面和音乐短样；共用既有人工/半自动/自动审核规则，不新增阶段。
+- `python scripts/engine.py bgm-prepare PROJECT --source music/original.mid --cues music/cues.json --retain-source music/compose.py --stem music/strings.wav`：所有输入在项目内；retain-source/stem 可重复。亦可用作者已混音 WAV，上传模式可省略 source 使用 bgm_upload。保留来源、分轨与 cue map，生成 `audio/bgm/full.wav` 整曲及 `audio/bgm/preview.wav` 15 秒试听。cue map 是 `[{"start":0,"end":10,"label":"开场"}]`。没有自动代写固定乐曲；需要代理完成真实创作。
+- 按所选模式先批准文案，再 synthesize/timeline；音乐短样可独立制作。最终 `python scripts/engine.py soundtrack PROJECT` 仅从独立音乐、旁白和可选音效混音，严格按 layout 的 total_frames/fps 裁切/补静音/淡出，整曲按实测响度以单一固定增益向 -18 LUFS 归一化（真峰值不超过 -1.5 dBTP，高动态曲目优先保留峰值与动态），保留未改动原始来源；纯音乐默认原响度，有旁白自动 -12dB 并 ducking；bgm_gain_db 默认 0，表示额外增益偏移。可在引擎配置添加 `sound_effects:[{"path":"audio/hit.wav","start":1.2,"gain_db":-6}]`；不得把已混音文件再次当旁白。
+- `render` 消费验证过的 `audio/soundtrack.wav`，即使无旁白；直接 renderer 和 mux-only 同样检查源/时间轴/设置哈希。源、方向、分轨、配音、时长等改变后重建相应下游，不重用旧片。注册 production/export 视频需保留渲染器同目录生成的 `.mp4.soundtrack.json` 验证记录。
+- 导出注册整曲、最终混音、MIDI/创作源、cue map 与必要分轨；实际检查视频内音轨、旁白可懂度、尾部淡出与时长，不仅检查独立 WAV。本次运行环境若仅 Linux，必须明确 Windows 原生运行未实测。

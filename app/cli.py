@@ -14,6 +14,7 @@ def wait_for_request(flow, timeout=300, after_revision=None, interval=.5):
     deadline = time.monotonic() + timeout
     while True:
         state = flow.read()
+        state['workspace'] = str(flow.root)
         request = state.get('taskRequest')
         action = state['nextAction']
         if request and request['status'] == 'queued' and action['actor'] == 'agent':
@@ -32,7 +33,7 @@ def wait_for_request(flow, timeout=300, after_revision=None, interval=.5):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description='视频工作台项目操作（本地文件桥接，无模型 API）')
-    parser.add_argument('--workspace', default='workspace')
+    parser.add_argument('--workspace', default=None)
     sub = parser.add_subparsers(dest='command', required=True)
     sub.add_parser('status')
     command = sub.add_parser('wait', help='活跃 Codex 有界等待网页请求；不会唤醒空闲对话')
@@ -79,7 +80,8 @@ def main(argv=None):
         sub.choices[name].add_argument('--revision', type=int)
     args = parser.parse_args(argv)
     try:
-        flow = Workflow(args.workspace)
+        from .project_catalog import selected_workspace
+        flow = Workflow(args.workspace if args.workspace is not None else selected_workspace('workspace'))
         if args.command == 'status':
             result = flow.read()
         elif args.command == 'wait':
@@ -102,6 +104,8 @@ def main(argv=None):
             if args.command == 'request':
                 data['by'] = 'agent'
             result = flow.mutate(args.command, data)
+        result['workspace'] = str(flow.root)
+        if args.command == 'wait': result['project']['workspace'] = str(flow.root)
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0
     except (ValueError, OSError) as error:
