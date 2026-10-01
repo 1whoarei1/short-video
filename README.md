@@ -128,3 +128,9 @@ python -m unittest discover -s tests -v
 [Azure 本机配置](docs/azure-tts.md) · [Edge 接入说明](docs/edge-tts.md) · [复现 +40% 配音样片](docs/reproduce-edge-sample.md)
 
 可选配音 UI 测试：`BROWSER_PATH=/实际浏览器路径 node tests/voice-ui-smoke.cjs`，覆盖模式切换、独立语速、旧项目兼容与手机宽度。试听调速专项测试：`BROWSER_PATH=/实际浏览器路径 node tests/voice-speed-ui-smoke.cjs`，覆盖播放中调速、保持音调、五个样本、服务独立设置与保存、手机滑块和离线请求检查。Azure 接口的离线测试使用模拟 SDK；真实账号合成需你完成本机配置后验证。
+
+### Azure 本机凭据
+
+每台新 Windows 电脑首次使用：克隆仓库 → 启动工作台 →「功能设置」→「Azure 配音」→ 输入密钥和区域 → 保存。也可从需求页 Azure 选项进入。用户本人保存后，程序会自动使用，无需设置 Windows 环境变量。凭据不会随 Git 迁移，每台电脑需单独配置。密钥与区域存入系统凭据管理器，不写项目文件、不回显。macOS/Linux 暂不支持页面保存，仍可使用用户自行配置的环境变量。系统静态加密不能隔离拥有同一账号任意代码执行权限的 AI/程序；安全边界和首次使用检查见 [Azure 配置](docs/azure-tts.md)。
+
+凭据离线验收：`BROWSER_PATH=/实际浏览器路径 node tests/credentials-ui-smoke.cjs` 使用内存假凭据检查保存、替换、删除、取消及密码清空。`node tests/credential-asset-security-smoke.cjs`（同样设置 BROWSER_PATH）检查恶意项目资产隔离与图片/视频功能。这些测试不会操作真实系统凭据或请求 Azure；Windows 原生存储需按上面的首次使用检查单验收。

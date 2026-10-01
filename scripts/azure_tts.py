@@ -1,7 +1,7 @@
 """Optional official Azure Speech adapter and shared speech synthesis cache.
 No SDK import or network work on import.
 
-Credentials are read only from AZURE_SPEECH_KEY / AZURE_SPEECH_REGION.
+Credentials are resolved internally from environment or Windows Credential Manager.
 Use an Azure F0 resource: this client cannot inspect its billing tier or quota.
 """
 import argparse
@@ -20,6 +20,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from xml.sax.saxutils import escape, quoteattr
 from functools import wraps
+from app.credentials import configured_region
 
 VERSION = 1
 SAMPLE_RATE = 24000
@@ -77,7 +78,7 @@ def load_project(project):
             raise ValueError('Every scene requires narration text')
         if len(item['text']) > 3000:
             raise ValueError('Split scenes longer than 3000 characters before synthesis')
-    return p, config, [byid[s] for s in order], dict(provider=mode, voice=voice, rate=f'{int(rate[:-1])}%', region=os.environ.get('AZURE_SPEECH_REGION', '') if mode=='azure' else '', sample_rate=SAMPLE_RATE, version=VERSION)
+    return p, config, [byid[s] for s in order], dict(provider=mode, voice=voice, rate=f'{int(rate[:-1])}%', region=configured_region() if mode=='azure' else '', sample_rate=SAMPLE_RATE, version=VERSION)
 
 
 def source_parts(text):
@@ -163,9 +164,9 @@ def resolve_boundaries(text, events, prefix=''):
 
 class AzureProvider:
     def __init__(self, options):
-        key, region = os.environ.get('AZURE_SPEECH_KEY'), os.environ.get('AZURE_SPEECH_REGION')
-        if not key or not region: raise ValueError('Set AZURE_SPEECH_KEY and AZURE_SPEECH_REGION locally; never put the key in project files')
-        if not re.fullmatch(r'[a-z0-9-]+', region): raise ValueError('Invalid AZURE_SPEECH_REGION')
+        from app.credentials import resolve_credentials
+        credential = resolve_credentials()
+        key, region = credential.key, credential.region
         try:
             import azure.cognitiveservices.speech as speechsdk
         except ImportError:

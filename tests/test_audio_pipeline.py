@@ -85,8 +85,8 @@ class AudioTests(unittest.TestCase):
 
     def test_region_changes_cache(self):
         p=self.project()
-        with patch.dict(os.environ,{'AZURE_SPEECH_REGION':'eastus'}):a=tts.load_project(p)
-        with patch.dict(os.environ,{'AZURE_SPEECH_REGION':'westus'}):b=tts.load_project(p)
+        with patch.dict(os.environ,{'AZURE_SPEECH_KEY':'fake-test-key-0000','AZURE_SPEECH_REGION':'eastus'}):a=tts.load_project(p)
+        with patch.dict(os.environ,{'AZURE_SPEECH_KEY':'fake-test-key-0000','AZURE_SPEECH_REGION':'westus'}):b=tts.load_project(p)
         self.assertNotEqual(tts.cache_key(a[2][0],a[3]),tts.cache_key(b[2][0],b[3]))
 
     def test_edge_uses_separate_provider_hash(self):

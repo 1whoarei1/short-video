@@ -79,8 +79,8 @@ function renderArtifacts(s){$('artifacts').replaceChildren();$('artifactsSection
 function renderAnnotations(){$('annotations').replaceChildren();const anns=state.annotations.filter(a=>a.stage===active);$('commentsSection').hidden=active==='requirements'&&!anns.length;if(!anns.length)$('annotations').append(element('div','打开图片或视频，可以留下整体意见，也可以开启框选做局部批注。','empty'));anns.slice().reverse().forEach(a=>{const row=element('div',undefined,'annotation'),body=element('div');body.append(element('small',`v${a.version} · ${a.start.toFixed(1)}–${a.end.toFixed(1)} 秒 · ${a.box?'局部框选':'整体意见'}${a.resolved?' · 已处理':''}`),element('p',a.comment));if(a.screenshot){const link=element('a','查看批注时的截图');link.href=assetURL(a.screenshot);link.target='_blank';link.rel='noopener';body.append(link);}const b=element('button',a.resolved?'重新打开':'标记已处理');b.onclick=()=>operation(async()=>{await api('resolve',{id:a.id,resolved:!a.resolved});renderAnnotations();},b);row.append(body,b);$('annotations').append(row);});}
 function showDialog(id){const dialog=$(id);if(dialog.open)return;modalOrigin=document.activeElement;currentDialog=id;dialog.showModal();history.pushState({stage:active,dialog:id},'');}
 function canCloseDialog(id){if(id==='settingsDialog'&&themeFormDirty)return confirm('自定义主题还没保存。保留表单并关闭窗口吗？');if(id==='viewer'&&$('comment').value.trim())return confirm('批注还没保存。放弃这条批注并关闭吗？');return true;}
-function closeDialog(id,viaHistory=false){if(!$(id).open)return true;if(!canCloseDialog(id))return false;if(document.fullscreenElement&&$(id).contains(document.fullscreenElement))document.exitFullscreen().catch(()=>{});$(id).querySelectorAll('video,audio').forEach(m=>m.pause());$(id).close();currentDialog=null;modalOrigin?.focus();if(!viaHistory&&history.state?.dialog===id)history.back();return true;}
-for(const [id,button] of [['viewer','closeViewer'],['themeDialog','closeTheme'],['voiceDialog','closeVoice'],['settingsDialog','closeSettings'],['helpDialog','closeHelp']]){$(button).onclick=()=>closeDialog(id);$(id).addEventListener('cancel',e=>{e.preventDefault();closeDialog(id);});}
+function closeDialog(id,viaHistory=false){if(!$(id).open)return true;if(id==='credentialDialog')clearCredentialInput();if(!canCloseDialog(id))return false;if(document.fullscreenElement&&$(id).contains(document.fullscreenElement))document.exitFullscreen().catch(()=>{});$(id).querySelectorAll('video,audio').forEach(m=>m.pause());$(id).close();currentDialog=null;modalOrigin?.focus();if(!viaHistory&&history.state?.dialog===id)history.back();return true;}
+for(const [id,button] of [['viewer','closeViewer'],['themeDialog','closeTheme'],['voiceDialog','closeVoice'],['settingsDialog','closeSettings'],['helpDialog','closeHelp'],['credentialDialog','closeCredentials']]){$(button).onclick=()=>closeDialog(id);$(id).addEventListener('cancel',e=>{e.preventDefault();closeDialog(id);});}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.fullscreenElement){e.preventDefault();e.stopImmediatePropagation();document.exitFullscreen().catch(()=>{});}},true);
 window.addEventListener('popstate',e=>{if(currentDialog){if(!closeDialog(currentDialog,true)){history.pushState({stage:active,dialog:currentDialog},'');return;}}const target=e.state?.stage;if(target&&target!==active&&!navigateStage(target,false))history.pushState({stage:active},'');});
 function openAsset(a,ext,time=0){asset=a;assetStage=active;box=null;drag=null;rangeEdited=false;$('selection').style.display='none';$('selectionLayer').hidden=true;$('toggleAnnotation').setAttribute('aria-pressed','false');$('media').replaceChildren();const isVideo=['mp4','webm'].includes(ext),m=element(isVideo?'video':'img');m.src=assetURL(a.path);m.id='currentMedia';if(isVideo){m.controls=true;m.playsInline=true;m.preload='metadata';m.onloadedmetadata=()=>{if(time)m.currentTime=Math.min(time,m.duration);};m.onpause=m.onseeked=()=>{if(!rangeEdited){$('timeStart').value=m.currentTime.toFixed(1);$('timeEnd').value=m.currentTime.toFixed(1);}};}else m.alt=a.label;$('media').append(m);$('assetTitle').textContent=a.label||'预览';$('assetMeta').textContent=`${labels[active]} · v${a.version}`;$('timeStart').value=$('timeEnd').value=time;$('comment').value='';$('annotationFeedback').textContent='';$('captureTime').hidden=!isVideo;$('timeStart').closest('.time-row').hidden=!isVideo;$('selectionLayer').style.bottom=isVideo?'44px':'0';$('viewerDownload').href=assetURL(a.path);$('viewerDownload').download=a.label||a.path.split('/').pop();$('annotationHint').textContent=isVideo?'可直接播放、拖动进度条；需要局部意见时再开启“框选批注”':'可以直接留下整体意见；需要指出局部时，开启“框选批注”再拖动画框';showDialog('viewer');}
@@ -163,3 +163,36 @@ setInterval(()=>{if(state&&!busy&&!document.hidden&&!currentDialog)refreshProjec
 $('projectPicker').onchange=()=>{if((dirty||themeFormDirty)&&!confirm('有未保存修改。放弃这些修改并切换项目吗？')){$('projectPicker').value=projectKey;return;}location.href='/?project='+encodeURIComponent($('projectPicker').value);};
 async function init(){try{const [result,projects,themeData,voiceData]=await Promise.all([fetch('/api/state'+suffix).then(r=>{if(!r.ok)throw Error('无法读取项目');return r.json();}),fetch('/api/projects').then(r=>r.json()),fetch('/presets/themes.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('/presets/voices.json').then(r=>r.ok?r.json():null).catch(()=>null)]);state=result.project;token=result.token;active=stages.includes(state.active)?state.active:'narration';themes=themeData?.themes||[];voiceRegistry=voiceData||{};voices=voiceRegistry.voices||[];projects.projects.forEach(p=>{const option=element('option',p.title);option.value=p.id;$('projectPicker').append(option);});$('projectPicker').value=projectKey;history.replaceState({stage:active},'');render();if(!themeData||!voiceData)notice('部分本地预设目录未载入。项目可以编辑；主题与音色目录准备好后请刷新页面。',true);}catch(e){notice('无法连接本地工作台：'+e.message,true);}}
 init();
+
+// Credentials never enter workflow payloads, persisted browser storage, or history.
+let credentialBusy=false, credentialStatus=null;
+function clearCredentialInput(){$('azureKey').value='';$('azureRegion').value='';$('credentialEditor').hidden=true;}
+function credentialButtons(){
+  $('editCredentials').disabled=credentialBusy||!credentialStatus?.available;
+  $('deleteCredentials').disabled=credentialBusy||!credentialStatus?.saved;
+  $('saveCredentials').disabled=credentialBusy||!credentialStatus?.available;
+  $('azureKey').disabled=$('azureRegion').disabled=credentialBusy;
+}
+function displayCredentialStatus(value){credentialStatus=value;$('credentialStatus').textContent=
+  (value.configured?'已配置 · '+value.region+' · 来源：'+(value.source==='environment'?'环境变量（优先）':'Windows 凭据管理器'):'尚未配置')+
+  (value.available?'':'。当前系统不支持安全保存；可由你自行配置两个环境变量。')+
+  (value.saved&&value.source==='environment'?'；凭据管理器中另有已保存记录':'');credentialButtons();}
+async function credentialRequest(action,data={}){
+  let body=JSON.stringify(data);
+  try{const response=await fetch('/api/credentials/'+action,{method:'POST',headers:{'Content-Type':'application/json','X-Workspace-Token':token},body,cache:'no-store',credentials:'same-origin'});const result=await response.json();if(!response.ok)throw Error(result.error||'凭据操作失败');return result;}finally{body=null;}
+}
+async function credentialOperation(action,data={}){
+  if(credentialBusy)return;
+  credentialBusy=true;credentialButtons();$('credentialFeedback').textContent='';
+  try{displayCredentialStatus(await credentialRequest(action,data));if(action!=='status'){clearCredentialInput();$('credentialFeedback').textContent=action==='save'?'已保存，密钥已隐藏。保存不代表 Azure 认证已验证。':'已删除凭据管理器中的记录。';}}
+  catch(e){$('credentialFeedback').textContent=e.message;if(action==='status'){credentialStatus=null;$('credentialStatus').textContent='无法确认凭据状态，请检查本机安全存储。';}}
+  finally{if(data.key)data.key='';credentialBusy=false;credentialButtons();}
+}
+$('settingsAzureCredentials').onclick=$('openAzureCredentials').onclick=()=>{if($('settingsDialog').open){if(!closeDialog('settingsDialog',true))return;history.replaceState({stage:active},'');}clearCredentialInput();credentialStatus=null;credentialButtons();showDialog('credentialDialog');credentialOperation('status');};
+$('editCredentials').onclick=()=>{clearCredentialInput();$('credentialEditor').hidden=false;$('azureRegion').value=credentialStatus?.region||'';$('azureKey').focus();};
+$('cancelCredentials').onclick=clearCredentialInput;
+$('saveCredentials').onclick=()=>{if(credentialBusy)return;const data={key:$('azureKey').value,region:$('azureRegion').value.trim()};$('azureKey').value='';credentialOperation('save',data);};
+$('deleteCredentials').onclick=()=>{if(!credentialBusy&&confirm('删除本机凭据管理器中所有项目共用的 Azure 凭据？环境变量不会被删除。')){clearCredentialInput();credentialOperation('delete');}};
+$('credentialDialog').addEventListener('close',clearCredentialInput);
+window.addEventListener('pagehide',clearCredentialInput);
+window.addEventListener('pageshow',clearCredentialInput);
