@@ -44,7 +44,7 @@ function render(){
 }
 function navigateStage(key,push=true){if(key===active)return true;if(dirty&&!confirm('有未保存的修改。放弃这些修改并切换步骤吗？'))return false;active=key;render();if(push)history.pushState({stage:active},'');return true;}
 function renderDuration(){$('approxDuration').hidden=$('durationMode').value==='range';$('rangeDuration').hidden=$('durationMode').value!=='range';}
-function renderAudioControls(){const sound=audioMode(),p=provider();$('voiceSettings').hidden=sound==='silent';$('edgeControls').hidden=p!=='edge';$('azureControls').hidden=p!=='azure';$('azureHelp').hidden=p!=='azure';$('providerHelp').textContent=p==='edge'?'免 Azure 密钥。实际配音会将文案发送至 Microsoft Edge 在线语音服务。':'使用你自己的 Azure Speech 资源。实际配音会将文案发送至所配置的区域。';const id=$(p+'_voice').value,voice=voices.find(v=>v.id===id);$('selectedVoiceName').textContent=voice?`${voice.name} · ${voice.gender}`:id;$('audioHelp').textContent=sound==='silent'?'不生成配音。以字幕与画面表达内容，保留足够阅读时间。':'试听只播放本地预录样本。实际配音由 Codex 在文案确定后执行，保存设置不会发起合成请求。';}
+function renderAudioControls(){const sound=audioMode(),p=provider();$('voiceSettings').hidden=sound==='silent';$('edgeControls').hidden=p!=='edge';$('azureControls').hidden=p!=='azure';$('azureHelp').hidden=p!=='azure';$('providerHelp').textContent=p==='edge'?'免 Azure 密钥。实际配音会将文案发送至 Microsoft Edge 在线语音服务。':'使用你自己的 Azure Speech 资源。实际配音会将文案发送至所配置的区域。';const id=$(p+'_voice').value,voice=voices.find(v=>v.id===id);$('selectedVoiceName').textContent=voice?`${voice.name} · ${voice.gender}`:id;$('audioHelp').textContent=sound==='silent'?'不生成配音。以字幕与画面表达内容，保留足够阅读时间。':'试听只播放本地预录样本。实际配音由 Codex 在文案确定后执行，保存设置不会发起合成请求。';syncVoicePreviewRate();}
 function renderNextStep(){if(!state)return;const next=state.nextAction||{stage:state.active,actor:'human',action:'submit_requirements'},request=state.taskRequest;const b=$('continue');b.disabled=busy;b.hidden=false;$('bridgeDetails').hidden=next.actor!=='agent';$('pauseRequest').hidden=!['queued','running'].includes(request?.status)||next.actor!=='agent';
   if(next.action==='complete'){$('nextTitle').textContent='这支视频已完成';$('nextDescription').textContent='最终视频与相关文件已准备好，可以前往导出页查看与下载。';b.textContent='查看交付文件';b.disabled=active==='export';}
   else if(active==='requirements'&&(state.stages.requirements.status!=='approved'||dirty)){$('nextTitle').textContent='准备好后，把需求交给 Codex';$('nextDescription').textContent='确认会保存当前需求与设置，并按所选模式开始推进。';b.textContent='确认需求并开始 →';}
@@ -100,14 +100,57 @@ function renderSelectedTheme(){const t=allThemes().find(t=>t.id===selectedThemeI
 function chooseTheme(id){if(busy)return;selectedThemeId=id;markDirty();renderSelectedTheme();closeDialog('themeDialog');notice('已选择视觉方向，保存需求后生效。');}
 function renderThemeGrid(){const query=$('themeSearch').value.trim().toLowerCase(),catalog=allThemes().filter(t=>[themeName(t),t.name,t.description,t.category,...(t.best_for||[])].join(' ').toLowerCase().includes(query));$('themeGrid').replaceChildren();$('themeCount').textContent=`${themes.length} 个预设主题 · ${(state?.customThemes||[]).length} 个自定义主题`;catalog.forEach(t=>{const b=element('button',undefined,'theme-card'+(t.id===selectedThemeId?' selected':''));b.type='button';b.dataset.themeId=t.id;b.setAttribute('aria-pressed',String(t.id===selectedThemeId));b.setAttribute('aria-label','选择 '+themeName(t));const src=themePreview(t);if(src){const im=element('img');im.src=src;im.alt=themeName(t)+'主题预览';im.loading='lazy';b.append(im);}else{const original=element('div',undefined,'original-preview');original.append(element('span',t.original?'自由创作':themeName(t)));b.append(original);}const info=element('span',undefined,'theme-info');info.append(element('strong',themeName(t)),element('small',t.description||t.prompt||''));if(t.name&&t.name!==themeName(t))info.append(element('small',t.name));if(t.palette?.length){const palette=element('span',undefined,'palette');t.palette.forEach(color=>{const sw=element('span',undefined,'swatch');sw.style.backgroundColor=color;sw.title=color;palette.append(sw);});info.append(palette);}info.append(element('span',t.custom?'此项目 · 自定义':t.original?'始终可用':'主题参考','theme-tag'));b.append(info);b.onclick=()=>chooseTheme(t.id);$('themeGrid').append(b);});if(!catalog.length)$('themeGrid').append(element('p','没有匹配的主题，试试其他关键词。','empty'));}
 $('chooseTheme').onclick=$('selectedTheme').onclick=()=>{$('themeSearch').value='';renderThemeGrid();showDialog('themeDialog');};$('themeSearch').oninput=renderThemeGrid;
-function renderVoiceList(){$('voiceSampleText').textContent=voiceRegistry.sampleText||'';$('voiceFeedback').textContent='';const p=provider(),selected=$(p+'_voice').value;$('voicePreviewNote').textContent=p==='azure'?'以下为 Edge 预先录制的音色参考，不是 Azure 实际合成试听。所有样本为正常语速，正式配音以 Azure 为准。':'播放仓库内的 Edge 预录样本，不发起合成请求。所有样本为正常语速，正式语速在需求页单独设置。';$('voiceList').replaceChildren();voices.forEach(v=>{const card=element('article',undefined,'voice-card'+(v.id===selected?' selected':''));card.dataset.voiceId=v.id;const head=element('div',undefined,'voice-card-head'),title=element('div');title.append(element('h3',`${v.name} · ${v.gender}`),element('p',v.description));const b=element('button',v.id===selected?'已选择':'选择此音色');b.setAttribute('aria-label','选择音色 '+v.name);b.onclick=()=>{$(p+'_voice').value=v.id;renderAudioControls();markDirty();closeDialog('voiceDialog');};head.append(title,b);const audio=element('audio');audio.src=v.sampleUrl;audio.controls=true;audio.preload='metadata';audio.setAttribute('aria-label',v.name+'本地试听');card.append(head,audio);$('voiceList').append(card);});if(!voices.length)$('voiceList').append(element('p','本地试听目录暂未载入，请刷新页面后重试。','empty'));$('customVoice').value=selected;}
+function applyVoicePreviewRate(audio){
+  const rate=1+$('voicePreviewRate').valueAsNumber/100;
+  audio.defaultPlaybackRate=rate;
+  audio.playbackRate=rate;
+  for(const key of ['preservesPitch','mozPreservesPitch','webkitPreservesPitch'])if(key in audio)audio[key]=true;
+}
+function syncVoicePreviewRate(){
+  const input=$(provider()+'_rate'),valid=input.value!==''&&input.validity.valid;
+  const rate=valid?input.valueAsNumber:0;
+  $('voicePreviewRate').value=rate;
+  const label=`${rate>0?'+':''}${rate}% · ${(1+rate/100).toFixed(2)}×`;
+  $('voicePreviewSpeed').textContent=label;
+  $('voicePreviewRate').setAttribute('aria-valuetext',label);
+  $('voicePreviewRateHelp').textContent=`与 ${provider()==='azure'?'Azure':'Edge'} 配音语速同步；关闭窗口保留修改，保存需求后生效。`+(valid?'':'需求页语速无效，暂以正常速度试听；调节滑块可改为有效语速。');
+  $('voiceList').querySelectorAll('audio').forEach(applyVoicePreviewRate);
+}
+function changeVoicePreviewRate(value){
+  const input=$(provider()+'_rate');
+  if(input.value!==String(value)){input.value=value;markDirty();}
+  syncVoicePreviewRate();
+}
+$('voicePreviewRate').oninput=()=>changeVoicePreviewRate($('voicePreviewRate').valueAsNumber);
+$('resetVoicePreviewRate').onclick=()=>changeVoicePreviewRate(0);
+function renderVoiceList(){
+  $('voiceSampleText').textContent=voiceRegistry.sampleText||'';$('voiceFeedback').textContent='';
+  const p=provider(),selected=$(p+'_voice').value;
+  $('voicePreviewNote').textContent=(p==='azure'?'以下为 Edge 预先录制的音色参考，不是 Azure 实际合成试听。':'播放仓库内的 Edge 预录样本，不发起合成请求。')+'调速只改变本地播放速度，并在浏览器支持时保持音调；实际配音的节奏与停顿可能不同。';
+  $('voiceList').querySelectorAll('audio').forEach(audio=>audio.pause());
+  $('voiceList').replaceChildren();syncVoicePreviewRate();
+  voices.forEach(v=>{
+    const card=element('article',undefined,'voice-card'+(v.id===selected?' selected':''));card.dataset.voiceId=v.id;
+    const head=element('div',undefined,'voice-card-head'),title=element('div');title.append(element('h3',`${v.name} · ${v.gender}`),element('p',v.description));
+    const b=element('button',v.id===selected?'已选择':'选择此音色');b.setAttribute('aria-label','选择音色 '+v.name);
+    b.onclick=()=>{$(p+'_voice').value=v.id;renderAudioControls();markDirty();closeDialog('voiceDialog');};head.append(title,b);
+    const audio=element('audio');audio.src=v.sampleUrl;audio.controls=true;audio.preload='metadata';audio.setAttribute('aria-label',v.name+'本地试听');
+    // Use one shared speed control; native play, pause and seek remain available.
+    audio.setAttribute('controlslist','noplaybackrate');applyVoicePreviewRate(audio);
+    audio.addEventListener('loadedmetadata',()=>applyVoicePreviewRate(audio));
+    audio.addEventListener('play',()=>applyVoicePreviewRate(audio));
+    card.append(head,audio);$('voiceList').append(card);
+  });
+  if(!voices.length)$('voiceList').append(element('p','本地试听目录暂未载入，请刷新页面后重试。','empty'));$('customVoice').value=selected;
+}
 $('chooseVoice').onclick=()=>{renderVoiceList();showDialog('voiceDialog');};$('selectCustomVoice').onclick=()=>{const v=$('customVoice').value.trim();if(!/^[a-z]{2,3}-[A-Z]{2}-[A-Za-z][A-Za-z0-9]*Neural$/.test(v)){notice('请填写有效的标准 Neural 音色名称',true);return;}$(provider()+'_voice').value=v;renderAudioControls();markDirty();closeDialog('voiceDialog');};
 document.addEventListener('play',e=>{if(e.target.matches('audio,video'))document.querySelectorAll('audio,video').forEach(m=>{if(m!==e.target)m.pause();});},true);
 function renderCustomThemes(){const existing=state.customThemes||[];$('customThemeList').replaceChildren();if(!existing.length)$('customThemeList').append(element('p','还没有自定义主题。保存后会出现在视觉主题选择器中。','empty'));existing.forEach(t=>{const row=element('div',undefined,'custom-theme-row'),info=element('div');info.append(element('strong',t.name),element('p',t.description||t.prompt));const b=element('button','使用此主题');b.onclick=()=>{if(active!=='requirements'){$('themeSaveFeedback').textContent='主题已保存。请回到需求页，在视觉方向中选择它。';return;}selectedThemeId=t.id;renderSelectedTheme();markDirty();closeDialog('settingsDialog');};const actions=element('div',undefined,'custom-theme-actions');const download=element('a','导出主题包');download.href='/api/themes/export'+suffix+'&id='+encodeURIComponent(t.id);download.download=t.name+'.theme.json';actions.append(b,download);row.append(info,actions);$('customThemeList').append(row);});
   const selected=new Set([...$('customPreviewChoices').querySelectorAll('input:checked')].map(i=>i.value));$('customPreviewChoices').replaceChildren();const seen=new Set();for(const s of Object.values(state.stages))for(const a of s.artifacts){if(!/\.(png|jpe?g|webp)$/i.test(a.path)||seen.has(a.path))continue;seen.add(a.path);const label=element('label',undefined,'preview-choice'),img=element('img');img.src=assetURL(a.path);img.alt=a.label;const input=element('input');input.type='checkbox';input.value=a.path;input.checked=selected.has(a.path);input.onchange=()=>{themeFormDirty=true;};label.append(img,input,document.createTextNode(a.label||'参考图片'));$('customPreviewChoices').append(label);}if(!seen.size)$('customPreviewChoices').append(element('span','尚未导入参考图片','empty'));}
 $('settingsButton').onclick=()=>{renderCustomThemes();showDialog('settingsDialog');};for(const id of ['customThemeName','customThemeDescription','customThemePrompt','customThemePalette'])$(id).oninput=()=>{themeFormDirty=true;};
 $('createTheme').onclick=()=>operation(async()=>{const palette=$('customThemePalette').value.split(/[,，\s]+/).map(x=>x.trim()).filter(Boolean);await api('theme',{name:$('customThemeName').value.trim(),description:$('customThemeDescription').value.trim(),prompt:$('customThemePrompt').value.trim(),palette,previews:[...$('customPreviewChoices').querySelectorAll('input:checked')].map(i=>i.value)});themeFormDirty=false;$('themeSaveFeedback').classList.remove('feedback-error');$('themeSaveFeedback').textContent='已保存在此项目的主题库';for(const id of ['customThemeName','customThemeDescription','customThemePrompt','customThemePalette'])$(id).value='';$('customPreviewChoices').querySelectorAll('input').forEach(i=>i.checked=false);renderCustomThemes();},$('createTheme'));
-for(const id of ['editor','projectTitle','width','height','fps','duration','durationMin','durationMax','styleDirection','qualityNote','azure_rate','edge_rate'])$(id).addEventListener('input',markDirty);
+for(const id of ['editor','projectTitle','width','height','fps','duration','durationMin','durationMax','styleDirection','qualityNote'])$(id).addEventListener('input',markDirty);
+for(const id of ['azure_rate','edge_rate'])$(id).addEventListener('input',()=>{markDirty();syncVoicePreviewRate();});
 for(const field of document.querySelectorAll('input[name="workflowMode"],input[name="soundMode"]'))field.onchange=()=>{markDirty();renderAudioControls();};
 $('voiceProvider').onchange=()=>{markDirty();renderAudioControls();};$('durationMode').onchange=()=>{markDirty();renderDuration();};$('aspect').onchange=()=>{const dimensions={'16:9':[1920,1080],'9:16':[1080,1920],'1:1':[1080,1080]};if(dimensions[$('aspect').value])[$('width').value,$('height').value]=dimensions[$('aspect').value];if($('aspect').value==='custom')$('advancedSettings').open=true;markDirty();};
 $('uploadMaterial').onclick=()=>operation(async()=>{const file=$('materialFile').files[0];if(!file)throw Error('请先选择参考文件');if(file.size>8000000)throw Error('文件超过 8 MB，请由 Codex 直接放入项目目录');if(dirty)await saveDraft();const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file);});await api('upload',{name:file.name,data,stage:'requirements'});$('materialFile').value='';render();notice('参考资料已保存，当前需求仍是草稿。确认需求后 Codex 会结合它调研与写稿。');},$('uploadMaterial'));

@@ -127,4 +127,4 @@ python -m unittest discover -s tests -v
 
 [Azure 本机配置](docs/azure-tts.md) · [Edge 接入说明](docs/edge-tts.md) · [复现 +40% 配音样片](docs/reproduce-edge-sample.md)
 
-可选配音 UI 测试：`BROWSER_PATH=/实际浏览器路径 node tests/voice-ui-smoke.cjs`，覆盖模式切换、独立语速、旧项目兼容与手机宽度。Azure 接口的离线测试使用模拟 SDK；真实账号合成需你完成本机配置后验证。
+可选配音 UI 测试：`BROWSER_PATH=/实际浏览器路径 node tests/voice-ui-smoke.cjs`，覆盖模式切换、独立语速、旧项目兼容与手机宽度。试听调速专项测试：`BROWSER_PATH=/实际浏览器路径 node tests/voice-speed-ui-smoke.cjs`，覆盖播放中调速、保持音调、五个样本、服务独立设置与保存、手机滑块和离线请求检查。Azure 接口的离线测试使用模拟 SDK；真实账号合成需你完成本机配置后验证。
