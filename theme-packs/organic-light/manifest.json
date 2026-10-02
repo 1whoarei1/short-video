@@ -1,0 +1,145 @@
+{
+  "id": "organic-light",
+  "name": "Organic / Living Light",
+  "displayName": "有机光感 · 叶隙之间",
+  "description": "苔绿留白、透光叶片与缓慢光斑；用呼吸式尺度和光照相位表现材料、环境和感受。",
+  "tags": [
+    "organic",
+    "light",
+    "ambient"
+  ],
+  "palette": [
+    "#e5eadb",
+    "#244c38",
+    "#b9ce7b",
+    "#f3efcf"
+  ],
+  "compatibleThemeIds": [
+    "frame-takram-organic",
+    "frame-liquid-bg-hero",
+    "frame-light-leak-cinema"
+  ],
+  "schemaVersion": 1,
+  "kind": "html-theme-resource-pack",
+  "version": "1.0.0",
+  "license": "MIT",
+  "licenseFile": "theme-packs/LICENSE",
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "aspect": "16:9",
+    "adaptation": "Reference composition; reflow freely for 9:16 or 1:1. Not an automatic aspect converter."
+  },
+  "duration": 8,
+  "audio": {
+    "included": false,
+    "note": "Silent concept preview. Narration, character, voice, language and speaking rate remain user-controlled."
+  },
+  "entrypoints": {
+    "preview": "theme-packs/organic-light/preview.html",
+    "motion": "theme-packs/organic-light/motion.js",
+    "styles": "theme-packs/organic-light/styles.css",
+    "poster": "theme-packs/organic-light/assets/poster.svg"
+  },
+  "previewApi": {
+    "seek": "window.render(seconds)",
+    "alias": "window.renderAt(seconds)",
+    "freezeQuery": "?t=3.5&controls=0",
+    "timeUnit": "seconds",
+    "range": [
+      0,
+      8
+    ],
+    "play": "window.themePreview.play()",
+    "pause": "window.themePreview.pause()"
+  },
+  "dependencies": {
+    "network": false,
+    "packages": [],
+    "fonts": "Operating-system Arial/Georgia/monospace; none bundled or fetched. Font metrics can vary across systems.",
+    "shared": [
+      "theme-packs/shared/base.css",
+      "theme-packs/shared/motion.js",
+      "theme-packs/shared/player.js"
+    ]
+  },
+  "assets": [
+    {
+      "path": "theme-packs/organic-light/assets/translucent-leaf.svg",
+      "type": "image/svg+xml",
+      "role": "remixable-illustration",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    },
+    {
+      "path": "theme-packs/organic-light/assets/contour-stone.svg",
+      "type": "image/svg+xml",
+      "role": "remixable-illustration",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    },
+    {
+      "path": "theme-packs/organic-light/assets/poster.svg",
+      "type": "image/svg+xml",
+      "role": "poster",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    }
+  ],
+  "materials": [
+    "theme-packs/shared/materials/grain.svg",
+    "theme-packs/shared/materials/grid.svg",
+    "theme-packs/shared/materials/registration.svg",
+    "theme-packs/shared/materials/soft-glow.svg"
+  ],
+  "variants": [
+    {
+      "id": "sunlit-material",
+      "name": "透光材质",
+      "recipe": "Replace the leaf with authorized material imagery and keep one slowly moving light wash. Disable blend effects when they reduce contrast."
+    },
+    {
+      "id": "contour-study",
+      "name": "等高线静物",
+      "recipe": "Promote contour-stone.svg to the hero, use a muted canvas and draw its concentric paths sequentially for a tactile explanation."
+    }
+  ],
+  "usage": {
+    "remix": "Keep a large quiet field for the message. Layer translucent shapes and let a slow light pass reveal the material. Reuse the stone for tactile product or wellness stories without making health claims.",
+    "avoid": "Do not claim this abstract leaf is a verified botanical species. Soft motion still needs sufficient text contrast and readable dwell time.",
+    "motion": "0–1.9s: text and material emerge; 2.2–3.4s: palette labels appear. Light and leaf motion remain slow and non-flashing.",
+    "portrait": "Place the leaf above or beside a shorter title. Keep translucent layers behind, rather than crossing, body text; reserve a quiet lower area for captions.",
+    "captions": "Reserve an uncluttered caption band. Recompose labels rather than obscuring subtitles. Preview footer labels are not subtitles."
+  },
+  "provenance": [
+    {
+      "id": "original-2026-10",
+      "kind": "original",
+      "creator": "Short Video theme-pack contributors",
+      "created": "2026-10-01",
+      "scope": "All pack HTML, CSS, JS, SVG illustrations and poster compositions; shared library authored for this repository.",
+      "license": "MIT",
+      "externalAssets": false
+    },
+    {
+      "url": "https://styles.refero.design/",
+      "kind": "discovery-only",
+      "note": "User-suggested design-system discovery source; no screenshots, DESIGN.md text, brand styling or code copied."
+    },
+    {
+      "url": "https://superdesign.dev/",
+      "kind": "discovery-only",
+      "note": "User-suggested inspiration source. No template or generated output downloaded or redistributed."
+    },
+    {
+      "url": "https://ui.aceternity.com/",
+      "kind": "discovery-only",
+      "note": "Reference category: motion-led UI. No component source, premium blocks or assets used."
+    },
+    {
+      "url": "https://reactbits.dev/",
+      "kind": "discovery-only",
+      "note": "Reference category: expressive motion. No React component source or dependencies used."
+    }
+  ]
+}

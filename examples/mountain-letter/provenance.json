@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "title": "山间来信",
+  "kind": "original-free-remix-concept-film",
+  "durationSeconds": 28,
+  "license": "MIT",
+  "authorship": {
+    "newComposition": "Current Codex author for this repository; original envelope, window-sill, fold/reveal choreography, collage layout and Chinese poetic copy",
+    "reusedMaterials": "Short Video theme-pack contributors; original in-repository MIT SVG/code assets",
+    "photography": false,
+    "aiGeneratedRasterImages": false,
+    "factualScope": "Fictional landscape and memory illustrations; no factual geography, species or personal-history claim",
+    "benchmark": "No GPT-6-Luna run or comparative model-quality benchmark was performed"
+  },
+  "sources": [
+    {
+      "path": "theme-packs/cinematic-landscape/assets/ridge-layers.svg",
+      "sha256": "398f2581a43b2e63c2c712d3d9e309362635b94ec87b81997fc4fa65ac0e0c3e",
+      "license": "MIT",
+      "use": "全片山谷背景；重新取景、移动与雾层叠加"
+    },
+    {
+      "path": "theme-packs/cinematic-landscape/assets/pine-silhouette.svg",
+      "sha256": "af7cec78b425d6411322b2ebc15448129ba5919e724a5d0685c7752c2e8a6ac4",
+      "license": "MIT",
+      "use": "近景两侧松枝，独立位移和裁切"
+    },
+    {
+      "path": "theme-packs/tactile-archive/assets/light-terrace.svg",
+      "sha256": "fccabdce37d482676678730abeef6709e457519da88ad90121001522607e2e07",
+      "license": "MIT",
+      "use": "信内左侧一张光影记忆卡；新纸边与题句"
+    },
+    {
+      "path": "theme-packs/tactile-archive/assets/fern-impression.svg",
+      "sha256": "195302750ad0c183ff4ff7ec26a5bbe74cf10898096b856b925350d17edbc77c",
+      "license": "MIT",
+      "use": "信内偏中植物版画，独立抽出"
+    },
+    {
+      "path": "theme-packs/paper-craft/assets/folded-bird.svg",
+      "sha256": "dad01ed5aefe002c5c0df1bdb16ad3bf74c834d8f44633eb3b518cdb5590187b",
+      "license": "MIT",
+      "use": "记忆页上的小纸鸟，独立出现"
+    },
+    {
+      "path": "theme-packs/shared/materials/grain.svg",
+      "sha256": "34d123e8dc668ac6caaec3e538b51e42f106486a4f5a700a490f547a7a094935",
+      "license": "MIT",
+      "use": "信纸和最终全幅低透明颗粒"
+    },
+    {
+      "path": "theme-packs/shared/motion.js",
+      "sha256": "d4f3b471b39f86be5d145174b97db799d1a54344325810bee6d77dc6766ecda1",
+      "license": "MIT",
+      "use": "clamp/smooth/mix 时间纯函数"
+    },
+    {
+      "path": "theme-packs/shared/narrative-motion.js",
+      "sha256": "ccd95a873a9503e2db7902fdc5ae90180530569485b85e2b2375e119d2bffa82",
+      "license": "MIT",
+      "use": "converge 三次曲线；重新编排信封路径"
+    },
+    {
+      "path": "theme-packs/shared/player.js",
+      "sha256": "36fb91e293735e729c17fb69a8d79ae0fd0b166e05b6b2e13069959d8501f7f3",
+      "license": "MIT",
+      "use": "可选播放、拖动与确定性 render(seconds)"
+    },
+    {
+      "path": "theme-packs/shared/engine-bridge.js",
+      "sha256": "3c28e2e926d3d396269b1f40d7d98a7469fcef587cfe1f320983ee692b31e73b",
+      "license": "MIT",
+      "use": "引擎最小 timeline 接口"
+    },
+    {
+      "path": "theme-packs/shared/base.css",
+      "sha256": "28913b31e9ff11a096acc7b6ac614624500c1f1dc461836a081b5c9068e91918",
+      "license": "MIT",
+      "use": "1280×720 预览舞台和可选播放器基础样式"
+    }
+  ],
+  "sourceManifests": [
+    "theme-packs/cinematic-landscape/manifest.json",
+    "theme-packs/paper-craft/manifest.json",
+    "theme-packs/tactile-archive/manifest.json"
+  ],
+  "licenseFile": "theme-packs/LICENSE",
+  "approach": "Single original continuous Canvas scene, independently recomposed actual assets. No preview concatenation, iframe playback, scene DSL or required human-editing template. All dependencies use repository-relative paths."
+}

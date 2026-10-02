@@ -1,0 +1,145 @@
+{
+  "id": "scientific-space",
+  "name": "Scientific / Orbit Atlas",
+  "displayName": "科学空间 · 轨道图谱",
+  "description": "深蓝坐标空间、琥珀天体与示意轨道；用扫描、路径绘制和量纲标签说明关系。",
+  "tags": [
+    "science",
+    "space",
+    "diagram"
+  ],
+  "palette": [
+    "#081722",
+    "#bdd6e3",
+    "#e3a758",
+    "#79c8cd"
+  ],
+  "compatibleThemeIds": [
+    "frame-data-rollup",
+    "frame-decision-tree",
+    "frame-electric-studio"
+  ],
+  "schemaVersion": 1,
+  "kind": "html-theme-resource-pack",
+  "version": "1.0.0",
+  "license": "MIT",
+  "licenseFile": "theme-packs/LICENSE",
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "aspect": "16:9",
+    "adaptation": "Reference composition; reflow freely for 9:16 or 1:1. Not an automatic aspect converter."
+  },
+  "duration": 8,
+  "audio": {
+    "included": false,
+    "note": "Silent concept preview. Narration, character, voice, language and speaking rate remain user-controlled."
+  },
+  "entrypoints": {
+    "preview": "theme-packs/scientific-space/preview.html",
+    "motion": "theme-packs/scientific-space/motion.js",
+    "styles": "theme-packs/scientific-space/styles.css",
+    "poster": "theme-packs/scientific-space/assets/poster.svg"
+  },
+  "previewApi": {
+    "seek": "window.render(seconds)",
+    "alias": "window.renderAt(seconds)",
+    "freezeQuery": "?t=3.5&controls=0",
+    "timeUnit": "seconds",
+    "range": [
+      0,
+      8
+    ],
+    "play": "window.themePreview.play()",
+    "pause": "window.themePreview.pause()"
+  },
+  "dependencies": {
+    "network": false,
+    "packages": [],
+    "fonts": "Operating-system Arial/Georgia/monospace; none bundled or fetched. Font metrics can vary across systems.",
+    "shared": [
+      "theme-packs/shared/base.css",
+      "theme-packs/shared/motion.js",
+      "theme-packs/shared/player.js"
+    ]
+  },
+  "assets": [
+    {
+      "path": "theme-packs/scientific-space/assets/orbit-atlas.svg",
+      "type": "image/svg+xml",
+      "role": "remixable-illustration",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    },
+    {
+      "path": "theme-packs/scientific-space/assets/spectrum.svg",
+      "type": "image/svg+xml",
+      "role": "remixable-illustration",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    },
+    {
+      "path": "theme-packs/scientific-space/assets/poster.svg",
+      "type": "image/svg+xml",
+      "role": "poster",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    }
+  ],
+  "materials": [
+    "theme-packs/shared/materials/grain.svg",
+    "theme-packs/shared/materials/grid.svg",
+    "theme-packs/shared/materials/registration.svg",
+    "theme-packs/shared/materials/soft-glow.svg"
+  ],
+  "variants": [
+    {
+      "id": "trajectory",
+      "name": "轨迹讲解",
+      "recipe": "Isolate one orbit path, keep the planet dim, and introduce labels at narrative beats. Put actual units and source beside real data."
+    },
+    {
+      "id": "spectrum-study",
+      "name": "信号对照",
+      "recipe": "Promote spectrum.svg to the main visual for an abstract signal lesson. For quantitative content replace its points and add labeled axes and uncertainty."
+    }
+  ],
+  "usage": {
+    "remix": "Use spatial paths and restrained coordinate labels to explain relationships. The supplied planet, paths and spectrum are illustrative, not data. Replace the curve with a sourced dataset before making scientific claims.",
+    "avoid": "No physical simulation is claimed. Never present the fictional spectrum as measurements or convert decorative labels into unsupported quantities.",
+    "motion": "0–1.8s: atlas arrives; 1–4s: trajectory draws; 3–5s: schematic curve appears. A marker follows a deterministic SVG path and phase text progresses.",
+    "portrait": "Stack heading, atlas and legend; remove the small curve panel or give it a dedicated scene. Keep the explicit schematic/data disclaimer visible.",
+    "captions": "Reserve an uncluttered caption band. Recompose labels rather than obscuring subtitles. Preview footer labels are not subtitles."
+  },
+  "provenance": [
+    {
+      "id": "original-2026-10",
+      "kind": "original",
+      "creator": "Short Video theme-pack contributors",
+      "created": "2026-10-01",
+      "scope": "All pack HTML, CSS, JS, SVG illustrations and poster compositions; shared library authored for this repository.",
+      "license": "MIT",
+      "externalAssets": false
+    },
+    {
+      "url": "https://styles.refero.design/",
+      "kind": "discovery-only",
+      "note": "User-suggested design-system discovery source; no screenshots, DESIGN.md text, brand styling or code copied."
+    },
+    {
+      "url": "https://superdesign.dev/",
+      "kind": "discovery-only",
+      "note": "User-suggested inspiration source. No template or generated output downloaded or redistributed."
+    },
+    {
+      "url": "https://ui.aceternity.com/",
+      "kind": "discovery-only",
+      "note": "Reference category: motion-led UI. No component source, premium blocks or assets used."
+    },
+    {
+      "url": "https://reactbits.dev/",
+      "kind": "discovery-only",
+      "note": "Reference category: expressive motion. No React component source or dependencies used."
+    }
+  ]
+}

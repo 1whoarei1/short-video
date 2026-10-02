@@ -33,3 +33,11 @@
 - 按所选模式先批准文案，再 synthesize/timeline；音乐短样可独立制作。最终 `python scripts/engine.py soundtrack PROJECT` 仅从独立音乐、旁白和可选音效混音，严格按 layout 的 total_frames/fps 裁切/补静音/淡出，整曲按实测响度以单一固定增益向 -18 LUFS 归一化（真峰值不超过 -1.5 dBTP，高动态曲目优先保留峰值与动态），保留未改动原始来源；纯音乐默认原响度，有旁白自动 -12dB 并 ducking；bgm_gain_db 默认 0，表示额外增益偏移。可在引擎配置添加 `sound_effects:[{"path":"audio/hit.wav","start":1.2,"gain_db":-6}]`；不得把已混音文件再次当旁白。
 - `render` 消费验证过的 `audio/soundtrack.wav`，即使无旁白；直接 renderer 和 mux-only 同样检查源/时间轴/设置哈希。源、方向、分轨、配音、时长等改变后重建相应下游，不重用旧片。注册 production/export 视频需保留渲染器同目录生成的 `.mp4.soundtrack.json` 验证记录。
 - 导出注册整曲、最终混音、MIDI/创作源、cue map 与必要分轨；实际检查视频内音轨、旁白可懂度、尾部淡出与时长，不仅检查独立 WAV。本次运行环境若仅 Linux，必须明确 Windows 原生运行未实测。
+
+## 主题资源包和图片创作
+- 写场景前读取 `theme-packs/catalog.json`、选定包 manifest、相关 assets/shared 和 runnable preview。旧23主题仍可选，新增 `pack-` 主题对应资源包 ID。资源是可拆用的参考，允许组合、改写和新创作，不强制套版。
+- 需要图片时读取 `.agents/skills/video-image-assets/SKILL.md`。按 image_mode/image_direction 使用当前 Codex 实际生图能力，取得真实文件、验证、记录并用于 HTML。不得仅写提示词就声称图片完成，也不通过项目配置模型 API 或密钥。
+- 用户控制旁白、人物、音色和语速。扩展主题或生成素材时不得擅自更换这些已选内容。
+- 资源发现/复制使用 `app.theme_resources`（见 docs/theme-resource-tools.md）。先检索少量相关参考，查看真实动态效果，再按内容自由组合。不要把每个包全部塞入上下文。
+
+- 需要更多视觉构思时，参考 `docs/visual-remix-guide.md`：按当前内容检索少量材料，先验证关键运动和代表帧，再自由扩展；这一指南不新增审核阶段。

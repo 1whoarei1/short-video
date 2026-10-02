@@ -1,0 +1,15 @@
+{
+  "kind": "ai-generated",
+  "source": "current-session native image-generation tool",
+  "exactModel": "not returned; no specific version asserted",
+  "prompt": "one fresh ripe strawberry with green calyx; detailed natural red skin, golden seeds and water droplets; editorial macro photography; warm soft light; full object on transparent background; no text, logo, plate or extra fruit",
+  "originalSha256": "e30eb2b44af67f88dd8b636c5cdb97bf10049e108c03cc05d3dc94ce8b6b4a32",
+  "webpSha256": "e85e2c9606f1e450bd6f3828c61e7f0f4d2018395530fee09e683425563b1cd7",
+  "dimensions": [
+    1312,
+    1199
+  ],
+  "alphaPreserved": true,
+  "generatedAt": "2026-10-01",
+  "note": "AI generated illustration/photo-like material, not documentary photography; format conversion only"
+}

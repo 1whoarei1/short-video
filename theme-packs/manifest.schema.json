@@ -1,0 +1,359 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HTML theme resource pack",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "kind",
+    "id",
+    "name",
+    "displayName",
+    "description",
+    "version",
+    "license",
+    "licenseFile",
+    "palette",
+    "compatibleThemeIds",
+    "canvas",
+    "duration",
+    "entrypoints",
+    "previewApi",
+    "dependencies",
+    "assets",
+    "materials",
+    "variants",
+    "usage",
+    "provenance"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "kind": {
+      "const": "html-theme-resource-pack"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]+$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "displayName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "license": {
+      "const": "MIT"
+    },
+    "licenseFile": {
+      "type": "string",
+      "pattern": "^theme-packs/(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "palette": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "string",
+        "pattern": "^#[A-Fa-f0-9]{6}$"
+      }
+    },
+    "compatibleThemeIds": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      }
+    },
+    "canvas": {
+      "type": "object",
+      "required": [
+        "width",
+        "height",
+        "aspect",
+        "adaptation"
+      ],
+      "properties": {
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "aspect": {
+          "type": "string"
+        },
+        "adaptation": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "duration": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "audio": {
+      "type": "object",
+      "required": [
+        "included",
+        "note"
+      ],
+      "properties": {
+        "included": {
+          "const": false
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "entrypoints": {
+      "type": "object",
+      "required": [
+        "preview",
+        "motion",
+        "styles",
+        "poster"
+      ],
+      "properties": {
+        "preview": {
+          "type": "string",
+          "pattern": "^theme-packs/(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"
+        },
+        "motion": {
+          "type": "string",
+          "pattern": "^theme-packs/(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"
+        },
+        "styles": {
+          "type": "string",
+          "pattern": "^theme-packs/(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"
+        },
+        "poster": {
+          "type": "string",
+          "pattern": "^theme-packs/(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "previewApi": {
+      "type": "object"
+    },
+    "dependencies": {
+      "type": "object",
+      "required": [
+        "network",
+        "packages",
+        "fonts",
+        "shared"
+      ],
+      "properties": {
+        "network": {
+          "const": false
+        },
+        "packages": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "fonts": {
+          "type": "string"
+        },
+        "shared": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^theme-packs/(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"
+          }
+        }
+      }
+    },
+    "assets": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "type",
+          "role",
+          "license",
+          "provenanceId"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "pattern": "^theme-packs/(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"
+          },
+          "type": {
+            "enum": [
+              "image/svg+xml",
+              "image/png",
+              "image/jpeg",
+              "image/webp"
+            ]
+          },
+          "role": {
+            "enum": [
+              "poster",
+              "remixable-illustration",
+              "generated-material"
+            ]
+          },
+          "license": {
+            "enum": [
+              "MIT",
+              "generated-original"
+            ]
+          },
+          "provenanceId": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "materials": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^theme-packs/(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"
+      }
+    },
+    "variants": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "recipe"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "recipe": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "usage": {
+      "type": "object",
+      "required": [
+        "remix",
+        "avoid",
+        "motion",
+        "portrait",
+        "captions"
+      ],
+      "properties": {
+        "remix": {
+          "type": "string",
+          "minLength": 1
+        },
+        "avoid": {
+          "type": "string",
+          "minLength": 1
+        },
+        "motion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "portrait": {
+          "type": "string",
+          "minLength": 1
+        },
+        "captions": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "provenance": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "original",
+              "discovery-only",
+              "ai-generated"
+            ]
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "license": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "narrative": {
+      "type": "object",
+      "required": [
+        "library",
+        "capabilities",
+        "illustrative"
+      ],
+      "properties": {
+        "library": {
+          "type": "string",
+          "pattern": "^theme-packs/(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"
+        },
+        "capabilities": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "cutaway",
+              "lens",
+              "focus",
+              "converge",
+              "perspective"
+            ]
+          }
+        },
+        "illustrative": {
+          "const": true
+        },
+        "variantParameter": {
+          "const": "variant"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

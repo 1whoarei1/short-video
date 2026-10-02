@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HTML theme resource catalogue",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "kind",
+    "license",
+    "count",
+    "packs"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "kind": {
+      "const": "html-theme-resource-catalog"
+    },
+    "license": {
+      "const": "MIT"
+    },
+    "count": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "packs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "displayName",
+          "description",
+          "tags",
+          "palette",
+          "compatibleThemeIds",
+          "manifest",
+          "preview",
+          "poster"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]+$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "displayName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "palette": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "string",
+              "pattern": "^#[A-Fa-f0-9]{6}$"
+            }
+          },
+          "compatibleThemeIds": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "manifest": {
+            "type": "string",
+            "pattern": "^theme-packs/(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"
+          },
+          "preview": {
+            "type": "string",
+            "pattern": "^theme-packs/(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"
+          },
+          "poster": {
+            "type": "string",
+            "pattern": "^theme-packs/(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

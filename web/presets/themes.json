@@ -29,7 +29,9 @@
       "height": 720,
       "native_aspects": "16:9 · 9:16 · 1:1",
       "source": "vendor/html-explainer/references/style-catalog.json",
-      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+      "preview_note": "6 秒可播放 HTML 动效参考；可自由改写素材、构图与运动。",
+      "animation_preview": "/presets/themes/frame-bold-poster.html",
+      "resource_level": "motion-reference"
     },
     {
       "id": "frame-bold-signal",
@@ -56,7 +58,9 @@
       "height": 720,
       "native_aspects": "16:9 · 9:16 · 1:1",
       "source": "vendor/html-explainer/references/style-catalog.json",
-      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+      "preview_note": "6 秒可播放 HTML 动效参考；可自由改写素材、构图与运动。",
+      "animation_preview": "/presets/themes/frame-bold-signal.html",
+      "resource_level": "motion-reference"
     },
     {
       "id": "frame-build-minimal",
@@ -85,7 +89,9 @@
       "height": 720,
       "native_aspects": "16:9 · 1:1",
       "source": "vendor/html-explainer/references/style-catalog.json",
-      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+      "preview_note": "6 秒可播放 HTML 动效参考；可自由改写素材、构图与运动。",
+      "animation_preview": "/presets/themes/frame-build-minimal.html",
+      "resource_level": "motion-reference"
     },
     {
       "id": "frame-creative-voltage",
@@ -112,7 +118,9 @@
       "height": 720,
       "native_aspects": "16:9 · 1:1",
       "source": "vendor/html-explainer/references/style-catalog.json",
-      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+      "preview_note": "6 秒可播放 HTML 动效参考；可自由改写素材、构图与运动。",
+      "animation_preview": "/presets/themes/frame-creative-voltage.html",
+      "resource_level": "motion-reference"
     },
     {
       "id": "frame-data-chart-nyt",
@@ -139,14 +147,16 @@
       "height": 720,
       "native_aspects": "16:9 · 9:16 · 1:1",
       "source": "vendor/html-explainer/references/style-catalog.json",
-      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+      "preview_note": "6 秒可播放 HTML 动效参考；可自由改写素材、构图与运动。",
+      "animation_preview": "/presets/themes/frame-data-chart-nyt.html",
+      "resource_level": "motion-reference"
     },
     {
       "id": "frame-data-rollup",
       "name": "Data Rollup",
       "zh_name": "数据滚动帧",
       "display_name": "数据滚动帧",
-      "description": "柱形与计数同步增长；这里展示原生数据动画的静态终态",
+      "description": "柱形层次与指标入场，强调数据表达的节奏",
       "category": "数据图表",
       "category_id": "data-viz",
       "subcategory": "bar-chart",
@@ -166,7 +176,9 @@
       "height": 720,
       "native_aspects": "16:9 · 9:16 · 1:1",
       "source": "vendor/html-explainer/references/style-catalog.json",
-      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+      "preview_note": "6 秒可播放 HTML 动效参考；可自由改写素材、构图与运动。",
+      "animation_preview": "/presets/themes/frame-data-rollup.html",
+      "resource_level": "motion-reference"
     },
     {
       "id": "frame-decision-tree",
@@ -197,7 +209,9 @@
       "height": 720,
       "native_aspects": "16:9",
       "source": "vendor/html-explainer/references/style-catalog.json",
-      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+      "preview_note": "6 秒可播放 HTML 动效参考；可自由改写素材、构图与运动。",
+      "animation_preview": "/presets/themes/frame-decision-tree.html",
+      "resource_level": "motion-reference"
     },
     {
       "id": "frame-electric-studio",
@@ -223,7 +237,9 @@
       "height": 720,
       "native_aspects": "16:9 · 1:1",
       "source": "vendor/html-explainer/references/style-catalog.json",
-      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+      "preview_note": "6 秒可播放 HTML 动效参考；可自由改写素材、构图与运动。",
+      "animation_preview": "/presets/themes/frame-electric-studio.html",
+      "resource_level": "motion-reference"
     },
     {
       "id": "frame-glitch-title",
@@ -252,7 +268,9 @@
       "height": 720,
       "native_aspects": "16:9 · 9:16 · 1:1",
       "source": "vendor/html-explainer/references/style-catalog.json",
-      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+      "preview_note": "6 秒可播放 HTML 动效参考；可自由改写素材、构图与运动。",
+      "animation_preview": "/presets/themes/frame-glitch-title.html",
+      "resource_level": "motion-reference"
     },
     {
       "id": "frame-kinetic-type",
@@ -277,7 +295,9 @@
       "height": 720,
       "native_aspects": "16:9",
       "source": "vendor/html-explainer/references/style-catalog.json",
-      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+      "preview_note": "6 秒可播放 HTML 动效参考；可自由改写素材、构图与运动。",
+      "animation_preview": "/presets/themes/frame-kinetic-type.html",
+      "resource_level": "motion-reference"
     },
     {
       "id": "frame-light-leak-cinema",
@@ -306,7 +326,9 @@
       "height": 720,
       "native_aspects": "16:9 · 9:16 · 1:1",
       "source": "vendor/html-explainer/references/style-catalog.json",
-      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+      "preview_note": "6 秒可播放 HTML 动效参考；可自由改写素材、构图与运动。",
+      "animation_preview": "/presets/themes/frame-light-leak-cinema.html",
+      "resource_level": "motion-reference"
     },
     {
       "id": "frame-liquid-bg-hero",
@@ -335,7 +357,9 @@
       "height": 720,
       "native_aspects": "16:9 · 9:16 · 1:1",
       "source": "vendor/html-explainer/references/style-catalog.json",
-      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+      "preview_note": "6 秒可播放 HTML 动效参考；可自由改写素材、构图与运动。",
+      "animation_preview": "/presets/themes/frame-liquid-bg-hero.html",
+      "resource_level": "motion-reference"
     },
     {
       "id": "frame-logo-outro",
@@ -363,7 +387,9 @@
       "height": 720,
       "native_aspects": "16:9 · 9:16 · 1:1",
       "source": "vendor/html-explainer/references/style-catalog.json",
-      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+      "preview_note": "6 秒可播放 HTML 动效参考；可自由改写素材、构图与运动。",
+      "animation_preview": "/presets/themes/frame-logo-outro.html",
+      "resource_level": "motion-reference"
     },
     {
       "id": "frame-nyt-graph",
@@ -391,7 +417,9 @@
       "height": 720,
       "native_aspects": "16:9",
       "source": "vendor/html-explainer/references/style-catalog.json",
-      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+      "preview_note": "6 秒可播放 HTML 动效参考；可自由改写素材、构图与运动。",
+      "animation_preview": "/presets/themes/frame-nyt-graph.html",
+      "resource_level": "motion-reference"
     },
     {
       "id": "frame-pentagram-stat",
@@ -416,7 +444,9 @@
       "height": 720,
       "native_aspects": "16:9 · 1:1",
       "source": "vendor/html-explainer/references/style-catalog.json",
-      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+      "preview_note": "6 秒可播放 HTML 动效参考；可自由改写素材、构图与运动。",
+      "animation_preview": "/presets/themes/frame-pentagram-stat.html",
+      "resource_level": "motion-reference"
     },
     {
       "id": "frame-play-mode",
@@ -445,7 +475,9 @@
       "height": 720,
       "native_aspects": "16:9",
       "source": "vendor/html-explainer/references/style-catalog.json",
-      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+      "preview_note": "6 秒可播放 HTML 动效参考；可自由改写素材、构图与运动。",
+      "animation_preview": "/presets/themes/frame-play-mode.html",
+      "resource_level": "motion-reference"
     },
     {
       "id": "frame-product-promo",
@@ -474,7 +506,9 @@
       "height": 720,
       "native_aspects": "16:9",
       "source": "vendor/html-explainer/references/style-catalog.json",
-      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+      "preview_note": "6 秒可播放 HTML 动效参考；可自由改写素材、构图与运动。",
+      "animation_preview": "/presets/themes/frame-product-promo.html",
+      "resource_level": "motion-reference"
     },
     {
       "id": "frame-product-promo-30s",
@@ -503,7 +537,9 @@
       "height": 720,
       "native_aspects": "16:9",
       "source": "vendor/html-explainer/references/style-catalog.json",
-      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+      "preview_note": "6 秒可播放 HTML 动效参考；可自由改写素材、构图与运动。",
+      "animation_preview": "/presets/themes/frame-product-promo-30s.html",
+      "resource_level": "motion-reference"
     },
     {
       "id": "frame-swiss-grid",
@@ -530,7 +566,9 @@
       "height": 720,
       "native_aspects": "16:9",
       "source": "vendor/html-explainer/references/style-catalog.json",
-      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+      "preview_note": "6 秒可播放 HTML 动效参考；可自由改写素材、构图与运动。",
+      "animation_preview": "/presets/themes/frame-swiss-grid.html",
+      "resource_level": "motion-reference"
     },
     {
       "id": "frame-takram-organic",
@@ -559,7 +597,9 @@
       "height": 720,
       "native_aspects": "16:9 · 1:1",
       "source": "vendor/html-explainer/references/style-catalog.json",
-      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+      "preview_note": "6 秒可播放 HTML 动效参考；可自由改写素材、构图与运动。",
+      "animation_preview": "/presets/themes/frame-takram-organic.html",
+      "resource_level": "motion-reference"
     },
     {
       "id": "frame-vignelli",
@@ -585,7 +625,9 @@
       "height": 720,
       "native_aspects": "9:16",
       "source": "vendor/html-explainer/references/style-catalog.json",
-      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。 此方向原生支持 9:16。"
+      "preview_note": "6 秒可播放 HTML 动效参考；可自由改写素材、构图与运动。",
+      "animation_preview": "/presets/themes/frame-vignelli.html",
+      "resource_level": "motion-reference"
     },
     {
       "id": "frame-warm-grain",
@@ -613,7 +655,9 @@
       "height": 720,
       "native_aspects": "16:9",
       "source": "vendor/html-explainer/references/style-catalog.json",
-      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+      "preview_note": "6 秒可播放 HTML 动效参考；可自由改写素材、构图与运动。",
+      "animation_preview": "/presets/themes/frame-warm-grain.html",
+      "resource_level": "motion-reference"
     },
     {
       "id": "vfx-text-cursor",
@@ -641,7 +685,9 @@
       "height": 720,
       "native_aspects": "16:9 · 9:16 · 1:1",
       "source": "vendor/html-explainer/references/style-catalog.json",
-      "preview_note": "HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。"
+      "preview_note": "6 秒可播放 HTML 动效参考；可自由改写素材、构图与运动。",
+      "animation_preview": "/presets/themes/vfx-text-cursor.html",
+      "resource_level": "motion-reference"
     }
   ]
 }

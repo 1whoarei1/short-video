@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "kind": "html-theme-resource-pack",
+  "id": "blueprint-mechanism",
+  "name": "Blueprint / Open the Mechanism",
+  "displayName": "蓝图构造 · 看懂一条路径",
+  "description": "以斜向机构为舞台，让外壳剖开、内部通道显露、两路标记汇合；完整演示从表面到关系的观察过程。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "licenseFile": "theme-packs/LICENSE",
+  "tags": [
+    "blueprint",
+    "mechanism",
+    "cutaway",
+    "perspective"
+  ],
+  "palette": [
+    "#e9e5da",
+    "#243e4c",
+    "#b55836",
+    "#a9cac7"
+  ],
+  "compatibleThemeIds": [
+    "frame-product-promo",
+    "frame-build-minimal"
+  ],
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "aspect": "16:9",
+    "adaptation": "Free composition reference; 390px browser previews letterbox. Portrait requires deliberate reflow, not automatic cropping."
+  },
+  "duration": 10,
+  "audio": {
+    "included": false,
+    "note": "无声原创示意；旁白、人物、音色和语速由用户选择。预览时长仅演示动效，实际镜头随内容和真实音频安排。"
+  },
+  "entrypoints": {
+    "preview": "theme-packs/blueprint-mechanism/preview.html",
+    "motion": "theme-packs/blueprint-mechanism/motion.js",
+    "styles": "theme-packs/blueprint-mechanism/styles.css",
+    "poster": "theme-packs/blueprint-mechanism/assets/poster.svg"
+  },
+  "previewApi": {
+    "seek": "window.render(seconds)",
+    "alias": "window.renderAt(seconds)",
+    "freezeQuery": "?t=3.5&controls=0",
+    "timeUnit": "seconds",
+    "range": [
+      0,
+      10
+    ],
+    "play": "window.themePreview.play()",
+    "pause": "window.themePreview.pause()"
+  },
+  "dependencies": {
+    "network": false,
+    "packages": [],
+    "fonts": "System Noto Sans/Serif CJK SC, PingFang SC, Microsoft YaHei, Songti SC, SimSun and generic sans/serif; no downloaded or bundled fonts. Metrics vary by OS.",
+    "shared": [
+      "theme-packs/shared/base.css",
+      "theme-packs/shared/motion.js",
+      "theme-packs/shared/player.js",
+      "theme-packs/shared/narrative-motion.js"
+    ]
+  },
+  "assets": [
+    {
+      "path": "theme-packs/blueprint-mechanism/assets/channel-core.svg",
+      "type": "image/svg+xml",
+      "role": "remixable-illustration",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    },
+    {
+      "path": "theme-packs/blueprint-mechanism/assets/shell-plate.svg",
+      "type": "image/svg+xml",
+      "role": "remixable-illustration",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    },
+    {
+      "path": "theme-packs/blueprint-mechanism/assets/poster.svg",
+      "type": "image/svg+xml",
+      "role": "poster",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    },
+    {
+      "path": "theme-packs/precision-product/assets/exploded-rings.svg",
+      "type": "image/svg+xml",
+      "role": "remixable-illustration",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    }
+  ],
+  "materials": [],
+  "variants": [
+    {
+      "id": "perspective",
+      "name": "立体拆解",
+      "recipe": "默认：透视进入与逐步剖开。可把内部通道替换为概念流程，保留示意标注。",
+      "query": ""
+    },
+    {
+      "id": "flat",
+      "name": "正面读图",
+      "recipe": "运行 ?variant=flat：落位后使用平面视角，更适合比较两条路径；路径点与说明可独立编辑。",
+      "query": "?variant=flat"
+    }
+  ],
+  "usage": {
+    "remix": "按叙事自由拆用材料、遮罩、路径和视角。跨包复用素材已列入 assets；复制时保留相对路径。动效库可单独取用，无强制元素 ID 或固定构图。",
+    "avoid": "所有材料与机构均为原创虚构示意。请勿作为真实事件证据、科学测量或产品性能依据；事实内容需替换为已核验且授权的来源。",
+    "motion": "0–2 秒机构透视落位；2.1–4.4 秒外壳剖开；4.4–7.3 秒通道显露与路径汇合；6.7–10 秒保留解读。",
+    "portrait": "390px 预览保留横版完整画面。制作竖版时重新安排主体与说明，重设路径端点和字幕安全区。",
+    "captions": "底部 84px 是可替换字幕带；加入正式字幕时移走示例页脚。可调整镜头留白与时长，不强制改变旁白语速。"
+  },
+  "provenance": [
+    {
+      "id": "original-2026-10",
+      "kind": "original",
+      "creator": "Short Video theme-pack contributors",
+      "created": "2026-10-01",
+      "scope": "Original HTML/CSS/JavaScript, sample Chinese copy, new SVG geometry and shared narrative poses. Cross-pack SVGs are original MIT materials already shipped in tactile-archive or precision-product; exact paths listed in assets. No external imagery, fonts or factual datasets.",
+      "license": "MIT",
+      "externalAssets": false
+    }
+  ],
+  "narrative": {
+    "library": "theme-packs/shared/narrative-motion.js",
+    "capabilities": [
+      "cutaway",
+      "converge",
+      "perspective"
+    ],
+    "illustrative": true,
+    "variantParameter": "variant"
+  }
+}

@@ -1,0 +1,397 @@
+{
+  "schemaVersion": 1,
+  "kind": "html-theme-resource-catalog",
+  "license": "MIT",
+  "count": 15,
+  "packs": [
+    {
+      "id": "precision-product",
+      "name": "Precision / Product",
+      "displayName": "精密产品 · 光切面",
+      "description": "冷白工作室、深色产品雕塑、精确标注与分层拆解；适合产品机制和功能介绍。",
+      "tags": [
+        "product",
+        "technical",
+        "minimal"
+      ],
+      "palette": [
+        "#edf0ed",
+        "#182323",
+        "#748681",
+        "#d4ff65"
+      ],
+      "compatibleThemeIds": [
+        "frame-product-promo",
+        "frame-product-promo-30s",
+        "frame-build-minimal"
+      ],
+      "manifest": "theme-packs/precision-product/manifest.json",
+      "preview": "theme-packs/precision-product/preview.html",
+      "poster": "theme-packs/precision-product/assets/poster.svg"
+    },
+    {
+      "id": "editorial-collage",
+      "name": "Editorial / Fieldnotes",
+      "displayName": "编辑拼贴 · 野外笔记",
+      "description": "暖纸、深红衬线字、地貌剪影、胶带与裁切线；为观点和人文主题组织层次。",
+      "tags": [
+        "editorial",
+        "collage",
+        "story"
+      ],
+      "palette": [
+        "#f0eadc",
+        "#922e34",
+        "#273b39",
+        "#daa959"
+      ],
+      "compatibleThemeIds": [
+        "frame-bold-poster",
+        "frame-nyt-graph",
+        "frame-warm-grain"
+      ],
+      "manifest": "theme-packs/editorial-collage/manifest.json",
+      "preview": "theme-packs/editorial-collage/preview.html",
+      "poster": "theme-packs/editorial-collage/assets/poster.svg"
+    },
+    {
+      "id": "scientific-space",
+      "name": "Scientific / Orbit Atlas",
+      "displayName": "科学空间 · 轨道图谱",
+      "description": "深蓝坐标空间、琥珀天体与示意轨道；用扫描、路径绘制和量纲标签说明关系。",
+      "tags": [
+        "science",
+        "space",
+        "diagram"
+      ],
+      "palette": [
+        "#081722",
+        "#bdd6e3",
+        "#e3a758",
+        "#79c8cd"
+      ],
+      "compatibleThemeIds": [
+        "frame-data-rollup",
+        "frame-decision-tree",
+        "frame-electric-studio"
+      ],
+      "manifest": "theme-packs/scientific-space/manifest.json",
+      "preview": "theme-packs/scientific-space/preview.html",
+      "poster": "theme-packs/scientific-space/assets/poster.svg"
+    },
+    {
+      "id": "paper-craft",
+      "name": "Paper / Small Worlds",
+      "displayName": "纸艺构造 · 小小世界",
+      "description": "奶油纸面、折叠山谷和剪纸植物；通过分层组装解释生态、流程和日常故事。",
+      "tags": [
+        "paper",
+        "craft",
+        "explainer"
+      ],
+      "palette": [
+        "#f5e9ce",
+        "#244e45",
+        "#e88659",
+        "#edc961"
+      ],
+      "compatibleThemeIds": [
+        "frame-play-mode",
+        "frame-warm-grain",
+        "frame-decision-tree"
+      ],
+      "manifest": "theme-packs/paper-craft/manifest.json",
+      "preview": "theme-packs/paper-craft/preview.html",
+      "poster": "theme-packs/paper-craft/assets/poster.svg"
+    },
+    {
+      "id": "kinetic-poster",
+      "name": "Type / Moving Message",
+      "displayName": "动感字海报 · 主张发声",
+      "description": "酸橙色大字、硬边黑底和标志式圆环；字形本身承担节奏，信息不靠快速闪烁。",
+      "tags": [
+        "typography",
+        "poster",
+        "bold"
+      ],
+      "palette": [
+        "#17191a",
+        "#ecff72",
+        "#f4f2e8",
+        "#e59cb5"
+      ],
+      "compatibleThemeIds": [
+        "frame-kinetic-type",
+        "frame-bold-signal",
+        "frame-creative-voltage"
+      ],
+      "manifest": "theme-packs/kinetic-poster/manifest.json",
+      "preview": "theme-packs/kinetic-poster/preview.html",
+      "poster": "theme-packs/kinetic-poster/assets/poster.svg"
+    },
+    {
+      "id": "organic-light",
+      "name": "Organic / Living Light",
+      "displayName": "有机光感 · 叶隙之间",
+      "description": "苔绿留白、透光叶片与缓慢光斑；用呼吸式尺度和光照相位表现材料、环境和感受。",
+      "tags": [
+        "organic",
+        "light",
+        "ambient"
+      ],
+      "palette": [
+        "#e5eadb",
+        "#244c38",
+        "#b9ce7b",
+        "#f3efcf"
+      ],
+      "compatibleThemeIds": [
+        "frame-takram-organic",
+        "frame-liquid-bg-hero",
+        "frame-light-leak-cinema"
+      ],
+      "manifest": "theme-packs/organic-light/manifest.json",
+      "preview": "theme-packs/organic-light/preview.html",
+      "poster": "theme-packs/organic-light/assets/poster.svg"
+    },
+    {
+      "id": "editorial-data",
+      "name": "Editorial / Data Sculpture",
+      "displayName": "编辑数据 · 关系的形状",
+      "description": "纸白网格上的朱砂折叠雕塑，以全宽中文标题、等轴构型和边注连接抽象概念；不是柱图数据模板。",
+      "tags": [
+        "editorial",
+        "data",
+        "sculpture",
+        "chinese"
+      ],
+      "palette": [
+        "#f2eee5",
+        "#252522",
+        "#bd3f32",
+        "#c8bfac"
+      ],
+      "compatibleThemeIds": [
+        "frame-data-chart-nyt",
+        "frame-pentagram-stat",
+        "frame-swiss-grid"
+      ],
+      "manifest": "theme-packs/editorial-data/manifest.json",
+      "preview": "theme-packs/editorial-data/preview.html",
+      "poster": "theme-packs/editorial-data/assets/poster.svg"
+    },
+    {
+      "id": "botanical-microscopy",
+      "name": "Botanical / Inner Structures",
+      "displayName": "植物显微 · 内部的秩序",
+      "description": "深青观察场中展开透明薄膜、放射细胞与想象横截面；主体居中、标注环绕，用层次关系组织观察。",
+      "tags": [
+        "botanical",
+        "microscopy",
+        "cutaway",
+        "science"
+      ],
+      "palette": [
+        "#082b2d",
+        "#b8ebc9",
+        "#f5b7ad",
+        "#deeb82"
+      ],
+      "compatibleThemeIds": [
+        "frame-takram-organic",
+        "frame-decision-tree",
+        "frame-electric-studio"
+      ],
+      "manifest": "theme-packs/botanical-microscopy/manifest.json",
+      "preview": "theme-packs/botanical-microscopy/preview.html",
+      "poster": "theme-packs/botanical-microscopy/assets/poster.svg"
+    },
+    {
+      "id": "tactile-archive",
+      "name": "Tactile / Contact Archive",
+      "displayName": "触感档案 · 时间的切片",
+      "description": "深色桌面上的六张原创版画以接触印样和轻透视展开，纸边、胶带与抽离焦点让材料之间形成叙事关系。",
+      "tags": [
+        "archive",
+        "contact-sheet",
+        "tactile",
+        "perspective"
+      ],
+      "palette": [
+        "#302d2a",
+        "#e8d9bc",
+        "#bd744d",
+        "#7e928e"
+      ],
+      "compatibleThemeIds": [
+        "frame-warm-grain",
+        "frame-light-leak-cinema",
+        "frame-bold-poster"
+      ],
+      "manifest": "theme-packs/tactile-archive/manifest.json",
+      "preview": "theme-packs/tactile-archive/preview.html",
+      "poster": "theme-packs/tactile-archive/assets/poster.svg"
+    },
+    {
+      "id": "cinematic-inquiry",
+      "name": "Cinema / Lines of Inquiry",
+      "displayName": "电影式观察 · 线索相遇",
+      "description": "从三张材料切片进入局部观察，再让路径汇合成新的问题；宽幅接触印样与圆形透镜共同组织三幕微叙事。",
+      "tags": [
+        "cinema",
+        "inquiry",
+        "lens",
+        "convergence"
+      ],
+      "palette": [
+        "#10191f",
+        "#e7decb",
+        "#dfb77e",
+        "#89aba8"
+      ],
+      "compatibleThemeIds": [
+        "frame-light-leak-cinema",
+        "frame-decision-tree"
+      ],
+      "manifest": "theme-packs/cinematic-inquiry/manifest.json",
+      "preview": "theme-packs/cinematic-inquiry/preview.html",
+      "poster": "theme-packs/cinematic-inquiry/assets/poster.svg"
+    },
+    {
+      "id": "blueprint-mechanism",
+      "name": "Blueprint / Open the Mechanism",
+      "displayName": "蓝图构造 · 看懂一条路径",
+      "description": "以斜向机构为舞台，让外壳剖开、内部通道显露、两路标记汇合；完整演示从表面到关系的观察过程。",
+      "tags": [
+        "blueprint",
+        "mechanism",
+        "cutaway",
+        "perspective"
+      ],
+      "palette": [
+        "#e9e5da",
+        "#243e4c",
+        "#b55836",
+        "#a9cac7"
+      ],
+      "compatibleThemeIds": [
+        "frame-product-promo",
+        "frame-build-minimal"
+      ],
+      "manifest": "theme-packs/blueprint-mechanism/manifest.json",
+      "preview": "theme-packs/blueprint-mechanism/preview.html",
+      "poster": "theme-packs/blueprint-mechanism/assets/poster.svg"
+    },
+    {
+      "id": "food-editorial",
+      "name": "Food / Editorial",
+      "displayName": "食物特写 · 莓好一刻",
+      "description": "真实生图素材与纸张、镜头聚焦和排字自由重组；通过新的草莓题材演示跨资源组合。",
+      "tags": [
+        "food",
+        "photo",
+        "macro",
+        "食物",
+        "特写",
+        "生图"
+      ],
+      "palette": [
+        "#F2EDDF",
+        "#264B35",
+        "#A51928",
+        "#F3D5C9"
+      ],
+      "compatibleThemeIds": [
+        "frame-product-promo",
+        "frame-warm-grain",
+        "frame-kinetic-type"
+      ],
+      "manifest": "theme-packs/food-editorial/manifest.json",
+      "preview": "theme-packs/food-editorial/preview.html",
+      "poster": "theme-packs/food-editorial/assets/poster.webp"
+    },
+    {
+      "id": "signal-journey",
+      "name": "Signal / Spatial Journey",
+      "displayName": "信号旅程 · 空间讲解",
+      "description": "原创空间路径、分层节点、三路探索与汇合；通过镜头深度和沿线消息运动讲清抽象关系。",
+      "tags": [
+        "signal",
+        "spatial",
+        "explainer",
+        "paths",
+        "branching"
+      ],
+      "compatibleThemeIds": [
+        "frame-data-rollup",
+        "frame-decision-tree",
+        "frame-electric-studio"
+      ],
+      "manifest": "theme-packs/signal-journey/manifest.json",
+      "preview": "theme-packs/signal-journey/preview.html",
+      "poster": "theme-packs/signal-journey/assets/poster.svg",
+      "palette": [
+        "#091c24",
+        "#baffdc",
+        "#c0b6f4",
+        "#f2c891"
+      ]
+    },
+    {
+      "id": "prismatic-lab",
+      "name": "Prismatic / Lab",
+      "displayName": "棱镜实验 · 光的材质",
+      "description": "光学玻璃微距、光束切面与光谱焦散，带真实生成透明棱镜和可编辑矢量光学材质。",
+      "tags": [
+        "glass",
+        "prism",
+        "material",
+        "macro",
+        "product",
+        "light"
+      ],
+      "palette": [
+        "#080c17",
+        "#92e5ec",
+        "#e8e6dc",
+        "#866a42"
+      ],
+      "compatibleThemeIds": [
+        "frame-product-promo",
+        "frame-product-promo-30s",
+        "frame-build-minimal"
+      ],
+      "manifest": "theme-packs/prismatic-lab/manifest.json",
+      "preview": "theme-packs/prismatic-lab/preview.html",
+      "poster": "theme-packs/prismatic-lab/assets/poster.png"
+    },
+    {
+      "id": "cinematic-landscape",
+      "name": "Cinematic / Landscape",
+      "displayName": "电影地貌 · 山谷醒来",
+      "description": "六层原创山脊、侧光薄雾、侵蚀纹理、松枝前景与溪流反光；用镜头穿行讲述十二秒山间光影。",
+      "tags": [
+        "landscape",
+        "cinematic",
+        "parallax",
+        "terrain",
+        "atmosphere",
+        "canvas"
+      ],
+      "palette": [
+        "#142c3a",
+        "#527f82",
+        "#12373f",
+        "#ffefb8"
+      ],
+      "compatibleThemeIds": [
+        "frame-takram-organic",
+        "frame-liquid-bg-hero",
+        "frame-light-leak-cinema"
+      ],
+      "manifest": "theme-packs/cinematic-landscape/manifest.json",
+      "preview": "theme-packs/cinematic-landscape/preview.html",
+      "poster": "theme-packs/cinematic-landscape/assets/poster.svg"
+    }
+  ]
+}

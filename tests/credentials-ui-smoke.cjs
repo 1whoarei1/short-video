@@ -1,3 +1,5 @@
+'use strict';
+const {revealBriefControl}=require('./brief-ui-helpers.cjs');
 // Fake in-memory credentials only; never opens a real OS vault or calls Azure.
 // BROWSER_PATH=/path/to/chromium node tests/credentials-ui-smoke.cjs
 'use strict';
@@ -17,39 +19,39 @@ const fs=require('fs'),os=require('os'),path=require('path'),assert=require('ass
   browser=await chromium.launch({headless:true,executablePath:process.env.BROWSER_PATH,args:['--no-sandbox','--disable-dev-shm-usage','--single-process']});
   const page=await browser.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto(base);await page.waitForFunction(()=>document.querySelector('#stageTitle').textContent);
-  await page.locator('input[name="soundMode"][value="voiced"]').check();
-  await page.locator('#voiceProvider').selectOption('azure');
-  const open=async()=>{await page.locator('#openAzureCredentials').click();await page.waitForFunction(()=>!document.querySelector('#editCredentials').disabled);};
-  await open();await page.locator('#editCredentials').click();
+  await revealBriefControl(page, 'input[name="soundMode"][value="voiced"]'); await page.locator('input[name="soundMode"][value="voiced"]').check();
+  await revealBriefControl(page, '#voiceProvider'); await page.locator('#voiceProvider').selectOption('azure');
+  const open=async()=>{await revealBriefControl(page, '#openAzureCredentials'); await page.locator('#openAzureCredentials').click();await page.waitForFunction(()=>!document.querySelector('#editCredentials').disabled);};
+  await open();await revealBriefControl(page, '#editCredentials'); await page.locator('#editCredentials').click();
   assert.strictEqual(await page.locator('#azureKey').getAttribute('type'),'password');
   if(process.env.CREDENTIAL_SCREENSHOT_DIR)await page.screenshot({path:path.join(process.env.CREDENTIAL_SCREENSHOT_DIR,'credentials-desktop.png')});
-  await page.locator('#azureKey').fill('FAKE-UI-SECRET-123456789');await page.locator('#azureRegion').fill('eastus');
-  await page.locator('#saveCredentials').click();await page.waitForFunction(()=>document.querySelector('#credentialStatus').textContent.includes('已配置'));
+  await revealBriefControl(page, '#azureKey'); await page.locator('#azureKey').fill('FAKE-UI-SECRET-123456789');await revealBriefControl(page, '#azureRegion'); await page.locator('#azureRegion').fill('eastus');
+  await revealBriefControl(page, '#saveCredentials'); await page.locator('#saveCredentials').click();await page.waitForFunction(()=>document.querySelector('#credentialStatus').textContent.includes('已配置'));
   assert.strictEqual(await page.locator('#azureKey').inputValue(),'');assert(await page.locator('#credentialEditor').isHidden());
   if(process.env.CREDENTIAL_SCREENSHOT_DIR){await page.screenshot({path:path.join(process.env.CREDENTIAL_SCREENSHOT_DIR,'credentials-configured-desktop.png')});await page.setViewportSize({width:390,height:844});await page.screenshot({path:path.join(process.env.CREDENTIAL_SCREENSHOT_DIR,'credentials-configured-mobile.png')});await page.setViewportSize({width:1280,height:720});}
   assert(!(await page.locator('body').innerText()).includes('FAKE-UI-SECRET'));
   const state=await page.evaluate(async()=>await(await fetch('/api/state')).text());assert(!state.includes('FAKE-UI-SECRET'));
   assert.strictEqual(await page.evaluate(()=>localStorage.length+sessionStorage.length),0);
-  await page.locator('#editCredentials').click();await page.locator('#azureKey').fill('FAKE-UI-UNSAVED-123456');await page.locator('#cancelCredentials').click();
+  await revealBriefControl(page, '#editCredentials'); await page.locator('#editCredentials').click();await revealBriefControl(page, '#azureKey'); await page.locator('#azureKey').fill('FAKE-UI-UNSAVED-123456');await revealBriefControl(page, '#cancelCredentials'); await page.locator('#cancelCredentials').click();
   assert.strictEqual(await page.locator('#azureKey').inputValue(),'');
-  await page.locator('#editCredentials').click();await page.locator('#azureKey').fill('FAKE-UI-UNSAVED-123456');await page.keyboard.press('Escape');
+  await revealBriefControl(page, '#editCredentials'); await page.locator('#editCredentials').click();await revealBriefControl(page, '#azureKey'); await page.locator('#azureKey').fill('FAKE-UI-UNSAVED-123456');await page.keyboard.press('Escape');
   assert.strictEqual(await page.locator('#azureKey').inputValue(),'');await open();
-  await page.locator('#editCredentials').click();await page.locator('#azureKey').fill('FAKE-UI-UNSAVED-123456');await page.goBack();
+  await revealBriefControl(page, '#editCredentials'); await page.locator('#editCredentials').click();await revealBriefControl(page, '#azureKey'); await page.locator('#azureKey').fill('FAKE-UI-UNSAVED-123456');await page.goBack();
   assert.strictEqual(await page.locator('#azureKey').inputValue(),'');await open();
-  await page.locator('#editCredentials').click();await page.locator('#azureKey').fill('short');await page.locator('#azureRegion').fill('eastus');await page.locator('#saveCredentials').click();
+  await revealBriefControl(page, '#editCredentials'); await page.locator('#editCredentials').click();await revealBriefControl(page, '#azureKey'); await page.locator('#azureKey').fill('short');await revealBriefControl(page, '#azureRegion'); await page.locator('#azureRegion').fill('eastus');await revealBriefControl(page, '#saveCredentials'); await page.locator('#saveCredentials').click();
   await page.waitForFunction(()=>document.querySelector('#credentialFeedback').textContent.includes('格式无效'));assert.strictEqual(await page.locator('#azureKey').inputValue(),'');
-  await page.locator('#azureKey').fill('FAKE-UI-REPLACE-123456');await page.locator('#azureRegion').fill('westus');await page.locator('#saveCredentials').dblclick();
+  await revealBriefControl(page, '#azureKey'); await page.locator('#azureKey').fill('FAKE-UI-REPLACE-123456');await revealBriefControl(page, '#azureRegion'); await page.locator('#azureRegion').fill('westus');await page.locator('#saveCredentials').dblclick();
   await page.waitForFunction(()=>document.querySelector('#credentialStatus').textContent.includes('westus'));
-  page.once('dialog',d=>d.dismiss());await page.locator('#deleteCredentials').click();assert((await page.locator('#credentialStatus').innerText()).includes('已配置'));
-  page.once('dialog',d=>d.accept());await page.locator('#deleteCredentials').click();await page.waitForFunction(()=>document.querySelector('#credentialStatus').textContent.includes('尚未配置'));
-  await page.locator('#closeCredentials').click();await page.reload();await page.waitForFunction(()=>document.querySelector('#stageTitle').textContent);
+  page.once('dialog',d=>d.dismiss());await revealBriefControl(page, '#deleteCredentials'); await page.locator('#deleteCredentials').click();assert((await page.locator('#credentialStatus').innerText()).includes('已配置'));
+  page.once('dialog',d=>d.accept());await revealBriefControl(page, '#deleteCredentials'); await page.locator('#deleteCredentials').click();await page.waitForFunction(()=>document.querySelector('#credentialStatus').textContent.includes('尚未配置'));
+  await revealBriefControl(page, '#closeCredentials'); await page.locator('#closeCredentials').click();await page.reload();await page.waitForFunction(()=>document.querySelector('#stageTitle').textContent);
   assert.strictEqual(await page.locator('#azureKey').inputValue(),'');
-  await page.locator('#settingsButton').click();await page.locator('#settingsAzureCredentials').click();await page.waitForFunction(()=>!document.querySelector('#editCredentials').disabled);
+  await revealBriefControl(page, '#settingsButton'); await page.locator('#settingsButton').click();await revealBriefControl(page, '#settingsAzureCredentials'); await page.locator('#settingsAzureCredentials').click();await page.waitForFunction(()=>!document.querySelector('#editCredentials').disabled);
   assert(await page.locator('#settingsDialog').isHidden());await page.setViewportSize({width:390,height:844});
-  await page.locator('#editCredentials').click();assert(await page.locator('#azureKey').isVisible());
+  await revealBriefControl(page, '#editCredentials'); await page.locator('#editCredentials').click();assert(await page.locator('#azureKey').isVisible());
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth));
   if(process.env.CREDENTIAL_SCREENSHOT_DIR)await page.screenshot({path:path.join(process.env.CREDENTIAL_SCREENSHOT_DIR,'credentials-mobile.png')});
-  await page.locator('#azureKey').fill('FAKE-UI-PAGEHIDE-12345');await page.evaluate(()=>window.dispatchEvent(new PageTransitionEvent('pagehide')));assert.strictEqual(await page.locator('#azureKey').inputValue(),'');
+  await revealBriefControl(page, '#azureKey'); await page.locator('#azureKey').fill('FAKE-UI-PAGEHIDE-12345');await page.evaluate(()=>window.dispatchEvent(new PageTransitionEvent('pagehide')));assert.strictEqual(await page.locator('#azureKey').inputValue(),'');
   assert.deepStrictEqual(errors,[]);console.log('PASS: fake credential UI save/replace/delete, errors, cancel/escape/back, no readback or browser storage');
  }finally{if(browser)await browser.close();server.kill();fs.rmSync(workspace,{recursive:true,force:true});}
 })().catch(e=>{console.error(e);process.exit(1)});

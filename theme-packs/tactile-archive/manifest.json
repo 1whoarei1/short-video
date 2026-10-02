@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 1,
+  "kind": "html-theme-resource-pack",
+  "id": "tactile-archive",
+  "name": "Tactile / Contact Archive",
+  "displayName": "触感档案 · 时间的切片",
+  "description": "深色桌面上的六张原创版画以接触印样和轻透视展开，纸边、胶带与抽离焦点让材料之间形成叙事关系。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "licenseFile": "theme-packs/LICENSE",
+  "tags": [
+    "archive",
+    "contact-sheet",
+    "tactile",
+    "perspective"
+  ],
+  "palette": [
+    "#302d2a",
+    "#e8d9bc",
+    "#bd744d",
+    "#7e928e"
+  ],
+  "compatibleThemeIds": [
+    "frame-warm-grain",
+    "frame-light-leak-cinema",
+    "frame-bold-poster"
+  ],
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "aspect": "16:9",
+    "adaptation": "Free composition reference; 390px browser previews letterbox. Portrait requires deliberate reflow, not automatic cropping."
+  },
+  "duration": 8,
+  "audio": {
+    "included": false,
+    "note": "无声示意；旁白、人物、音色、语速均由用户选择。本包不含事实数据或真实物种断言。"
+  },
+  "entrypoints": {
+    "preview": "theme-packs/tactile-archive/preview.html",
+    "motion": "theme-packs/tactile-archive/motion.js",
+    "styles": "theme-packs/tactile-archive/styles.css",
+    "poster": "theme-packs/tactile-archive/assets/poster.svg"
+  },
+  "previewApi": {
+    "seek": "window.render(seconds)",
+    "alias": "window.renderAt(seconds)",
+    "freezeQuery": "?t=3.5&controls=0",
+    "timeUnit": "seconds",
+    "range": [
+      0,
+      8
+    ],
+    "play": "window.themePreview.play()",
+    "pause": "window.themePreview.pause()"
+  },
+  "dependencies": {
+    "network": false,
+    "packages": [],
+    "fonts": "System Noto Sans/Serif CJK SC, PingFang SC, Microsoft YaHei, Songti SC, SimSun and generic sans/serif; no downloaded or bundled fonts. Metrics vary by OS.",
+    "shared": [
+      "theme-packs/shared/base.css",
+      "theme-packs/shared/motion.js",
+      "theme-packs/shared/player.js"
+    ]
+  },
+  "assets": [
+    {
+      "path": "theme-packs/tactile-archive/assets/light-terrace.svg",
+      "type": "image/svg+xml",
+      "role": "remixable-illustration",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    },
+    {
+      "path": "theme-packs/tactile-archive/assets/fern-impression.svg",
+      "type": "image/svg+xml",
+      "role": "remixable-illustration",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    },
+    {
+      "path": "theme-packs/tactile-archive/assets/tidal-impression.svg",
+      "type": "image/svg+xml",
+      "role": "remixable-illustration",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    },
+    {
+      "path": "theme-packs/tactile-archive/assets/poster.svg",
+      "type": "image/svg+xml",
+      "role": "poster",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    }
+  ],
+  "materials": [
+    "theme-packs/shared/materials/grain.svg"
+  ],
+  "variants": [
+    {
+      "id": "evidence-wall",
+      "name": "证据墙",
+      "recipe": "替换为授权照片并写真实日期、地点和来源；用连接线表达已证实关系，不用倾斜和老化暗示未经核验的历史真实性。"
+    },
+    {
+      "id": "one-print",
+      "name": "单张深读",
+      "recipe": "从全幅接触印样中只保留一张，抽离纸边与批注，逐层放大细节；避免强迫每个镜头都使用六格。"
+    },
+    {
+      "id": "material-diary",
+      "name": "材料日记",
+      "recipe": "用自己采集的材料、纹样或设计过程替换版画。让纸片顺序随叙事重新编排，主体也可变成一叠、散落或纵向长卷。"
+    }
+  ],
+  "usage": {
+    "remix": "版画可当独立插图，纸框、胶带、台面光影和透视代码可分别拆走。轻透视只帮助触感，不要求六张接触印样或固定对称构图。",
+    "avoid": "本包图像是原创虚构版画，非摄影、史料、物种记录或真实地貌。若讲述真实事件，替换为已授权证据，并写明时间、来源和编辑处理；勿用虚构画面伪装实录。",
+    "motion": "0.1–1 秒标题出现；0.25–2.15 秒纸片错时摊开；2–7 秒一张纸轻微抽离再落回。摄影视角缓慢变化，没有闪烁或快速推拉；可改成静态。",
+    "portrait": "把接触印样改为两列或单列长卷，挑选 2–3 张重点材料。边注移到底部或空纸边，重新检查透视边缘与字幕距离。",
+    "captions": "底部 78 像素为参考页脚，成片移走页脚后可用作字幕安全区。透视打印边缘和标注不得穿入字幕；不要把字幕烙在小纸片上。"
+  },
+  "provenance": [
+    {
+      "id": "original-2026-10",
+      "kind": "original",
+      "creator": "Short Video theme-pack contributors",
+      "created": "2026-10-01",
+      "scope": "All SVG paths, procedural geometry, sample Chinese copy, HTML, CSS and time-driven JavaScript composed originally for this pack. No third-party source, images, fonts, or generated photographic assets.",
+      "license": "MIT",
+      "externalAssets": false
+    }
+  ]
+}

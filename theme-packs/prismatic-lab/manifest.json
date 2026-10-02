@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 1,
+  "kind": "html-theme-resource-pack",
+  "id": "prismatic-lab",
+  "name": "Prismatic / Lab",
+  "displayName": "棱镜实验 · 光的材质",
+  "description": "光学玻璃微距、光束切面与光谱焦散，带真实生成透明棱镜和可编辑矢量光学材质。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "licenseFile": "theme-packs/LICENSE",
+  "tags": [
+    "glass",
+    "prism",
+    "material",
+    "macro",
+    "product",
+    "light"
+  ],
+  "palette": [
+    "#080c17",
+    "#92e5ec",
+    "#e8e6dc",
+    "#866a42"
+  ],
+  "compatibleThemeIds": [
+    "frame-product-promo",
+    "frame-product-promo-30s",
+    "frame-build-minimal"
+  ],
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "aspect": "16:9",
+    "adaptation": "Fixed 16:9 art board scales without cropping on mobile. Portrait requires the documented composition recipe; not automatic reflow."
+  },
+  "duration": 12,
+  "audio": {
+    "included": false,
+    "note": "Silent material study. Narration, character, voice and speaking rate are unchanged and remain user controlled."
+  },
+  "entrypoints": {
+    "preview": "theme-packs/prismatic-lab/preview.html",
+    "motion": "theme-packs/prismatic-lab/motion.js",
+    "styles": "theme-packs/prismatic-lab/styles.css",
+    "poster": "theme-packs/prismatic-lab/assets/poster.png"
+  },
+  "previewApi": {
+    "seek": "window.render(seconds)",
+    "alias": "window.renderAt(seconds)",
+    "freezeQuery": "?variant=spectral-nocturne&t=6.3&controls=0",
+    "timeUnit": "seconds",
+    "range": [
+      0,
+      12
+    ],
+    "play": "window.themePreview.play()",
+    "pause": "window.themePreview.pause()",
+    "parameters": {
+      "variant": "spectral-nocturne | pearl-studio",
+      "spread": "0.3–1.8; default 1",
+      "glow": "0–1.6; default 1",
+      "camera": "0–1.3; default 1"
+    }
+  },
+  "dependencies": {
+    "network": false,
+    "packages": [],
+    "fonts": "Local Arial, Georgia and Courier New; no remote fonts. Metrics vary by platform.",
+    "shared": [
+      "theme-packs/shared/base.css",
+      "theme-packs/shared/motion.js",
+      "theme-packs/shared/player.js"
+    ]
+  },
+  "assets": [
+    {
+      "path": "theme-packs/prismatic-lab/assets/prism.webp",
+      "type": "image/webp",
+      "role": "generated-material",
+      "license": "generated-original",
+      "provenanceId": "prism-generated-2026-10-01"
+    },
+    {
+      "path": "theme-packs/prismatic-lab/assets/spectral-caustic.svg",
+      "type": "image/svg+xml",
+      "role": "remixable-illustration",
+      "license": "MIT",
+      "provenanceId": "prismatic-original-2026-10-01"
+    },
+    {
+      "path": "theme-packs/prismatic-lab/assets/faceted-glass.svg",
+      "type": "image/svg+xml",
+      "role": "remixable-illustration",
+      "license": "MIT",
+      "provenanceId": "prismatic-original-2026-10-01"
+    },
+    {
+      "path": "theme-packs/prismatic-lab/assets/poster.png",
+      "type": "image/png",
+      "role": "poster",
+      "license": "generated-original",
+      "provenanceId": "prism-generated-2026-10-01"
+    }
+  ],
+  "materials": [
+    "theme-packs/prismatic-lab/assets/spectral-caustic.svg",
+    "theme-packs/prismatic-lab/assets/faceted-glass.svg"
+  ],
+  "variants": [
+    {
+      "id": "spectral-nocturne",
+      "name": "光谱暗室",
+      "recipe": "Run preview.html?variant=spectral-nocturne. Dark optical bench, cool light slit, spectrum fan and generated-glass macro crop."
+    },
+    {
+      "id": "pearl-studio",
+      "name": "珍珠工作室",
+      "recipe": "Run preview.html?variant=pearl-studio. Warm reflective bench, softened dispersion, changed glass pose and vector-construction detail crop."
+    }
+  ],
+  "usage": {
+    "remix": "Reuse the transparent generated prism, separate vector caustic and editable geometric glass. Swap prism image for an authorized product cutout; preserve the source record. Text is ordinary HTML. Query parameters tune spread, glow and camera amplitude.",
+    "avoid": "Layered 2D images and gradients are illustrative art direction, not real-time 3D, ray tracing, physical refraction or measured optics. Do not use as evidence of product performance.",
+    "motion": "0–1.8s slit reveal and macro pullback; 1.1–4s title and settle; 2.7–7s beam and caustic travel; 7–9s close inspection detail; 10.3–12s quieter final light. Time is analytic with no random or CSS animation.",
+    "portrait": "At 9:16, place headline in top 24%, prism at center 50%, caustic below it and phase at bottom. Remove edition/footer and detail inset rather than shrink all labels. Current preview only letterboxes.",
+    "captions": "Keep bottom 90px free for production captions by removing the decorative footer and shortening caustic. Preview labels are not subtitles."
+  },
+  "provenance": [
+    {
+      "id": "prismatic-original-2026-10-01",
+      "kind": "original",
+      "creator": "Short Video theme-pack contributors",
+      "created": "2026-10-01",
+      "scope": "HTML, CSS, JS, spectral-caustic.svg and faceted-glass.svg. Original composition; no third-party code, UI assets or inspiration-source claims.",
+      "license": "MIT",
+      "externalAssets": false
+    },
+    {
+      "id": "prism-generated-2026-10-01",
+      "kind": "ai-generated",
+      "source": "Repository examples/image-material-study/assets/prism.webp, inspected before reuse; exact binary copy. Native AI image tool, generated 2026-10-01; model not returned and not asserted.",
+      "license": "generated-original",
+      "assetSha256": "decfa5af2b48500585ca375606978750a2f83cc3dbaea13704e8963b5be5eabe",
+      "record": "theme-packs/prismatic-lab/assets/prism.provenance.json",
+      "scope": "prism.webp and poster.png containing that image. No third-party photo or model download."
+    }
+  ]
+}

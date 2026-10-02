@@ -164,7 +164,7 @@ DESC={
 'frame-build-minimal':'超细字体、暖金细线与大量留白，安静而克制',
 'frame-creative-voltage':'电光蓝与暗色错位分屏，搭配描边大字和手写线条',
 'frame-data-chart-nyt':'暖白新闻纸、编辑式标题与克制的红色重点，适合解释数据',
-'frame-data-rollup':'柱形与计数同步增长；这里展示原生数据动画的静态终态',
+'frame-data-rollup':'柱形层次与指标入场，强调数据表达的节奏',
 'frame-decision-tree':'点阵白板、彩色便签与分支连线，让选择过程一目了然',
 'frame-electric-studio':'白与电光蓝上下分屏，用跨屏引言形成鲜明对比',
 'frame-glitch-title':'暗色网格、RGB 错位、扫描线与信号噪声，呈现数字故障感',
@@ -198,11 +198,11 @@ def main():
     themes=[]
     for theme in data:
         id=theme['id'];bg,color,font,css,body=scene(id,counts)
-        content='<!doctype html>\n<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=1280"><meta name="description" content="HTML-rendered concept preview; original/custom design remains available"><title>'+html.escape(theme['name'])+' — 视觉方向示例</title><style>'+font_css+base+f'main{{background:{bg};color:{color};font-family:"{font}","Noto Preview",sans-serif}}'+css+'</style></head><body><main aria-label="'+html.escape(theme['name'])+' 视觉方向示例">'+body+'</main></body></html>\n'
+        content='<!doctype html>\n<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=1280"><meta name="description" content="HTML-rendered concept preview; original/custom design remains available"><title>'+html.escape(theme['name'])+' — 视觉方向示例</title><style>'+font_css+base+f'main{{background:{bg};color:{color};font-family:"{font}","Noto Preview",sans-serif}}'+css+'</style></head><body><main aria-label="'+html.escape(theme['name'])+' 视觉方向示例">'+body+'</main><script src="/presets/theme-motion.js"></script></body></html>\n'
         (OUT/f'{id}.html').write_text(content)
         palette=theme['colors'].split() or evidence.get(id,{}).get('palette',[])
         if id in evidence:palette=evidence[id].get('palette',palette)
-        themes.append({'id':id,'name':theme['name'],'zh_name':theme['zh_name'],'display_name':theme['zh_name'] or ZH.get(id,theme['name']),'description':DESC[id],'category':CATEGORIES.get(theme['category'],theme['category']),'category_id':theme['category'],'subcategory':theme['subcategory'],'palette':palette,'best_for':theme['best_for'],'preview':f'/presets/themes/{id}.webp','preview_html':f'/presets/themes/{id}.html','width':1280,'height':720,'native_aspects':theme['aspects'],'source':'vendor/html-explainer/references/style-catalog.json','preview_note':'HTML 实际渲染的静态概念示例；主题是创作参考，不限制原创布局。'+(' 此方向原生支持 9:16。' if id=='frame-vignelli' else '')})
+        themes.append({'id':id,'name':theme['name'],'zh_name':theme['zh_name'],'display_name':theme['zh_name'] or ZH.get(id,theme['name']),'description':DESC[id],'category':CATEGORIES.get(theme['category'],theme['category']),'category_id':theme['category'],'subcategory':theme['subcategory'],'palette':palette,'best_for':theme['best_for'],'preview':f'/presets/themes/{id}.webp','preview_html':f'/presets/themes/{id}.html','animation_preview':f'/presets/themes/{id}.html','resource_level':'motion-reference','width':1280,'height':720,'native_aspects':theme['aspects'],'source':'vendor/html-explainer/references/style-catalog.json','preview_note':'6 秒可播放 HTML 动效参考；可自由改写素材、构图与运动。'+(' 此方向原生支持 9:16。' if id=='frame-vignelli' else '')})
     registry={'schema_version':1,'preview_kind':'rendered-concept','count':23,'custom_style_allowed':True,'themes':themes}
     (OUT.parent/'themes.json').write_text(json.dumps(registry,ensure_ascii=False,indent=2)+'\n')
     print('Built 23 theme HTML sources and registry')

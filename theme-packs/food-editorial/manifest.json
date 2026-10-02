@@ -1,0 +1,139 @@
+{
+  "id": "food-editorial",
+  "name": "Food / Editorial",
+  "displayName": "食物特写 · 莓好一刻",
+  "description": "真实生图素材与纸张、镜头聚焦和排字自由重组；通过新的草莓题材演示跨资源组合。",
+  "tags": [
+    "food",
+    "photo",
+    "macro",
+    "食物",
+    "特写",
+    "生图"
+  ],
+  "palette": [
+    "#F2EDDF",
+    "#264B35",
+    "#A51928",
+    "#F3D5C9"
+  ],
+  "compatibleThemeIds": [
+    "frame-product-promo",
+    "frame-warm-grain",
+    "frame-kinetic-type"
+  ],
+  "schemaVersion": 1,
+  "kind": "html-theme-resource-pack",
+  "version": "1.0.0",
+  "license": "MIT",
+  "licenseFile": "theme-packs/LICENSE",
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "aspect": "16:9",
+    "adaptation": "Reference composition; reflow freely for 9:16 or 1:1. Not an automatic aspect converter."
+  },
+  "duration": 8,
+  "audio": {
+    "included": false,
+    "note": "Silent concept preview. Narration, character, voice, language and speaking rate remain user-controlled."
+  },
+  "entrypoints": {
+    "preview": "theme-packs/food-editorial/preview.html",
+    "motion": "theme-packs/food-editorial/motion.js",
+    "styles": "theme-packs/food-editorial/styles.css",
+    "poster": "theme-packs/food-editorial/assets/poster.webp"
+  },
+  "previewApi": {
+    "seek": "window.render(seconds)",
+    "alias": "window.renderAt(seconds)",
+    "freezeQuery": "?t=3.5&controls=0",
+    "timeUnit": "seconds",
+    "range": [
+      0,
+      8
+    ],
+    "play": "window.themePreview.play()",
+    "pause": "window.themePreview.pause()"
+  },
+  "dependencies": {
+    "network": false,
+    "packages": [],
+    "fonts": "Operating-system Arial/Georgia/monospace; none bundled or fetched. Font metrics can vary across systems.",
+    "shared": [
+      "theme-packs/shared/base.css",
+      "theme-packs/shared/motion.js",
+      "theme-packs/shared/player.js",
+      "theme-packs/shared/narrative-motion.js"
+    ]
+  },
+  "assets": [
+    {
+      "path": "theme-packs/food-editorial/assets/strawberry.webp",
+      "type": "image/webp",
+      "role": "generated-material",
+      "license": "generated-original",
+      "provenanceId": "native-image-2026-10-01"
+    },
+    {
+      "path": "theme-packs/food-editorial/assets/stamp.svg",
+      "type": "image/svg+xml",
+      "role": "remixable-illustration",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    },
+    {
+      "path": "theme-packs/food-editorial/assets/poster.webp",
+      "type": "image/webp",
+      "role": "poster",
+      "license": "generated-original",
+      "provenanceId": "native-image-2026-10-01"
+    }
+  ],
+  "materials": [
+    "theme-packs/shared/materials/grain.svg",
+    "theme-packs/shared/materials/grid.svg",
+    "theme-packs/shared/materials/registration.svg",
+    "theme-packs/shared/materials/soft-glow.svg"
+  ],
+  "variants": [
+    {
+      "id": "macro",
+      "name": "只研究微距",
+      "recipe": "preview.html?variant=macro；让同一张图片进入不同裁切与放大视野。可改为纹理研究，而不沿用本片文案。"
+    },
+    {
+      "id": "contact",
+      "name": "只研究拼贴",
+      "recipe": "preview.html?variant=contact；将图片裁切与纸卡排布提取为独立工具，替换为当前项目的素材。"
+    }
+  ],
+  "usage": {
+    "remix": "先选择本次内容的视觉主角，再借用纸张、聚焦、曲线路径或排字中的少数方法。可全部重写场景。",
+    "avoid": "AI生成食品图不作为真实商品照片、营养或医学证据。",
+    "motion": "8秒快速风格预览；examples/strawberry-remix 是24秒完整新题材重组示例。",
+    "portrait": "重新设计主体裁切与文字位置，保留大物件和短句；横版等比适配不等于竖版成片。",
+    "captions": "字幕独立安排，保留用户选择的旁白、人物、音色和语速。"
+  },
+  "provenance": [
+    {
+      "id": "original-2026-10",
+      "kind": "original",
+      "creator": "Short Video theme-pack contributors",
+      "created": "2026-10-01",
+      "scope": "HTML/CSS/JS and SVG stamp; original composition using shared narrative poses",
+      "license": "MIT",
+      "externalAssets": false
+    },
+    {
+      "id": "native-image-2026-10-01",
+      "kind": "ai-generated",
+      "source": "Native image generation tool in current session",
+      "created": "2026-10-01",
+      "license": "generated-original",
+      "exactModel": "Not returned; not asserted",
+      "record": "theme-packs/food-editorial/assets/provenance.json",
+      "note": "Photographic-style AI material, not a captured photograph. Original prompt and source hashes retained. No third-party image downloaded."
+    }
+  ]
+}

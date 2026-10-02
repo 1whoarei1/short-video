@@ -14,7 +14,7 @@ import uuid
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
-from .media import valid_image
+from .media import valid_image, validate_theme_video, THEME_VIDEO_MAX_BYTES
 
 STAGES = ['requirements', 'narration', 'preview', 'production', 'export']
 LABELS = ['需求沟通', '文案', '静态预览', '视频制作', '导出交付']
@@ -22,9 +22,16 @@ MODES = ('manual', 'semi', 'auto')
 LEGACY_STAGES = STAGES + ['research']
 AUDIO_DEFAULTS = {'audio_mode': 'silent', 'azure_voice': 'zh-CN-XiaoxiaoNeural', 'azure_rate': '0%', 'edge_voice': 'zh-CN-YunxiNeural', 'edge_rate': '0%'}
 BGM_DEFAULTS = {'bgm_mode': 'none', 'bgm_direction': '', 'bgm_upload': '', 'bgm_gain_db': 0, 'bgm_ducking': True, 'bgm_fade_out': 1.5}
+IMAGE_DEFAULTS = {'image_mode': 'auto', 'image_direction': ''}
 CREATIVE_DEFAULTS = {'durationMode': 'approx', 'themeId': 'original', 'voicePresetId': ''}
-SETTING_KEYS = {'aspect', 'width', 'height', 'fps', 'duration', 'durationMode', 'durationMin', 'durationMax', 'styleDirection', 'qualityNote', 'themeId', 'voicePresetId', *AUDIO_DEFAULTS, *BGM_DEFAULTS}
+SETTING_KEYS = {'aspect', 'width', 'height', 'fps', 'duration', 'durationMode', 'durationMin', 'durationMax', 'styleDirection', 'qualityNote', 'themeId', 'voicePresetId', *AUDIO_DEFAULTS, *BGM_DEFAULTS, *IMAGE_DEFAULTS}
 LOCK = threading.RLock()
+THEME_PREVIEW_MAX_BYTES = 7_000_000
+
+
+def check_theme_preview_size(total):
+    if total > THEME_PREVIEW_MAX_BYTES:
+        raise ValueError('主题图片与动态预览合计不能超过 7 MB，请减少或缩小预览素材')
 
 
 def now():
@@ -40,7 +47,7 @@ def validate_settings(settings):
         raise ValueError('项目配置格式不正确')
     if set(settings) - SETTING_KEYS:
         raise ValueError('不支持的配置字段；密钥只能由你在进程环境中配置，不可存入项目')
-    settings = {**AUDIO_DEFAULTS, **BGM_DEFAULTS, **CREATIVE_DEFAULTS, **settings}
+    settings = {**AUDIO_DEFAULTS, **BGM_DEFAULTS, **CREATIVE_DEFAULTS, **IMAGE_DEFAULTS, **settings}
     for key in ('width', 'height', 'fps'):
         if not finite_number(settings.get(key)):
             raise ValueError('画幅和帧率必须为有限数字')
@@ -72,6 +79,8 @@ def validate_settings(settings):
     for key in ('aspect', 'styleDirection', 'qualityNote'):
         if key in settings and (not isinstance(settings[key], str) or len(settings[key]) > 20000):
             raise ValueError('创作说明必须是合理长度的文字')
+    if settings['image_mode'] not in ('auto', 'existing') or not isinstance(settings['image_direction'], str) or len(settings['image_direction']) > 20000:
+        raise ValueError('图片素材设置无效')
     if settings['bgm_mode'] not in ('none', 'ai', 'upload'):
         raise ValueError('BGM 模式仅支持 none、ai 或 upload')
     if not isinstance(settings['bgm_direction'], str) or len(settings['bgm_direction']) > 20000:
@@ -298,14 +307,29 @@ class Workflow:
         if theme is None:
             raise ValueError('自定义主题不存在')
         previews = []
+        total = 0
         for path in theme.get('previews', []):
             original = self.asset(path)
             if not self.valid_media({'path': path}):
                 raise ValueError('主题预览图片已损坏')
-            previews.append({'extension': original.suffix.lower(), 'data': base64.b64encode(original.read_bytes()).decode('ascii')})
+            raw = original.read_bytes()
+            total += len(raw)
+            check_theme_preview_size(total)
+            previews.append({'extension': original.suffix.lower(), 'data': base64.b64encode(raw).decode('ascii')})
         pack = {'schemaVersion': 1, 'theme': {key: theme[key] for key in ('name', 'description', 'prompt', 'palette', 'sourceThemeId')}, 'previews': previews}
+        if theme.get('animation'):
+            original = self.asset(theme['animation']['path'])
+            if original.stat().st_size > THEME_VIDEO_MAX_BYTES:
+                raise ValueError('动态预览超过 6 MB')
+            raw = original.read_bytes()
+            if hashlib.sha256(raw).hexdigest() != theme['animation']['sha256']:
+                raise ValueError('动态预览快照已损坏')
+            total += len(raw)
+            check_theme_preview_size(total)
+            validate_theme_video(raw, original.suffix.lower())
+            pack['animation'] = {'extension': original.suffix.lower(), 'data': base64.b64encode(raw).decode('ascii')}
         if len(json.dumps(pack).encode()) > 10_000_000:
-            raise ValueError('主题包超过 10 MB，请使用更小的预览图片')
+            raise ValueError('主题包超过 10 MB，请使用更小的预览素材')
         return pack
 
     def import_theme(self, pack, revision=None):
@@ -322,9 +346,17 @@ class Workflow:
                 raise ValueError('主题包预览图片格式不正确')
             raw = base64.b64decode(item['data'], validate=True)
             total += len(raw)
-            if total > 7_000_000:
-                raise ValueError('主题包预览图片总量超过 7 MB')
+            check_theme_preview_size(total)
             decoded.append((item['extension'], raw))
+        animation = pack.get('animation')
+        if animation is not None:
+            if not isinstance(animation, dict) or set(animation) != {'extension', 'data'} or animation.get('extension') not in ('.mp4', '.webm') or not isinstance(animation.get('data'), str) or len(animation['data']) > 8_000_000:
+                raise ValueError('主题包动态预览格式不正确')
+            raw = base64.b64decode(animation['data'], validate=True)
+            total += len(raw)
+            check_theme_preview_size(total)
+            validate_theme_video(raw, animation['extension'])
+            decoded.append((animation['extension'], raw))
         paths = []
         created = []
         try:
@@ -338,7 +370,9 @@ class Workflow:
                 created.append(path)
                 paths.append(relative)
             payload = {key: pack['theme'].get(key, [] if key == 'palette' else '') for key in ('name', 'description', 'prompt', 'palette', 'sourceThemeId')}
-            payload['previews'] = paths
+            payload['previews'] = paths[:-1] if animation is not None else paths
+            if animation is not None:
+                payload['animation'] = paths[-1]
             if revision is not None:
                 payload['revision'] = revision
             return self.mutate('theme', payload)
@@ -383,7 +417,7 @@ class Workflow:
                 settings = payload.get('settings') if s == 'requirements' else None
                 if settings is not None:
                     settings = validate_settings(settings)
-                old_settings = {**AUDIO_DEFAULTS, **BGM_DEFAULTS, **CREATIVE_DEFAULTS, **d.get('settings', {})}
+                old_settings = {**AUDIO_DEFAULTS, **BGM_DEFAULTS, **CREATIVE_DEFAULTS, **IMAGE_DEFAULTS, **d.get('settings', {})}
                 if value != stage['text'] or (settings is not None and settings != old_settings):
                     invalidate()
                     stage['text'] = value
@@ -536,19 +570,45 @@ class Workflow:
                 previews = payload.get('previews', [])
                 if not isinstance(previews, list) or len(previews) > 8 or any(not isinstance(path, str) for path in previews):
                     raise ValueError('主题最多可保存 8 张项目预览图')
+                animation_path = payload.get('animation', '')
+                animation_raw = None
+                if not isinstance(animation_path, str):
+                    raise ValueError('动态预览路径无效')
+                if animation_path:
+                    original_video = self.asset(animation_path)
+                    if original_video.stat().st_size > THEME_VIDEO_MAX_BYTES:
+                        raise ValueError('动态预览超过 6 MB')
+                    animation_raw = original_video.read_bytes()
+                    animation_info = validate_theme_video(animation_raw, original_video.suffix.lower())
+                total = len(animation_raw or b'')
+                check_theme_preview_size(total + sum(self.asset(path).stat().st_size for path in previews))
                 image_paths = []
                 for path in previews:
                     if not self.valid_media({'path': path}):
                         raise ValueError('主题预览必须为有效项目图片')
                     original = self.asset(path)
-                    digest = hashlib.sha256(original.read_bytes()).hexdigest()
+                    image_raw = original.read_bytes()
+                    total += len(image_raw)
+                    check_theme_preview_size(total)
+                    digest = hashlib.sha256(image_raw).hexdigest()
                     dest = self.root / '_artifacts' / (digest + original.suffix.lower())
                     dest.parent.mkdir(exist_ok=True)
                     if not dest.resolve().is_relative_to(self.root):
                         raise ValueError('主题预览存储路径超出项目目录')
                     if not dest.exists():
-                        shutil.copyfile(original, dest)
+                        dest.write_bytes(image_raw)
                     image_paths.append(dest.relative_to(self.root).as_posix())
+                if animation_raw is not None:
+                    digest = hashlib.sha256(animation_raw).hexdigest()
+                    dest = self.root / '_artifacts' / (digest + original_video.suffix.lower())
+                    dest.parent.mkdir(exist_ok=True)
+                    if not dest.resolve().is_relative_to(self.root):
+                        raise ValueError('动态预览存储路径超出项目目录')
+                    if dest.exists() and dest.read_bytes() != animation_raw:
+                        raise ValueError('动态预览快照已损坏')
+                    if not dest.exists():
+                        dest.write_bytes(animation_raw)
+                    theme['animation'] = {'path': dest.relative_to(self.root).as_posix(), 'sha256': digest, **animation_info}
                 theme['previews'] = image_paths
                 d.setdefault('customThemes', []).append(theme)
             elif action == 'annotation':

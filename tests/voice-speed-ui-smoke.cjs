@@ -1,3 +1,5 @@
+'use strict';
+const {revealBriefControl}=require('./brief-ui-helpers.cjs');
 // BROWSER_PATH=/path/to/chromium node tests/voice-speed-ui-smoke.cjs
 // Uses a disposable project and local samples only; no TTS service requests.
 'use strict';
@@ -26,8 +28,8 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
     page.on('response', response => {if (response.status() >= 400) failures.push({status: response.status(), url: response.url()});});
     const loaded = () => page.waitForFunction(() => document.querySelector('#stageTitle').textContent === '需求沟通');
     const closed = () => page.waitForFunction(() => !document.querySelector('#voiceDialog').open && !history.state?.dialog);
-    const save = async () => {await page.locator('#save').click(); await page.waitForFunction(() => document.querySelector('#saved').textContent.startsWith('已保存'));};
-    const open = async () => {await page.locator('#chooseVoice').click(); await page.waitForFunction(() => [...document.querySelectorAll('.voice-card audio')].length === 5 && [...document.querySelectorAll('.voice-card audio')].every(a => a.readyState >= 2));};
+    const save = async () => {await revealBriefControl(page, '#save'); await page.locator('#save').click(); await page.waitForFunction(() => document.querySelector('#saved').textContent.startsWith('已保存'));};
+    const open = async () => {await revealBriefControl(page, '#chooseVoice'); await page.locator('#chooseVoice').click(); await page.waitForFunction(() => [...document.querySelectorAll('.voice-card audio')].length === 5 && [...document.querySelectorAll('.voice-card audio')].every(a => a.readyState >= 2));};
     const setSpeed = async value => {
       await page.locator('#voicePreviewRate').evaluate((input, rate) => {input.value = rate; input.dispatchEvent(new Event('input', {bubbles: true}));}, value);
     };
@@ -48,7 +50,7 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
       await page.waitForFunction(id => {const a = document.querySelector(`.voice-card[data-voice-id="${id}"] audio`); return !a.paused && a.currentTime > 0;}, await audio.evaluate(a => a.closest('.voice-card').dataset.voiceId));
     };
     await page.goto(base); await loaded();
-    await page.locator('input[name=soundMode][value=voiced]').check(); await save();
+    await revealBriefControl(page, 'input[name=soundMode][value=voiced]'); await page.locator('input[name=soundMode][value=voiced]').check(); await save();
     await open(); await checkSpeed(0, 'edge');
     assert((await page.locator('#voicePreviewNote').innerText()).includes('实际配音的节奏与停顿可能不同'));
     const first = page.locator('.voice-card audio').first(); await nativePlay(first);
@@ -81,7 +83,7 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
     await page.locator('#voicePreviewRate').focus(); await page.keyboard.press('Home'); await checkSpeed(-50, 'edge');
     await page.keyboard.press('ArrowLeft'); await checkSpeed(-50, 'edge');
     await page.keyboard.press('End'); await checkSpeed(100, 'edge'); await page.keyboard.press('ArrowRight'); await checkSpeed(100, 'edge');
-    await page.locator('#resetVoicePreviewRate').click(); await checkSpeed(0, 'edge'); await setSpeed(40);
+    await revealBriefControl(page, '#resetVoicePreviewRate'); await page.locator('#resetVoicePreviewRate').click(); await checkSpeed(0, 'edge'); await setSpeed(40);
     // Every built-in sample inherits the rate, including after load and native playback.
     for (const audio of await page.locator('.voice-card audio').all()) {
       await audio.evaluate(a => {a.pause(); a.load();}); await nativePlay(audio); await checkSpeed(40, 'edge');
@@ -92,37 +94,37 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
     assert.equal(await page.locator('audio').evaluateAll(items => items.filter(a => !a.paused).length), 0);
     assert.equal(await page.locator('#edge_rate').inputValue(), '40');
     await open(); await checkSpeed(40, 'edge'); assert(await page.locator('.voice-card audio').evaluateAll(items => items.every(a => a.paused)));
-    await page.locator('[data-voice-id="zh-CN-XiaoyiNeural"] button').click(); await closed();
+    await revealBriefControl(page, '[data-voice-id="zh-CN-XiaoyiNeural"] button'); await page.locator('[data-voice-id="zh-CN-XiaoyiNeural"] button').click(); await closed();
     assert.equal(await page.locator('#edge_voice').inputValue(), 'zh-CN-XiaoyiNeural');
-    await page.locator('#voiceProvider').selectOption('azure'); await open(); await checkSpeed(0, 'azure');
+    await revealBriefControl(page, '#voiceProvider'); await page.locator('#voiceProvider').selectOption('azure'); await open(); await checkSpeed(0, 'azure');
     assert((await page.locator('#voicePreviewNote').innerText()).includes('不是 Azure'));
     await setSpeed(-20); await checkSpeed(-20, 'azure'); assert.equal(await page.locator('#edge_rate').inputValue(), '40');
     await nativePlay(page.locator('.voice-card audio').first()); await page.goBack(); await closed();
     assert.equal(await page.locator('#stageTitle').innerText(), '需求沟通');
     assert(await page.locator('.voice-card audio').evaluateAll(items => items.every(a => a.paused)));
     await save(); await page.reload(); await loaded(); await open(); await checkSpeed(-20, 'azure');
-    await page.locator('#closeVoice').click(); await closed();
-    await page.locator('#voiceProvider').selectOption('edge'); await open(); await checkSpeed(40, 'edge');
+    await revealBriefControl(page, '#closeVoice'); await page.locator('#closeVoice').click(); await closed();
+    await revealBriefControl(page, '#voiceProvider'); await page.locator('#voiceProvider').selectOption('edge'); await open(); await checkSpeed(40, 'edge');
     assert((await page.locator('#voicePreviewRateHelp').innerText()).includes('Edge'));
-    await page.locator('#closeVoice').click(); await closed();
-    await page.locator('#edge_rate').fill('25'); await open(); await checkSpeed(25, 'edge');
-    await page.locator('#closeVoice').click(); await closed(); await save();
+    await revealBriefControl(page, '#closeVoice'); await page.locator('#closeVoice').click(); await closed();
+    await revealBriefControl(page, '#edge_rate'); await page.locator('#edge_rate').fill('25'); await open(); await checkSpeed(25, 'edge');
+    await revealBriefControl(page, '#closeVoice'); await page.locator('#closeVoice').click(); await closed(); await save();
     let data = (await (await fetch(base + '/api/state')).json()).project;
     assert.equal(data.settings.edge_rate, '25%'); assert.equal(data.settings.azure_rate, '-20%');
     // Preserve main-form validation; previewing invalid input must not silently save a different rate.
     for (const invalid of ['101', '-51', '', '1.5']) {
-      await page.locator('#edge_rate').fill(invalid); await open();
+      await revealBriefControl(page, '#edge_rate'); await page.locator('#edge_rate').fill(invalid); await open();
       assert.equal(await page.locator('#edge_rate').inputValue(), invalid);
       assert.equal(await page.locator('#voicePreviewRate').inputValue(), '0');
       assert((await page.locator('#voicePreviewRateHelp').innerText()).includes('无效'));
-      await page.locator('#closeVoice').click(); await closed();
+      await revealBriefControl(page, '#closeVoice'); await page.locator('#closeVoice').click(); await closed();
     }
-    await page.locator('#save').click(); await page.waitForFunction(() => document.querySelector('#notice').textContent.includes('语速'));
+    await revealBriefControl(page, '#save'); await page.locator('#save').click(); await page.waitForFunction(() => document.querySelector('#notice').textContent.includes('语速'));
     data = (await (await fetch(base + '/api/state')).json()).project; assert.equal(data.settings.edge_rate, '25%');
     await open(); await setSpeed(35); await checkSpeed(35, 'edge');
     assert(!(await page.locator('#voicePreviewRateHelp').innerText()).includes('无效'));
     await page.screenshot({path: path.join(os.tmpdir(), 'voice-speed-desktop-verified.png')});
-    await page.locator('#closeVoice').click(); await closed();
+    await revealBriefControl(page, '#closeVoice'); await page.locator('#closeVoice').click(); await closed();
     await page.setViewportSize({width: 390, height: 844}); await open(); await checkSpeed(35, 'edge');
     for (const selector of ['#voiceDialog', '.voice-preview-rate', '#voicePreviewRate', '#resetVoicePreviewRate']) {
       const box = await page.locator(selector).boundingBox(); assert(box.x >= 0 && box.x + box.width <= 390, selector + ' fits mobile');

@@ -1,0 +1,145 @@
+{
+  "id": "precision-product",
+  "name": "Precision / Product",
+  "displayName": "精密产品 · 光切面",
+  "description": "冷白工作室、深色产品雕塑、精确标注与分层拆解；适合产品机制和功能介绍。",
+  "tags": [
+    "product",
+    "technical",
+    "minimal"
+  ],
+  "palette": [
+    "#edf0ed",
+    "#182323",
+    "#748681",
+    "#d4ff65"
+  ],
+  "compatibleThemeIds": [
+    "frame-product-promo",
+    "frame-product-promo-30s",
+    "frame-build-minimal"
+  ],
+  "schemaVersion": 1,
+  "kind": "html-theme-resource-pack",
+  "version": "1.0.0",
+  "license": "MIT",
+  "licenseFile": "theme-packs/LICENSE",
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "aspect": "16:9",
+    "adaptation": "Reference composition; reflow freely for 9:16 or 1:1. Not an automatic aspect converter."
+  },
+  "duration": 8,
+  "audio": {
+    "included": false,
+    "note": "Silent concept preview. Narration, character, voice, language and speaking rate remain user-controlled."
+  },
+  "entrypoints": {
+    "preview": "theme-packs/precision-product/preview.html",
+    "motion": "theme-packs/precision-product/motion.js",
+    "styles": "theme-packs/precision-product/styles.css",
+    "poster": "theme-packs/precision-product/assets/poster.svg"
+  },
+  "previewApi": {
+    "seek": "window.render(seconds)",
+    "alias": "window.renderAt(seconds)",
+    "freezeQuery": "?t=3.5&controls=0",
+    "timeUnit": "seconds",
+    "range": [
+      0,
+      8
+    ],
+    "play": "window.themePreview.play()",
+    "pause": "window.themePreview.pause()"
+  },
+  "dependencies": {
+    "network": false,
+    "packages": [],
+    "fonts": "Operating-system Arial/Georgia/monospace; none bundled or fetched. Font metrics can vary across systems.",
+    "shared": [
+      "theme-packs/shared/base.css",
+      "theme-packs/shared/motion.js",
+      "theme-packs/shared/player.js"
+    ]
+  },
+  "assets": [
+    {
+      "path": "theme-packs/precision-product/assets/signal-object.svg",
+      "type": "image/svg+xml",
+      "role": "remixable-illustration",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    },
+    {
+      "path": "theme-packs/precision-product/assets/exploded-rings.svg",
+      "type": "image/svg+xml",
+      "role": "remixable-illustration",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    },
+    {
+      "path": "theme-packs/precision-product/assets/poster.svg",
+      "type": "image/svg+xml",
+      "role": "poster",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    }
+  ],
+  "materials": [
+    "theme-packs/shared/materials/grain.svg",
+    "theme-packs/shared/materials/grid.svg",
+    "theme-packs/shared/materials/registration.svg",
+    "theme-packs/shared/materials/soft-glow.svg"
+  ],
+  "variants": [
+    {
+      "id": "exploded-study",
+      "name": "结构拆解",
+      "recipe": "Use exploded-rings.svg as the hero. Separate layers by changing their y offsets; draw leader lines after each layer settles."
+    },
+    {
+      "id": "dark-studio",
+      "name": "深色工作室",
+      "recipe": "Switch canvas to #15241f, text to #e8eee4 and retain the acid-green status light. Keep labels high contrast."
+    }
+  ],
+  "usage": {
+    "remix": "Use a large isolated object and two purposeful annotations. Keep a quiet silhouette and emphasize one surface treatment; replace the concept object with authorized product imagery when available.",
+    "avoid": "Do not reuse concept geometry as evidence of a real device, specification or measured performance. Avoid putting every feature around the object.",
+    "motion": "0–1.8s: body rises and straightens; 1.6–3.0s: labels arrive; 2.3–3.1s: layer study enters. Remaining time holds the message with restrained surface motion.",
+    "portrait": "Place title in the top 28%, product in the middle 49%, labels and layer study at the bottom. Remove one annotation rather than shrinking all type.",
+    "captions": "Reserve an uncluttered caption band. Recompose labels rather than obscuring subtitles. Preview footer labels are not subtitles."
+  },
+  "provenance": [
+    {
+      "id": "original-2026-10",
+      "kind": "original",
+      "creator": "Short Video theme-pack contributors",
+      "created": "2026-10-01",
+      "scope": "All pack HTML, CSS, JS, SVG illustrations and poster compositions; shared library authored for this repository.",
+      "license": "MIT",
+      "externalAssets": false
+    },
+    {
+      "url": "https://styles.refero.design/",
+      "kind": "discovery-only",
+      "note": "User-suggested design-system discovery source; no screenshots, DESIGN.md text, brand styling or code copied."
+    },
+    {
+      "url": "https://superdesign.dev/",
+      "kind": "discovery-only",
+      "note": "User-suggested inspiration source. No template or generated output downloaded or redistributed."
+    },
+    {
+      "url": "https://ui.aceternity.com/",
+      "kind": "discovery-only",
+      "note": "Reference category: motion-led UI. No component source, premium blocks or assets used."
+    },
+    {
+      "url": "https://reactbits.dev/",
+      "kind": "discovery-only",
+      "note": "Reference category: expressive motion. No React component source or dependencies used."
+    }
+  ]
+}

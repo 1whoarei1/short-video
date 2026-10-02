@@ -331,6 +331,14 @@ async function main() {
   if (!fs.existsSync(layoutPath)) die(`没有 layout.json（先跑 timeline_build.py）：${layoutPath}`);
   const layoutBytes = fs.readFileSync(layoutPath, 'utf8');
   const layout = JSON.parse(layoutBytes);
+  // Reject malformed AI-authored timing instead of silently exporting one frame.
+  for (const id of order) {
+    const scene = layout?.[id];
+    if (!scene || typeof scene.duration_sec !== 'number' || !Number.isFinite(scene.duration_sec) || scene.duration_sec <= 0)
+      die(`Invalid layout: ${id}.duration_sec must be a positive number; rebuild the timeline before rendering`);
+  }
+  if (layout?._total?.total_frames !== undefined && (!Number.isInteger(layout._total.total_frames) || layout._total.total_frames <= 0))
+    die('Invalid layout: _total.total_frames must be a positive integer');
 
   let subs = { fps, segments: [] };
   const subsPath = path.join(projectDir, 'subs.json');
@@ -468,6 +476,21 @@ async function main() {
           });
         } catch (e) { clearTimeout(cap); resolve(); }
       })`);
+
+      // Image-backed materials must be decoded before capture; fail visibly on missing assets.
+      await page.evaluate(async () => {
+        const ready = (async () => {
+          if (window.__assetsReady) await window.__assetsReady;
+          await Promise.all([...document.images].map(async image => {
+          if (!image.complete) await new Promise((resolve, reject) => { image.addEventListener('load', resolve, {once:true}); image.addEventListener('error', () => reject(new Error('Image asset failed to load')), {once:true}); });
+          if (!image.naturalWidth) throw new Error('Image asset is missing or undecodable');
+          if (image.decode) await image.decode();
+          }));
+        })();
+        let timer;
+        try { await Promise.race([ready, new Promise((_, reject) => {timer=setTimeout(() => reject(new Error('Image assets were not ready within 10 seconds')),10000);})]); }
+        finally { clearTimeout(timer); }
+      });
 
       // 找时间轴（找不到 → 契约违规，报错而不是渲静止首帧）
       const hasTl = await page.evaluate(`Boolean(window.__tl || (window.__timelines && Object.keys(window.__timelines).length))`);

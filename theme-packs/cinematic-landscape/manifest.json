@@ -1,0 +1,124 @@
+{
+  "id": "cinematic-landscape",
+  "name": "Cinematic / Landscape",
+  "displayName": "电影地貌 · 山谷醒来",
+  "description": "六层原创山脊、侧光薄雾、侵蚀纹理、松枝前景与溪流反光；用镜头穿行讲述十二秒山间光影。",
+  "tags": [
+    "landscape",
+    "cinematic",
+    "parallax",
+    "terrain",
+    "atmosphere",
+    "canvas"
+  ],
+  "palette": [
+    "#142c3a",
+    "#527f82",
+    "#12373f",
+    "#ffefb8"
+  ],
+  "compatibleThemeIds": [
+    "frame-takram-organic",
+    "frame-liquid-bg-hero",
+    "frame-light-leak-cinema"
+  ],
+  "schemaVersion": 1,
+  "kind": "html-theme-resource-pack",
+  "version": "1.0.0",
+  "license": "MIT",
+  "licenseFile": "theme-packs/LICENSE",
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "aspect": "16:9",
+    "adaptation": "Reference composition; reflow freely for 9:16 or 1:1. Not an automatic aspect converter."
+  },
+  "duration": 12,
+  "audio": {
+    "included": false,
+    "note": "Silent concept preview. Narration, character, voice, language and speaking rate remain user-controlled."
+  },
+  "entrypoints": {
+    "preview": "theme-packs/cinematic-landscape/preview.html",
+    "motion": "theme-packs/cinematic-landscape/motion.js",
+    "styles": "theme-packs/cinematic-landscape/styles.css",
+    "poster": "theme-packs/cinematic-landscape/assets/poster.svg"
+  },
+  "previewApi": {
+    "seek": "window.render(seconds)",
+    "alias": "window.renderAt(seconds)",
+    "freezeQuery": "?t=3.5&controls=0",
+    "timeUnit": "seconds",
+    "range": [
+      0,
+      12
+    ],
+    "play": "window.themePreview.play()",
+    "pause": "window.themePreview.pause()"
+  },
+  "dependencies": {
+    "network": false,
+    "packages": [],
+    "fonts": "Operating-system Arial/Georgia/monospace; none bundled or fetched. Font metrics can vary across systems.",
+    "shared": [
+      "theme-packs/shared/base.css",
+      "theme-packs/shared/motion.js",
+      "theme-packs/shared/player.js"
+    ]
+  },
+  "assets": [
+    {
+      "path": "theme-packs/cinematic-landscape/assets/pine-silhouette.svg",
+      "type": "image/svg+xml",
+      "role": "remixable-illustration",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    },
+    {
+      "path": "theme-packs/cinematic-landscape/assets/ridge-layers.svg",
+      "type": "image/svg+xml",
+      "role": "remixable-illustration",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    },
+    {
+      "path": "theme-packs/cinematic-landscape/assets/poster.svg",
+      "type": "image/svg+xml",
+      "role": "poster",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    }
+  ],
+  "materials": [],
+  "variants": [
+    {
+      "id": "first-light",
+      "name": "山谷初光",
+      "recipe": "Warm dawn atmosphere, six moving terrain layers, illuminated stream and drifting airborne motes. Default variant."
+    },
+    {
+      "id": "moonlit-valley",
+      "name": "月落山谷",
+      "query": "?variant=moonlit-valley",
+      "recipe": "Cool nocturnal palette, moon crater marks, a deterministic star field, faint haze and different short Chinese copy."
+    }
+  ],
+  "usage": {
+    "remix": "Borrow camera(), profile(), ridge(), pine(), river() or atmosphere() independently. SVG ridge-layers.svg exposes named far/middle/near paths for vector-only remixes; pine-silhouette.svg is the actual moving foreground in this scene. Recompose freely instead of treating this as a fixed template.",
+    "avoid": "Fictional illustrative terrain, not a real destination or geographical reconstruction. Do not imply a measured sunrise, species, elevation or travel route. No narration, person, voice or speaking rate is set or changed.",
+    "motion": "0–2s: foreground opens and title arrives. 2–6s: camera advances through six depth layers; sun rises and creek catches light. 6–8s: a quiet scenic interlude. 8–12s: final phrase settles over the illuminated valley. Every frame is a pure function of time.",
+    "portrait": "Preview uses the shared letterbox player at all viewport sizes. For a native 9:16 production, move the sun to the upper third, narrow the world camera and reflow the title; this pack does not claim automatic portrait recomposition.",
+    "captions": "Reserve lower-center for actual subtitles. The small lower-left fictional-scene disclaimer is not a subtitle. Copy is deliberately minimal; replace it with approved user copy."
+  },
+  "provenance": [
+    {
+      "id": "original-2026-10",
+      "kind": "original",
+      "creator": "Short Video theme-pack contributors",
+      "created": "2026-10-01",
+      "scope": "All HTML, CSS, Canvas2D math, SVG assets and poster artwork authored originally for this repository. Procedural terrain is fictional. No third-party source, images or generated photographs used.",
+      "license": "MIT",
+      "externalAssets": false
+    }
+  ]
+}

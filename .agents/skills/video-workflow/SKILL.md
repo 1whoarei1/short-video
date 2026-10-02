@@ -52,11 +52,11 @@ description: 用户要制作、修改或导出视频时，启动本地视频工�
 
 内置 23 种主题样图在 web/presets，5 种音色样音是已保存的本地 MP3，播放不联网调用 TTS。音色试听只是参考；Azure 选项下展示的也是标明来源的 Edge 样音。实际制作按用户选定 provider 合成。
 
-创作场景前读取 requirements settings 的 themeId：`original` 从 styleDirection 自由创作；内置 ID 对照 `web/presets/themes.json` 并读取 `vendor/html-explainer/references/style-catalog.json` 对应主题的色彩、字体、材质和动效建议；`custom-` ID 对照当前状态 customThemes，读取 prompt、palette、previews，再结合 styleDirection。实际把选定视觉语言落实到场景代码，并在预览说明中写明采用哪些方向，不得把已选主题忽略成 UI 装饰。
+创作场景前读取 requirements settings 的 themeId：`original` 从 styleDirection 自由创作；内置 ID 对照 `web/presets/themes.json` 并读取 `vendor/html-explainer/references/style-catalog.json` 对应主题的色彩、字体、材质和动效建议；`custom-` ID 对照当前状态 customThemes，读取 prompt、palette、previews 和可选 animation，再结合 styleDirection。实际把选定视觉语言落实到场景代码，并在预览说明中写明采用哪些方向，不得把已选主题忽略成 UI 装饰。
 
 配音读取 audio_mode、对应 edge_voice/azure_voice 和 rate；voicePresetId 只代表试听选择，真正合成以这些 provider 字段为准。执行 configure 后检查 project.json 同步一致；不能只换 voicePresetId 却保留旧合成声音。
 
-原创方向始终可用；系列主题仅参考配色、字体、图形语言、动效节奏，不能强迫套版。自定义主题保存名称、说明、创作提示、配色、不可变预览图到当前项目，可导出/导入便携 JSON 主题包；不能写任意路径或覆盖内置库。
+原创方向始终可用；系列主题仅参考配色、字体、图形语言、动效节奏，不能强迫套版。自定义主题保存名称、说明、创作提示、配色、不可变预览图和可选短视频到当前项目，可导出/导入便携 JSON 主题包；不能写任意路径或覆盖内置库。
 
 ## 引擎与恢复
 需求确认后、写场景前运行 `python scripts/engine.py configure workspace`，同步 width/height/fps/audio settings 到引擎 project.json，保留场景顺序与 slug，准备 GSAP/frames。时长是创作指导，不映射为强制渲染截断。原引擎 `vendor/html-explainer/` 保留来源/许可证，场景接口看其文档。
@@ -69,3 +69,10 @@ description: 用户要制作、修改或导出视频时，启动本地视频工�
 读取 AGENTS.md「自由作曲与整片声音」及 docs/bgm-workbench.md。选择 ai 后由代理自由作曲，不套固定 MIDI 模板；选择 upload 使用已授权文件。bgm-prepare 只渲染与保留输入，库不负责作曲。静态预览阶段注册 audio/bgm/preview.wav 和真实图片，按原有模式一起审核；制作阶段由真实镜头时间轴确定 soundtrack 长度。最终 render 只用独立源重混，严格验证来源、设置、时间轴和成片绑定，不反复叠加音乐。配音 silent 与 BGM none 含义不同，二者独立。
 
 网页“新视频”创建独立项目。CLI 未带 --workspace 时跟随所选项目，首次 status 的 workspace 是后续所有操作必须固定使用的路径；领取任务后不可随网页切换而改写目标。
+
+## 资源丰富的主题与生图
+选定 `pack-` 主题时读取 `theme-packs/catalog.json` 和其 manifest；其他主题也可按 compatibleThemeIds 借用资源。看真实短动画和源码，按内容组合 shared 素材和局部动效，再自由设计新场景。所有包保留来源与适用说明。
+
+静态预览前按需执行 video-image-assets skill：读取 image_mode、image_direction，用当前 Codex 原生工具实际生成图片、保存本地并核验，以真实素材搭建场景。保持人工/半自动/自动三种模式和五个阶段不变。
+
+资源查找可用 `python -m app.theme_resources list --query '本次需要的视觉/内容关键词'`，show 查看相关包，copy 将需要的包和共享素材复制到固定 PROJECT_PATH。使用复制结果中的实际路径；领取任务后 copy 带 --task-id/--revision。不覆盖已改动副本。详见 docs/theme-resource-tools.md。

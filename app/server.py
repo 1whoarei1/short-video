@@ -139,6 +139,24 @@ def create_server(root, port=8765, credential_settings=None):
                     self.wfile.write(chunk)
                     remaining -= len(chunk)
 
+        def preview_file(self, path):
+            """Executable examples are isolated from the studio and its credentials."""
+            data = path.read_bytes()
+            kind = mimetypes.guess_type(path.name)[0] or 'application/octet-stream'
+            self.send_response(200)
+            self.send_header('Content-Type', kind)
+            self.send_header('Content-Length', str(len(data)))
+            self.send_header('X-Content-Type-Options', 'nosniff')
+            self.send_header('Referrer-Policy', 'no-referrer')
+            if path.suffix.lower() == '.html':
+                self.send_header('Content-Security-Policy', "sandbox allow-scripts; default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'self'")
+            if path.suffix.lower() == '.svg':
+                self.send_header('Content-Security-Policy', "sandbox; default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none'")
+            if path.suffix.lower() in ('.woff', '.woff2', '.ttf', '.otf'):
+                self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(data)
+
         def range_error(self, size):
             self.send_response(416)
             self.send_header('Content-Range', f'bytes */{size}')
@@ -169,6 +187,16 @@ def create_server(root, port=8765, credential_settings=None):
                     return self.reply(200, flow.export_theme(theme_id))
                 if path == '/api/themes':
                     return self.reply(200, {'customThemes': flow.read().get('customThemes', [])})
+                if path == '/api/theme-packs':
+                    catalog_file = BASE / 'theme-packs' / 'catalog.json'
+                    return self.reply(200, json.loads(catalog_file.read_text(encoding='utf-8')) if catalog_file.is_file() else {'packs': []})
+                if path.startswith('/theme-packs/'):
+                    candidate = (BASE / path.lstrip('/')).resolve()
+                    if (not candidate.is_relative_to(BASE / 'theme-packs') or not candidate.is_file()
+                            or any(part.startswith('.') for part in Path(path).parts)
+                            or candidate.suffix.lower() not in ('.html', '.css', '.js', '.svg', '.json', '.png', '.webp', '.jpg', '.md', '.txt')):
+                        return self.reply(404, {'error': '未找到主题资源'})
+                    return self.preview_file(candidate)
                 if path == '/api/health':
                     return self.reply(200, {'ok': True, 'workspace': str(flow.root), 'python': sys.version.split()[0], 'bridge': 'file', 'modelApi': False})
                 if path.startswith('/assets/'):
@@ -178,6 +206,8 @@ def create_server(root, port=8765, credential_settings=None):
                 target = (BASE / 'web' / ('index.html' if path == '/' else path.lstrip('/'))).resolve()
                 if not target.is_relative_to(BASE / 'web') or not target.is_file() or any(part.startswith('.') for part in Path(path).parts):
                     return self.reply(404, {'error': '未找到文件'})
+                if target.is_relative_to(BASE / 'web' / 'presets' / 'themes') and target.suffix.lower() in ('.html', '.svg', '.woff', '.woff2', '.ttf', '.otf'):
+                    return self.preview_file(target)
                 # Range support applies to bundled auditions and project media alike.
                 if target.suffix.lower() in ('.mp3', '.mp4', '.webm', '.wav', '.ogg', '.m4a'):
                     return self.file(target)

@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "kind": "html-theme-resource-pack",
+  "id": "editorial-data",
+  "name": "Editorial / Data Sculpture",
+  "displayName": "编辑数据 · 关系的形状",
+  "description": "纸白网格上的朱砂折叠雕塑，以全宽中文标题、等轴构型和边注连接抽象概念；不是柱图数据模板。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "licenseFile": "theme-packs/LICENSE",
+  "tags": [
+    "editorial",
+    "data",
+    "sculpture",
+    "chinese"
+  ],
+  "palette": [
+    "#f2eee5",
+    "#252522",
+    "#bd3f32",
+    "#c8bfac"
+  ],
+  "compatibleThemeIds": [
+    "frame-data-chart-nyt",
+    "frame-pentagram-stat",
+    "frame-swiss-grid"
+  ],
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "aspect": "16:9",
+    "adaptation": "Free composition reference; 390px browser previews letterbox. Portrait requires deliberate reflow, not automatic cropping."
+  },
+  "duration": 8,
+  "audio": {
+    "included": false,
+    "note": "无声示意；旁白、人物、音色、语速均由用户选择。本包不含事实数据或真实物种断言。"
+  },
+  "entrypoints": {
+    "preview": "theme-packs/editorial-data/preview.html",
+    "motion": "theme-packs/editorial-data/motion.js",
+    "styles": "theme-packs/editorial-data/styles.css",
+    "poster": "theme-packs/editorial-data/assets/poster.svg"
+  },
+  "previewApi": {
+    "seek": "window.render(seconds)",
+    "alias": "window.renderAt(seconds)",
+    "freezeQuery": "?t=3.5&controls=0",
+    "timeUnit": "seconds",
+    "range": [
+      0,
+      8
+    ],
+    "play": "window.themePreview.play()",
+    "pause": "window.themePreview.pause()"
+  },
+  "dependencies": {
+    "network": false,
+    "packages": [],
+    "fonts": "System Noto Sans/Serif CJK SC, PingFang SC, Microsoft YaHei, Songti SC, SimSun and generic sans/serif; no downloaded or bundled fonts. Metrics vary by OS.",
+    "shared": [
+      "theme-packs/shared/base.css",
+      "theme-packs/shared/motion.js",
+      "theme-packs/shared/player.js"
+    ]
+  },
+  "assets": [
+    {
+      "path": "theme-packs/editorial-data/assets/folded-column.svg",
+      "type": "image/svg+xml",
+      "role": "remixable-illustration",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    },
+    {
+      "path": "theme-packs/editorial-data/assets/axonometric-grid.svg",
+      "type": "image/svg+xml",
+      "role": "remixable-illustration",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    },
+    {
+      "path": "theme-packs/editorial-data/assets/poster.svg",
+      "type": "image/svg+xml",
+      "role": "poster",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    }
+  ],
+  "materials": [
+    "theme-packs/shared/materials/grain.svg"
+  ],
+  "variants": [
+    {
+      "id": "evidence-landscape",
+      "name": "证据地形",
+      "recipe": "用经核验的真实数值重建柱高、共同零基线、单位和来源；先删掉本示范概念标签。让一组对照而非装饰浮动解释关键差异。"
+    },
+    {
+      "id": "idea-folds",
+      "name": "概念折页",
+      "recipe": "将每个折面拆成一张不同的观点卡，横向、环形或对角组合；无数值时明确写“概念示意”，不要暗示增长。"
+    },
+    {
+      "id": "single-relation",
+      "name": "一组关系",
+      "recipe": "只保留两个材料和一条连接，让一条经过验证的关系成为整帧；标题可以在底部或穿插其中。"
+    }
+  ],
+  "usage": {
+    "remix": "折叠 SVG 与地面网格可独立使用。拆用顶面、正面和侧面的层次，可重建新的纸带、时间序列或数据雕塑；不规定五柱或固定标题位置。",
+    "avoid": "五个概念的柱高只是构图，不是重要性、排名或实测数值。真实图表必须有一致比例、零基线、来源、时间范围和单位；关闭装饰性浮动，避免扭曲数值。",
+    "motion": "0.1–1.1 秒标题进入；0.35–2.49 秒纸柱错时展开；1.6–3 秒边注出现。后段极轻浮动只是概念雕塑，可删除或由内容节奏替换。",
+    "portrait": "保留单列大字标题，把五个材料改为两行或只留两个。边注移到主物体下方；竖版重绘网格，不直接裁切横版。",
+    "captions": "底部 80 像素为参考页脚带，成片需移走页脚留给字幕。图表单位和字幕不得共用同一基线。"
+  },
+  "provenance": [
+    {
+      "id": "original-2026-10",
+      "kind": "original",
+      "creator": "Short Video theme-pack contributors",
+      "created": "2026-10-01",
+      "scope": "All SVG paths, procedural geometry, sample Chinese copy, HTML, CSS and time-driven JavaScript composed originally for this pack. No third-party source, images, fonts, or generated photographic assets.",
+      "license": "MIT",
+      "externalAssets": false
+    }
+  ]
+}

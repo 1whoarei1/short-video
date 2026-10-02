@@ -1,0 +1,14 @@
+{
+  "source": "native AI image-generation tool",
+  "model": "not returned by tool; not asserted",
+  "generatedAt": "2026-10-01",
+  "prompt": "single sculptural clear optical glass prism, rounded bevels, three-quarter view, photorealistic studio rendering, subtle cyan and amber refractions, transparent background, no text or logos",
+  "originalSha256": "8515f75b70be2c2c4a24c8afe766bd07837217d0a69306e4a294cfdccdf6f8ed",
+  "assetSha256": "decfa5af2b48500585ca375606978750a2f83cc3dbaea13704e8963b5be5eabe",
+  "dimensions": [
+    1536,
+    1024
+  ],
+  "alphaPreserved": true,
+  "validation": "RGBA decoded and visually inspected; recorded with app.image_assets and registered as preview artifact in an isolated test project"
+}

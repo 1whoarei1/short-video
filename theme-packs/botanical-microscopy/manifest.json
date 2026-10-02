@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "kind": "html-theme-resource-pack",
+  "id": "botanical-microscopy",
+  "name": "Botanical / Inner Structures",
+  "displayName": "植物显微 · 内部的秩序",
+  "description": "深青观察场中展开透明薄膜、放射细胞与想象横截面；主体居中、标注环绕，用层次关系组织观察。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "licenseFile": "theme-packs/LICENSE",
+  "tags": [
+    "botanical",
+    "microscopy",
+    "cutaway",
+    "science"
+  ],
+  "palette": [
+    "#082b2d",
+    "#b8ebc9",
+    "#f5b7ad",
+    "#deeb82"
+  ],
+  "compatibleThemeIds": [
+    "frame-takram-organic",
+    "frame-decision-tree",
+    "frame-electric-studio"
+  ],
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "aspect": "16:9",
+    "adaptation": "Free composition reference; 390px browser previews letterbox. Portrait requires deliberate reflow, not automatic cropping."
+  },
+  "duration": 8,
+  "audio": {
+    "included": false,
+    "note": "无声示意；旁白、人物、音色、语速均由用户选择。本包不含事实数据或真实物种断言。"
+  },
+  "entrypoints": {
+    "preview": "theme-packs/botanical-microscopy/preview.html",
+    "motion": "theme-packs/botanical-microscopy/motion.js",
+    "styles": "theme-packs/botanical-microscopy/styles.css",
+    "poster": "theme-packs/botanical-microscopy/assets/poster.svg"
+  },
+  "previewApi": {
+    "seek": "window.render(seconds)",
+    "alias": "window.renderAt(seconds)",
+    "freezeQuery": "?t=3.5&controls=0",
+    "timeUnit": "seconds",
+    "range": [
+      0,
+      8
+    ],
+    "play": "window.themePreview.play()",
+    "pause": "window.themePreview.pause()"
+  },
+  "dependencies": {
+    "network": false,
+    "packages": [],
+    "fonts": "System Noto Sans/Serif CJK SC, PingFang SC, Microsoft YaHei, Songti SC, SimSun and generic sans/serif; no downloaded or bundled fonts. Metrics vary by OS.",
+    "shared": [
+      "theme-packs/shared/base.css",
+      "theme-packs/shared/motion.js",
+      "theme-packs/shared/player.js"
+    ]
+  },
+  "assets": [
+    {
+      "path": "theme-packs/botanical-microscopy/assets/specimen-section.svg",
+      "type": "image/svg+xml",
+      "role": "remixable-illustration",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    },
+    {
+      "path": "theme-packs/botanical-microscopy/assets/membrane.svg",
+      "type": "image/svg+xml",
+      "role": "remixable-illustration",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    },
+    {
+      "path": "theme-packs/botanical-microscopy/assets/poster.svg",
+      "type": "image/svg+xml",
+      "role": "poster",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    }
+  ],
+  "materials": [
+    "theme-packs/shared/materials/grain.svg"
+  ],
+  "variants": [
+    {
+      "id": "layer-exploration",
+      "name": "层层观察",
+      "recipe": "将完整截面拆成外层、组织和核心的独立 SVG 组；按内容依次抽离，保留连接线，重点是结构而非缩放特效。"
+    },
+    {
+      "id": "material-lens",
+      "name": "材料透镜",
+      "recipe": "用用户授权且核验过的材料显微照片替换想象截面，把薄膜作为取样边界；在画面显著处写清尺度、来源、处理方法。"
+    },
+    {
+      "id": "cell-pattern",
+      "name": "细胞纹样",
+      "recipe": "提取椭圆细胞并沿自己定义的路径铺排，做封面、信息背景或转场遮罩。避免在小字后叠加高对比纹理。"
+    }
+  ],
+  "usage": {
+    "remix": "细胞、薄膜、轨道和标注线互相独立。可只取一个显微窗口，或改为多窗对照、局部剖面和纵向剖面；本包不规定必须用生物题材。",
+    "avoid": "图形是原创想象，非真实植物、器官、组织或医学影像；标签是概念文案。不要据此推断结构、尺度、生物功能或健康功效。科研内容应换用已核验且许可明确的证据。",
+    "motion": "0.15–1.75 秒截面进入；1.3–4.1 秒透明薄膜分离；1–3.3 秒标注逐次出现。后半段轻微整体转动与扫描，可随叙事删改。",
+    "portrait": "截面放在中上部，标题居顶，三个标注改为下方编号说明。重新布连接线；不要直接裁去横版两侧的内容。",
+    "captions": "底部约 84 像素留给字幕，移走样例页脚。组织标注不得抢占字幕带；薄膜透明叠加要复核文字对比。"
+  },
+  "provenance": [
+    {
+      "id": "original-2026-10",
+      "kind": "original",
+      "creator": "Short Video theme-pack contributors",
+      "created": "2026-10-01",
+      "scope": "All SVG paths, procedural geometry, sample Chinese copy, HTML, CSS and time-driven JavaScript composed originally for this pack. No third-party source, images, fonts, or generated photographic assets.",
+      "license": "MIT",
+      "externalAssets": false
+    }
+  ]
+}

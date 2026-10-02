@@ -1,0 +1,12 @@
+{
+  "film": {
+    "start_sec": 0,
+    "duration_sec": 24
+  },
+  "_total": {
+    "fps": 24,
+    "total_frames": 576,
+    "video_duration_sec": 24,
+    "audio_duration_sec": 0
+  }
+}

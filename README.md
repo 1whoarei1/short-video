@@ -12,6 +12,8 @@ UI 负责输入、审核、批注和版本；Codex 负责调研、写稿、创�
 
 这依赖 Codex 实际打开仓库并读取项目说明。网页不调用模型、也不能唤醒空闲对话；活跃 Codex 先运行 `python -m app.cli status` 获取当前视频的 `workspace` 路径，再使用 `python -m app.cli --workspace PROJECT_PATH wait --timeout 300` 等待你确认需求，收到请求后按模式继续到人工检查点或导出。领取任务后固定使用该路径，避免切换项目时写错视频。等待超时可回到 Codex 说「继续当前视频项目」。详见 [运行模式与文件桥接](docs/workflow-modes.md)。
 
+换电脑或首次配置时，按 [新机器启动与能力检查](docs/new-machine-setup.md) 操作。手机界面适配说明见 [小屏工作台](docs/mobile-layout.md)。
+
 ## 手动启动
 
 Python 3.10+（Windows 可把 `python` 换成 `py -3`）：
@@ -76,8 +78,8 @@ node vendor/html-explainer/scripts/check_layout.mjs workspace
 - 图片和视频支持框选批注，保存原始截图、播放时间范围、版本、归一化区域坐标和文字意见
 - 批注与作品分开存储，不要求生成代码带任何可编辑组件或固定元素 ID
 - 支持撤销项目状态；不会删除已经生成的产物文件
-- 内置 23 个系列主题的本地概念样图、5 种中文音色的本地试听，首次打开即可浏览，不触发在线生成
-- 自定义主题保存在当前项目，可导出/导入含图片的主题包跨项目复用；原创视觉方向始终可用
+- 内置 23 个系列主题的本地短动画、概念样图，以及 5 种中文音色的本地试听，首次打开即可浏览，不触发在线生成
+- 自定义主题保存在当前项目，可导出/导入含图片和可选短视频的主题包跨项目复用；原创视觉方向始终可用
 
 ## 文件边界
 
@@ -150,3 +152,21 @@ python -m unittest discover -s tests -v
 每台新 Windows 电脑首次使用：克隆仓库 → 启动工作台 →「功能设置」→「Azure 配音」→ 输入密钥和区域 → 保存。也可从需求页 Azure 选项进入。用户本人保存后，程序会自动使用，无需设置 Windows 环境变量。凭据不会随 Git 迁移，每台电脑需单独配置。密钥与区域存入系统凭据管理器，不写项目文件、不回显。macOS/Linux 暂不支持页面保存，仍可使用用户自行配置的环境变量。系统静态加密不能隔离拥有同一账号任意代码执行权限的 AI/程序；安全边界和首次使用检查见 [Azure 配置](docs/azure-tts.md)。
 
 凭据离线验收：`BROWSER_PATH=/实际浏览器路径 node tests/credentials-ui-smoke.cjs` 使用内存假凭据检查保存、替换、删除、取消及密码清空。`node tests/credential-asset-security-smoke.cjs`（同样设置 BROWSER_PATH）检查恶意项目资产隔离与图片/视频功能。这些测试不会操作真实系统凭据或请求 Azure；Windows 原生存储需按上面的首次使用检查单验收。
+
+## 主题素材包与原生生图
+
+现在视觉选择器提供 **15 个资源素材包 + 23 个风格动效方向**。悬停或键盘聚焦可播放短动画，选定后继续动态预览。素材包内有可拆用 SVG、共享材质/动效源码、改编说明和实际可运行的 HTML；AI 可以跨包组合并自由创作。见 [主题资源包](theme-packs/README.md)。
+
+需求页“图片素材创作”允许当前 Codex 按需生图。项目提供素材规划、验证和存储流程，真正生图使用会话实际可用工具，**不配置模型 API**。操作说明见 [图片素材](docs/image-assets.md)；实际原生生图结合 HTML 的例子见 [玻璃棱镜实验](examples/image-material-study/README.md)。
+
+本轮记录与后续重点：[第一轮迭代](docs/iterations/2026-10-02-round-01.md)。
+
+资源查找和安全复制：[Codex 资源工具](docs/theme-resource-tools.md)。主题卡片的“放大播放与查看素材”适用于手机和桌面，可先查看动画与素材再选用。
+
+需求页已分为“内容与资料 / 画面与声音 / 交付偏好”三个可任选的分组，保留未保存输入，全部仍属于一次需求确认。详见 [需求页分组](docs/brief-groups.md)。主题包可使用共享叙事动效与跨包素材自由组合。
+
+自定义主题支持短 MP4/WebM 动态参考及便携 JSON 导入导出，详见 [自定义动态主题](docs/custom-theme-animation.md)。实际原生生图与跨资源重组案例见 [草莓视觉实验](examples/strawberry-remix/README.md)。
+
+材料怎么真正用于新画面，见 [自由材料改编指南](docs/visual-remix-guide.md)。新机器验收的实际范围见 [干净检出验证](docs/clean-checkout-verification.md)。
+
+本次材料扩展的成品、使用步骤和实测范围见 [迭代验收指南](docs/overnight-delivery-guide.md)。

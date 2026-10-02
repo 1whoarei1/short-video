@@ -1,0 +1,162 @@
+{
+  "id": "signal-journey",
+  "name": "Signal / Spatial Journey",
+  "displayName": "信号旅程 · 空间讲解",
+  "description": "原创空间路径、分层节点、三路探索与汇合；通过镜头深度和沿线消息运动讲清抽象关系。",
+  "tags": [
+    "signal",
+    "spatial",
+    "explainer",
+    "paths",
+    "branching"
+  ],
+  "palette": [
+    "#091c24",
+    "#baffdc",
+    "#c0b6f4",
+    "#f2c891"
+  ],
+  "compatibleThemeIds": [
+    "frame-data-rollup",
+    "frame-decision-tree",
+    "frame-electric-studio"
+  ],
+  "schemaVersion": 1,
+  "kind": "html-theme-resource-pack",
+  "version": "1.0.0",
+  "license": "MIT",
+  "licenseFile": "theme-packs/LICENSE",
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "aspect": "16:9",
+    "adaptation": "Reference composition; reflow freely for 9:16 or 1:1. Not an automatic aspect converter."
+  },
+  "duration": 12,
+  "audio": {
+    "included": false,
+    "note": "Silent concept preview. Narration, character, voice, language and speaking rate remain user-controlled."
+  },
+  "entrypoints": {
+    "preview": "theme-packs/signal-journey/preview.html",
+    "motion": "theme-packs/signal-journey/motion.js",
+    "styles": "theme-packs/signal-journey/styles.css",
+    "poster": "theme-packs/signal-journey/assets/poster.svg"
+  },
+  "previewApi": {
+    "seek": "window.render(seconds)",
+    "alias": "window.renderAt(seconds)",
+    "freezeQuery": "?variant=depth-flight&t=6.3&controls=0",
+    "timeUnit": "seconds",
+    "range": [
+      0,
+      12
+    ],
+    "play": "window.themePreview.play()",
+    "pause": "window.themePreview.pause()"
+  },
+  "dependencies": {
+    "network": false,
+    "packages": [],
+    "fonts": "Operating-system Arial/Georgia/monospace; none bundled or fetched. Font metrics can vary across systems.",
+    "shared": [
+      "theme-packs/shared/base.css",
+      "theme-packs/shared/motion.js",
+      "theme-packs/shared/player.js",
+      "theme-packs/shared/narrative-motion.js"
+    ]
+  },
+  "assets": [
+    {
+      "path": "theme-packs/signal-journey/assets/packet-token.svg",
+      "type": "image/svg+xml",
+      "role": "remixable-illustration",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    },
+    {
+      "path": "theme-packs/signal-journey/assets/plane-grid.svg",
+      "type": "image/svg+xml",
+      "role": "remixable-illustration",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    },
+    {
+      "path": "theme-packs/signal-journey/assets/route-atlas.svg",
+      "type": "image/svg+xml",
+      "role": "remixable-illustration",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    },
+    {
+      "path": "theme-packs/signal-journey/assets/poster.svg",
+      "type": "image/svg+xml",
+      "role": "poster",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    }
+  ],
+  "materials": [],
+  "variants": [
+    {
+      "id": "depth-flight",
+      "name": "空间飞行",
+      "query": "",
+      "recipe": "Projected layered planes, depth-separated branches, camera push and focus hierarchy. Every state is a pure function of seconds."
+    },
+    {
+      "id": "route-map",
+      "name": "平面路线图",
+      "query": "?variant=route-map",
+      "recipe": "Orthographic branch map removes z projection and perspective size changes for clearer route comparison. Same narrative, different functional geometry."
+    }
+  ],
+  "usage": {
+    "remix": "Reuse projection, paths, message token or plane texture independently; freely rewrite node positions, text and duration. No mandatory template or persona.",
+    "avoid": "Illustrative relationship metaphor only. Not a real network architecture, protocol, packet reassembly or quantitative dataset.",
+    "motion": "0–2.5s launch; 2.5–5.1s three branches and focus; 5.1–8s regroup; 8–10.1s onward arrival; 10.1–12s stable hold.",
+    "portrait": "Recompose start and destination vertically; keep the branches in three columns. Do not crop the landscape diagram.",
+    "captions": "Reserve a separate caption region and reflow the scene around it. The sample explanatory footer is not a subtitle track."
+  },
+  "provenance": [
+    {
+      "id": "original-2026-10",
+      "kind": "original",
+      "creator": "Short Video theme-pack contributors",
+      "created": "2026-10-01",
+      "scope": "All pack HTML, CSS, JS and four SVG assets; original 3D point projection and branch geometry. Shared helper authored for this repository.",
+      "license": "MIT",
+      "externalAssets": false
+    },
+    {
+      "url": "https://styles.refero.design/",
+      "kind": "discovery-only",
+      "note": "Inspected style discovery landing page; general explicit-style-system method only. No DESIGN.md, brand styling or assets copied."
+    },
+    {
+      "url": "https://superdesign.dev/",
+      "kind": "discovery-only",
+      "note": "Discovery-only URL. No inspectable page content returned; no output, template, code or asset used."
+    },
+    {
+      "url": "https://ui.aceternity.com/components/tracing-beam",
+      "kind": "discovery-only",
+      "note": "Read description of a beam following an SVG path. General visual method only: moving highlights guide attention. Implementation here is original deterministic 3D curve projection, not copied scroll code. External site retains its own license; no third-party code redistributed."
+    },
+    {
+      "url": "https://reactbits.dev/backgrounds/threads",
+      "kind": "discovery-only",
+      "note": "Discovery-only; page returned no inspectable component content. No implementation claims, code, textures or assets taken."
+    }
+  ],
+  "narrative": {
+    "library": "theme-packs/shared/narrative-motion.js",
+    "capabilities": [
+      "focus",
+      "perspective",
+      "converge"
+    ],
+    "illustrative": true,
+    "variantParameter": "variant"
+  }
+}

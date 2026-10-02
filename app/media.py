@@ -118,3 +118,60 @@ def valid_image(path):
         return True
     except (ValueError, OSError, IndexError, KeyError, struct.error, zlib.error):
         return False
+
+
+THEME_VIDEO_MAX_BYTES = 6_000_000
+
+
+def validate_theme_video(raw, extension):
+    """Decode a bounded, self-contained preview; never allow file/network references."""
+    import json
+    import math
+    import shutil
+    import subprocess
+
+    if extension not in ('.mp4', '.webm') or not isinstance(raw, bytes) or not 0 < len(raw) <= THEME_VIDEO_MAX_BYTES:
+        raise ValueError('动态预览须为 6 MB 以内的 MP4 或 WebM')
+    if not ((extension == '.mp4' and raw[4:8] == b'ftyp') or (extension == '.webm' and raw[:4] == b'\x1a\x45\xdf\xa3')):
+        raise ValueError('动态预览不是有效的视频容器')
+    probe, decoder = shutil.which('ffprobe'), shutil.which('ffmpeg')
+    if not probe or not decoder:
+        raise ValueError('动态预览验证需要本机 FFmpeg 和 ffprobe；请先安装官方 FFmpeg')
+    demuxer = 'mov' if extension == '.mp4' else 'matroska'
+    source = ['-protocol_whitelist', 'pipe', '-f', demuxer, '-i', 'pipe:0']
+    try:
+        result = subprocess.run([probe, '-v', 'error', '-threads', '1', '-max_pixels', '3686400', '-max_alloc', '64000000', *source, '-show_entries',
+                                 'stream=codec_type,codec_name,pix_fmt,width,height,r_frame_rate,duration:format=duration', '-of', 'json'],
+                                input=raw, capture_output=True, timeout=15)
+        if result.returncode or result.stderr:
+            raise ValueError('无法解析动态预览')
+        metadata = json.loads(result.stdout)
+        streams = metadata.get('streams', [])
+        videos = [s for s in streams if s.get('codec_type') == 'video']
+        if len(videos) != 1 or any(s.get('codec_type') not in ('video', 'audio') for s in streams) or len(streams) > 2:
+            raise ValueError('动态预览须包含单一视频流')
+        video = videos[0]
+        codecs = {'video': ('h264',), 'audio': ('aac',)} if extension == '.mp4' else {'video': ('vp8', 'vp9'), 'audio': ('opus', 'vorbis')}
+        # FFmpeg reports full-range 8-bit H.264 4:2:0 as yuvj420p (our JPEG renderer).
+        pixel_formats = ('yuv420p', 'yuvj420p') if extension == '.mp4' else ('yuv420p',)
+        if video.get('pix_fmt') not in pixel_formats or any(s.get('codec_name') not in codecs[s['codec_type']] for s in streams):
+            raise ValueError('动态预览编码不受支持；请重新导出 H.264/yuv420p 或 yuvj420p/faststart MP4（音频 AAC），或 VP8/VP9/yuv420p WebM（音频 Opus/Vorbis）')
+        duration = float(metadata.get('format', {}).get('duration', video.get('duration', 0)))
+        width, height = int(video['width']), int(video['height'])
+        numerator, denominator = video['r_frame_rate'].split('/')
+        fps = float(numerator) / float(denominator)
+        if not math.isfinite(duration) or not 0 < duration <= 15 or not 0 < width <= 1920 or not 0 < height <= 1920 or width * height > 3_686_400 or not math.isfinite(fps) or not 0 < fps <= 60:
+            raise ValueError('动态预览限 15 秒、1920×1920、60 fps 以内')
+        # Full decode with errors fatal. Pipes plus a forced demuxer forbid playlists,
+        # network protocols, and references to any other local file.
+        result = subprocess.run([decoder, '-v', 'error', '-xerror', '-threads', '1', '-max_pixels', '3686400', '-max_alloc', '64000000', *source,
+                                 '-map', '0:v:0', '-map', '0:a?', '-threads', '1', '-vsync', '0', '-progress', 'pipe:1', '-nostats', '-f', 'null', '-'],
+                                input=raw, capture_output=True, timeout=25)
+        if result.returncode or result.stderr:
+            raise ValueError('动态预览无法完整解码；请重新导出自包含视频')
+        progress = dict(line.split('=', 1) for line in result.stdout.decode('ascii').splitlines() if '=' in line)
+        if not 0 < int(progress.get('frame', 0)) <= 900 or not 0 < int(progress.get('out_time_us', 0)) <= 15_100_000:
+            raise ValueError('动态预览实际解码帧数或时长超出限制')
+        return {'duration': duration, 'width': width, 'height': height}
+    except (OSError, subprocess.TimeoutExpired, KeyError, IndexError, ZeroDivisionError, json.JSONDecodeError) as error:
+        raise ValueError('动态预览验证失败或超时，请使用更小的有效视频') from error

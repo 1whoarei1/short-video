@@ -1,0 +1,145 @@
+{
+  "id": "kinetic-poster",
+  "name": "Type / Moving Message",
+  "displayName": "动感字海报 · 主张发声",
+  "description": "酸橙色大字、硬边黑底和标志式圆环；字形本身承担节奏，信息不靠快速闪烁。",
+  "tags": [
+    "typography",
+    "poster",
+    "bold"
+  ],
+  "palette": [
+    "#17191a",
+    "#ecff72",
+    "#f4f2e8",
+    "#e59cb5"
+  ],
+  "compatibleThemeIds": [
+    "frame-kinetic-type",
+    "frame-bold-signal",
+    "frame-creative-voltage"
+  ],
+  "schemaVersion": 1,
+  "kind": "html-theme-resource-pack",
+  "version": "1.0.0",
+  "license": "MIT",
+  "licenseFile": "theme-packs/LICENSE",
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "aspect": "16:9",
+    "adaptation": "Reference composition; reflow freely for 9:16 or 1:1. Not an automatic aspect converter."
+  },
+  "duration": 8,
+  "audio": {
+    "included": false,
+    "note": "Silent concept preview. Narration, character, voice, language and speaking rate remain user-controlled."
+  },
+  "entrypoints": {
+    "preview": "theme-packs/kinetic-poster/preview.html",
+    "motion": "theme-packs/kinetic-poster/motion.js",
+    "styles": "theme-packs/kinetic-poster/styles.css",
+    "poster": "theme-packs/kinetic-poster/assets/poster.svg"
+  },
+  "previewApi": {
+    "seek": "window.render(seconds)",
+    "alias": "window.renderAt(seconds)",
+    "freezeQuery": "?t=3.5&controls=0",
+    "timeUnit": "seconds",
+    "range": [
+      0,
+      8
+    ],
+    "play": "window.themePreview.play()",
+    "pause": "window.themePreview.pause()"
+  },
+  "dependencies": {
+    "network": false,
+    "packages": [],
+    "fonts": "Operating-system Arial/Georgia/monospace; none bundled or fetched. Font metrics can vary across systems.",
+    "shared": [
+      "theme-packs/shared/base.css",
+      "theme-packs/shared/motion.js",
+      "theme-packs/shared/player.js"
+    ]
+  },
+  "assets": [
+    {
+      "path": "theme-packs/kinetic-poster/assets/message-mark.svg",
+      "type": "image/svg+xml",
+      "role": "remixable-illustration",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    },
+    {
+      "path": "theme-packs/kinetic-poster/assets/arrow-ribbon.svg",
+      "type": "image/svg+xml",
+      "role": "remixable-illustration",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    },
+    {
+      "path": "theme-packs/kinetic-poster/assets/poster.svg",
+      "type": "image/svg+xml",
+      "role": "poster",
+      "license": "MIT",
+      "provenanceId": "original-2026-10"
+    }
+  ],
+  "materials": [
+    "theme-packs/shared/materials/grain.svg",
+    "theme-packs/shared/materials/grid.svg",
+    "theme-packs/shared/materials/registration.svg",
+    "theme-packs/shared/materials/soft-glow.svg"
+  ],
+  "variants": [
+    {
+      "id": "split-statement",
+      "name": "双段主张",
+      "recipe": "Use one clause per scene. Cut or slide between statements when the narration naturally changes; keep the same edge alignment."
+    },
+    {
+      "id": "arrow-drive",
+      "name": "箭头节奏",
+      "recipe": "Replace the circular mark with arrow-ribbon.svg. Animate its position behind the headline while preserving legibility."
+    }
+  ],
+  "usage": {
+    "remix": "Use a short, strong statement. Rhythm comes from translation, width and a steady ticker, not strobing. The movement should reinforce how the line is spoken.",
+    "avoid": "Avoid rapid luminance flashes, unreadably fast type and long paragraphs. The preview demonstrates rhythm, not a mandatory beat or voice rate.",
+    "motion": "0–1.5s: type enters on two staggered beats; 1–2.2s: emblem expands; 1.8–2.5s: supporting line arrives. Ticker moves at constant low speed.",
+    "portrait": "Use three lines with one word per line, move the mark into a corner, and shorten or remove the ticker. For Chinese typography use 0 letter spacing and test the widest line.",
+    "captions": "Reserve an uncluttered caption band. Recompose labels rather than obscuring subtitles. Preview footer labels are not subtitles."
+  },
+  "provenance": [
+    {
+      "id": "original-2026-10",
+      "kind": "original",
+      "creator": "Short Video theme-pack contributors",
+      "created": "2026-10-01",
+      "scope": "All pack HTML, CSS, JS, SVG illustrations and poster compositions; shared library authored for this repository.",
+      "license": "MIT",
+      "externalAssets": false
+    },
+    {
+      "url": "https://styles.refero.design/",
+      "kind": "discovery-only",
+      "note": "User-suggested design-system discovery source; no screenshots, DESIGN.md text, brand styling or code copied."
+    },
+    {
+      "url": "https://superdesign.dev/",
+      "kind": "discovery-only",
+      "note": "User-suggested inspiration source. No template or generated output downloaded or redistributed."
+    },
+    {
+      "url": "https://ui.aceternity.com/",
+      "kind": "discovery-only",
+      "note": "Reference category: motion-led UI. No component source, premium blocks or assets used."
+    },
+    {
+      "url": "https://reactbits.dev/",
+      "kind": "discovery-only",
+      "note": "Reference category: expressive motion. No React component source or dependencies used."
+    }
+  ]
+}

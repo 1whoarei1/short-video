@@ -1,0 +1,13 @@
+{
+  "slug": "strawberry-remix",
+  "width": 1280,
+  "height": 720,
+  "fps": 24,
+  "audio_mode": "silent",
+  "bgm_mode": "none",
+  "order": [
+    "film"
+  ],
+  "gap": 0,
+  "progress": false
+}
