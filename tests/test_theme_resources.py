@@ -1,4 +1,4 @@
-import tempfile,unittest,json
+import tempfile,unittest,json,os,subprocess
 from pathlib import Path
 from app.theme_resources import catalog,discover,select,copy_pack,safe_path
 class ThemeResourcesTests(unittest.TestCase):
@@ -35,8 +35,28 @@ class ThemeResourcesTests(unittest.TestCase):
  def test_cross_pack_assets_copied(self):
   a=copy_pack('cinematic-inquiry',self.root);self.assertTrue((Path(a['destination'])/'theme-packs/tactile-archive/assets/tidal-impression.svg').is_file());self.assertTrue((Path(a['destination'])/'theme-packs/shared/narrative-motion.js').is_file())
  def test_no_escape_or_symlink(self):
-  self.assertRaises(ValueError,copy_pack,'precision-product',self.root,'../other')
+  for destination in ('../other','assets/../other','.hidden','assets\\other',str(self.root/'absolute')):
+   with self.subTest(destination=destination):
+    self.assertRaises(ValueError,copy_pack,'precision-product',self.root,destination)
   with tempfile.TemporaryDirectory() as outside:
-   (self.root/'assets').symlink_to(outside,target_is_directory=True);self.assertRaises(ValueError,copy_pack,'precision-product',self.root)
+   link=self.root/'assets'
+   try:
+    link.symlink_to(outside,target_is_directory=True)
+   except OSError as error:
+    if os.name!='nt' or getattr(error,'winerror',None)!=1314:raise
+    # Directory junctions exercise the same containment boundary without
+    # requiring Windows Developer Mode or elevated symlink privileges.
+    result=subprocess.run(['cmd','/c','mklink','/J',str(link),outside],capture_output=True)
+    self.assertEqual(result.returncode,0,result.stderr)
+   try:
+    self.assertRaises(ValueError,copy_pack,'precision-product',self.root)
+    self.assertEqual(list(Path(outside).iterdir()),[])
+   finally:
+    if link.is_symlink():link.unlink()
+    else:link.rmdir()
+ def test_copy_to_nested_portable_destination(self):
+  result=copy_pack('precision-product',self.root,'materials/visual/reference')
+  self.assertTrue(Path(result['preview']).is_file())
+  self.assertEqual(Path(result['destination']),self.root/'materials/visual/reference')
  def test_cancelled_task_no_copy(self):
   self.assertRaises(ValueError,copy_pack,'precision-product',self.root,task_id='missing',revision=0);self.assertFalse((self.root/'assets/theme-resources').exists())

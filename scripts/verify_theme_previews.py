@@ -7,6 +7,11 @@ from __future__ import annotations
 import argparse,hashlib,json,pathlib,struct
 ROOT=pathlib.Path(__file__).resolve().parents[1];OUT=ROOT/'web/presets/themes'
 
+def html_source_hash(path):
+    # Git checkouts may translate LF to CRLF. Hash canonical UTF-8 source so
+    # verification/build retain the same provenance on Windows and Unix.
+    return hashlib.sha256(path.read_text(encoding='utf-8').encode('utf-8')).hexdigest()
+
 def webp_size(data):
     assert data[:4]==b'RIFF' and data[8:12]==b'WEBP','Not a WebP image'
     chunk=data[12:16]
@@ -18,8 +23,8 @@ def webp_size(data):
     raise AssertionError(f'Unsupported WebP chunk {chunk!r}')
 
 def verify(build=False):
-    upstream=json.loads((ROOT/'vendor/html-explainer/references/style-catalog.json').read_text())
-    catalog=json.loads((OUT.parent/'themes.json').read_text());themes=catalog['themes']
+    upstream=json.loads((ROOT/'vendor/html-explainer/references/style-catalog.json').read_text(encoding='utf-8'))
+    catalog=json.loads((OUT.parent/'themes.json').read_text(encoding='utf-8'));themes=catalog['themes']
     assert len(themes)==len(upstream)==23
     assert [(x['id'],x['name'],x['zh_name']) for x in themes]==[(x['id'],x['name'],x['zh_name']) for x in upstream]
     hashes=set();rows=[]
@@ -32,9 +37,9 @@ def verify(build=False):
         p=ROOT/'web'/t['preview'].lstrip('/');data=p.read_bytes();digest=hashlib.sha256(data).hexdigest()
         assert digest not in hashes,f'Duplicate preview {t["id"]}';hashes.add(digest)
         assert webp_size(data)==(1280,720),t['id'];assert len(data)<200_000,t['id']
-        h=ROOT/'web'/t['preview_html'].lstrip('/');markup=h.read_text()
+        h=ROOT/'web'/t['preview_html'].lstrip('/');markup=h.read_text(encoding='utf-8')
         assert 'https://' not in markup and 'http://' not in markup.replace("xmlns='http://www.w3.org/2000/svg'",''),f'External HTML dependency: {t["id"]}'
-        item={'id':t['id'],'file':t['preview'],'width':1280,'height':720,'bytes':len(data),'sha256':digest,'html_sha256':hashlib.sha256(h.read_bytes()).hexdigest()}
+        item={'id':t['id'],'file':t['preview'],'width':1280,'height':720,'bytes':len(data),'sha256':digest,'html_sha256':html_source_hash(h)}
         if build:
             im=Image.open(p).convert('RGB');im.load();std=max(ImageStat.Stat(im).stddev);assert std>12,f'Flat/blank image {t["id"]}'
             item['max_channel_stddev']=round(std,2)
@@ -42,9 +47,9 @@ def verify(build=False):
         rows.append(item)
     if build:
         sheet.save(OUT/'contact-sheet.jpg',quality=65,optimize=True)
-        (OUT/'manifest.json').write_text(json.dumps({'schema_version':1,'count':23,'total_image_bytes':sum(x['bytes'] for x in rows),'image_checks':'Decoded RGB; 1280×720; unique SHA-256; max channel standard deviation > 12; each < 200 KB','themes':rows},ensure_ascii=False,indent=2)+'\n')
+        (OUT/'manifest.json').write_text(json.dumps({'schema_version':1,'count':23,'total_image_bytes':sum(x['bytes'] for x in rows),'image_checks':'Decoded RGB; 1280×720; unique SHA-256; max channel standard deviation > 12; each < 200 KB','themes':rows},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     else:
-        manifest=json.loads((OUT/'manifest.json').read_text());assert manifest['count']==23
+        manifest=json.loads((OUT/'manifest.json').read_text(encoding='utf-8'));assert manifest['count']==23
         expected={x['id']:x for x in manifest['themes']}
         for row in rows:
             assert all(expected[row['id']][k]==v for k,v in row.items()),f'Manifest mismatch {row["id"]}'

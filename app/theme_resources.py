@@ -81,10 +81,12 @@ def copy_pack(identifier, workspace, destination='assets/theme-resources', task_
         safe_path(root,destination)
         plans=[]
         for rel,data in files:
-            target=safe_path(root,str(Path(destination)/rel))
+            # Validate the caller's spelling above, then keep internally joined
+            # relative paths portable: native Windows Path strings use '\\'.
+            target=safe_path(root,(Path(destination)/rel).as_posix())
             if target.exists() and (not target.is_file() or target.read_bytes()!=data):raise ValueError('已有文件含修改，未覆盖：'+str(target.relative_to(root)))
             plans.append((target,data))
-        receipt=safe_path(root,str(Path(destination)/('resource-kit-'+identifier+'.json')))
+        receipt=safe_path(root,(Path(destination)/('resource-kit-'+identifier+'.json')).as_posix())
         serialized=(json.dumps(record,ensure_ascii=False,indent=2)+'\n').encode()
         if receipt.exists():
             if not receipt.is_file():raise ValueError('已有资源清单不同，选择新的目标目录')

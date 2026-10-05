@@ -50,7 +50,7 @@ class ModeTests(unittest.TestCase):
                     (Path(root) / name).write_bytes(PNG)
                 self.flow.mutate('mode', {'workflowMode': mode})
                 with patch.object(self.flow, 'valid_media', return_value=True):
-                    for stage in STAGES:
+                    for stage in self.flow.read()['stageOrder']:
                         d = self.ready(stage)
                         human = stage == 'requirements' or mode == 'manual' or (mode == 'semi' and stage == 'preview')
                         self.assertEqual(d['nextAction']['actor'], 'human' if human else 'agent')
@@ -61,6 +61,11 @@ class ModeTests(unittest.TestCase):
                         self.assertEqual(d['stages'][stage]['approvedBy'], 'human' if human else 'agent')
                     self.assertEqual(d['nextAction']['action'], 'complete')
                     self.assertEqual(d['taskRequest']['status'], 'completed')
+                    if mode=='auto':
+                        self.assertEqual(d['skippedStages'],['preview'])
+                        self.assertEqual(d['stages']['preview']['artifacts'],[])
+                        self.assertNotIn('approvedBy',d['stages']['preview'])
+                        self.assertFalse(any(row.get('stage')=='preview' for row in d['history']))
 
     def test_requirements_always_human_outside_test_override(self):
         self.flow.mutate('mode', {'workflowMode': 'auto'})
@@ -125,9 +130,10 @@ class ModeTests(unittest.TestCase):
         self.requirements()
         self.ready('narration')
         self.approve('narration', 'agent')
-        self.flow.mutate('save', {'stage': 'preview', 'text': 'No actual frame'})
+        self.assertEqual(self.flow.read()['nextAction']['stage'],'production')
+        self.flow.mutate('save', {'stage': 'production', 'text': 'No actual video'})
         with self.assertRaises(ValueError):
-            self.flow.mutate('submit', {'stage': 'preview'})
+            self.flow.mutate('submit', {'stage': 'production'})
 
     def test_legacy_research_alias_is_auditable(self):
         d = self.flow.mutate('save', {'stage': 'research', 'text': 'legacy source notes'})

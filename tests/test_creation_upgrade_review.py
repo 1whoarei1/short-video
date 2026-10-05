@@ -88,7 +88,7 @@ class UpgradeReviewTests(unittest.TestCase):
         self.assertEqual(state['nextAction']['stage'], 'production')
         self.assertEqual(state['taskRequest']['status'], 'queued')
 
-    def test_auto_mode_still_requires_preview_artifact_and_inspection_note(self):
+    def test_optional_legacy_preview_still_requires_artifact_and_inspection_note(self):
         self.start('auto')
         self.save('narration')
         self.approve('narration', 'agent')
@@ -100,6 +100,22 @@ class UpgradeReviewTests(unittest.TestCase):
             self.flow.mutate('approve', {'stage': 'preview', 'by': 'agent'})
         state = self.flow.mutate('approve', {'stage': 'preview', 'by': 'agent', 'note': 'Inspected actual image pixels'})
         self.assertEqual(state['stages']['preview']['approvedBy'], 'agent')
+
+    def test_auto_goes_directly_to_production_and_requires_actual_video(self):
+        self.start('auto')
+        self.save('narration')
+        state=self.approve('narration','agent')
+        self.assertEqual(state['stageOrder'],['requirements','narration','production','export'])
+        self.assertEqual(state['skippedStages'],['preview'])
+        self.assertEqual(state['nextAction']['stage'],'production')
+        self.assertEqual(state['nextAction']['actor'],'agent')
+        self.assertEqual(state['stages']['preview']['status'],'draft')
+        self.assertEqual(state['stages']['preview']['artifacts'],[])
+        self.assertNotIn('approvedBy',state['stages']['preview'])
+        self.save('production','A description cannot replace a decoded video.')
+        with self.assertRaises(ValueError):
+            self.flow.mutate('submit',{'stage':'production','by':'agent'})
+        self.assertFalse(any(row.get('stage')=='preview' for row in self.flow.read()['history']))
 
     @unittest.skipUnless(shutil.which('ffmpeg') and shutil.which('ffprobe'), 'Full media progression needs FFmpeg/ffprobe')
     def test_each_mode_reaches_export_with_correct_approvers_and_completion(self):
@@ -114,19 +130,45 @@ class UpgradeReviewTests(unittest.TestCase):
                 shutil.copyfile(video, root / 'clip.mp4')
                 flow.mutate('mode', {'workflowMode': mode})
                 actors = {}
-                for stage in STAGES:
+                for stage in flow.read()['stageOrder']:
                     if stage in ('preview', 'production', 'export'):
                         flow.mutate('artifact', {'stage': stage, 'path': 'frame.png' if stage == 'preview' else 'clip.mp4'})
                     else:
                         flow.mutate('save', {'stage': stage, 'text': 'Reviewed actual source and authored narration'})
                     flow.mutate('submit', {'stage': stage, 'by': 'human' if stage == 'requirements' else 'agent'})
                     actor = 'human' if stage == 'requirements' or mode == 'manual' or (mode == 'semi' and stage == 'preview') else 'agent'
+                    if actor=='agent' and stage in ('production','export'):
+                        with self.assertRaises(ValueError):
+                            flow.mutate('approve',{'stage':stage,'by':'agent'})
                     state = flow.mutate('approve', {'stage': stage, 'by': actor, 'note': 'Checked actual stage content and decoded test media'})
                     actors[stage] = state['stages'][stage]['approvedBy']
                 self.assertEqual(state['nextAction']['action'], 'complete')
                 self.assertEqual(state['nextAction']['actor'], 'none')
                 self.assertEqual(state['taskRequest']['status'], 'completed')
                 self.assertEqual([stage for stage, actor in actors.items() if actor == 'human'], STAGES if mode == 'manual' else ['requirements', 'preview'] if mode == 'semi' else ['requirements'])
+                if mode=='auto':
+                    self.assertNotIn('preview',actors)
+                    self.assertEqual(state['stages']['preview']['artifacts'],[])
+                    self.assertFalse(any(row.get('stage')=='preview' for row in state['history']))
+
+    def test_tightening_auto_without_preview_reopens_real_human_review(self):
+        self.start('auto')
+        self.save('narration')
+        self.approve('narration','agent')
+        old_id=self.flow.read()['taskRequest']['id']
+        self.flow.mutate('claim',{'id':old_id})
+        state=self.flow.mutate('mode',{'workflowMode':'semi'})
+        self.assertEqual(state['nextAction']['stage'],'preview')
+        self.assertEqual(state['nextAction']['actor'],'agent')
+        self.assertEqual(state['nextAction']['checkpoint'],'preview')
+        self.assertEqual(state['stages']['preview']['artifacts'],[])
+        self.assertNotEqual(state['taskRequest']['id'],old_id)
+        with self.assertRaises(ValueError):
+            self.flow.mutate('submit',{'stage':'preview','by':'agent'})
+        state=self.preview()
+        self.assertEqual(state['nextAction']['actor'],'human')
+        with self.assertRaises(ValueError):
+            self.flow.mutate('approve',{'stage':'preview','by':'agent','note':'An actual image still needs user approval'})
 
     def test_wait_observes_request_without_mutating_or_generating(self):
         from app.cli import wait_for_request
