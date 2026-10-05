@@ -80,6 +80,34 @@ class StyleAdvisoryTests(unittest.TestCase):
         self.write('layout.json', {'intro': {'duration_sec': 4.125}})
         self.assertEqual(self.plan()['scenes'][0]['duration_sec'], 4.125)
 
+    def test_native_items_wrapper_keeps_same_theme_and_measured_plan(self):
+        self.select('pack-food-editorial')
+        self.write('layout.json', {'intro': {'duration_sec': 4.125}})
+        before = self.plan()
+        items = json.loads((self.project / 'narration.json').read_text(encoding='utf-8'))
+        self.write('narration.json', {'items': items})
+        self.assertEqual(self.plan(), before)
+
+    def test_engine_style_entrypoint_with_wrapped_narration(self):
+        self.select('pack-food-editorial')
+        self.write('layout.json', {'intro': {'duration_sec': 4.125}})
+        items = json.loads((self.project / 'narration.json').read_text(encoding='utf-8'))
+        self.write('narration.json', {'items': items})
+        before = {p.relative_to(self.project): p.read_bytes() for p in self.project.rglob('*') if p.is_file()}
+        for flags in (['--dry-run'], []):
+            run = subprocess.run([sys.executable, str(ROOT / 'scripts/engine.py'), 'style',
+                                  str(self.project), *flags], cwd=ROOT,
+                                 capture_output=True, text=True, encoding='utf-8')
+            self.assertEqual(run.returncode, 0, run.stderr)
+            self.assertTrue(all((self.project / p).read_bytes() == data for p, data in before.items()))
+            if flags:
+                self.assertFalse((self.project / 'style-plan.json').exists())
+                self.assertIn('pack-food-editorial', run.stdout)
+        written = json.loads((self.project / 'style-plan.json').read_text(encoding='utf-8'))
+        self.assertEqual(written['scenes'][0]['duration_sec'], 4.125)
+        self.assertTrue(all(s['primary'] == 'pack-food-editorial' for s in written['scenes']))
+        self.assertTrue((self.project / 'script/style-plan.md').is_file())
+
     def test_pin_changes_donor_but_not_selected_theme(self):
         self.select('pack-food-editorial')
         self.args.pin = ['data = frame-glitch-title']

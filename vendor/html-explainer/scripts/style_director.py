@@ -496,6 +496,10 @@ def diversify(assign, pool, max_styles, role_of, pin, used_ok, max_loss=10.0):
 def build_plan(project, args):
     pj = _load_json(os.path.join(project, "project.json"), {}) or {}
     narr = _load_json(os.path.join(project, "narration.json"), []) or []
+    if isinstance(narr, dict):
+        narr = narr.get("items", [])
+    if not isinstance(narr, list):
+        raise SystemExit("✗ narration.json 应为场景列表或 {items: [...]} 包装格式")
     layout = _load_json(os.path.join(project, "layout.json"), {}) or {}
     brief = _load_json(os.path.join(project, "brief.json"), {}) or {}
     catalog = _load_json(CATALOG, []) or []
