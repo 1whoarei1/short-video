@@ -165,7 +165,7 @@ def validate_theme_video(raw, extension):
         # Full decode with errors fatal. Pipes plus a forced demuxer forbid playlists,
         # network protocols, and references to any other local file.
         result = subprocess.run([decoder, '-v', 'error', '-xerror', '-threads', '1', '-max_pixels', '3686400', '-max_alloc', '64000000', *source,
-                                 '-map', '0:v:0', '-map', '0:a?', '-threads', '1', '-vsync', '0', '-progress', 'pipe:1', '-nostats', '-f', 'null', '-'],
+                                 '-map', '0:v:0', '-map', '0:a?', '-threads', '1', '-fps_mode', 'passthrough', '-progress', 'pipe:1', '-nostats', '-f', 'null', '-'],
                                 input=raw, capture_output=True, timeout=25)
         if result.returncode or result.stderr:
             raise ValueError('动态预览无法完整解码；请重新导出自包含视频')

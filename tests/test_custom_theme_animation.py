@@ -212,6 +212,9 @@ class CustomAnimationTests(unittest.TestCase):
                 self.assertEqual(args[args.index(option) + 1], expected)
                 self.assertLess(args.index(option), args.index('-i'))
             self.assertEqual(args[args.index('-protocol_whitelist') + 1], 'pipe')
+        decode_args = run.call_args_list[-1].args[0]
+        self.assertNotIn('-vsync', decode_args)  # removed in FFmpeg 9
+        self.assertEqual(decode_args[decode_args.index('-fps_mode') + 1], 'passthrough')
 
     def test_reject_audio_disguised_as_video(self):
         path = self.root / 'audio.mp4'
