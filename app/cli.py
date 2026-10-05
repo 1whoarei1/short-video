@@ -43,6 +43,10 @@ def main(argv=None):
     command.add_argument('--stage', choices=LEGACY_STAGES, required=True)
     command.add_argument('--file', required=True)
     command.add_argument('--settings', help='可选需求配置 JSON 文件')
+    command = sub.add_parser('voice', help='提前配置配音服务、音色与语速；不读取凭据、不发起合成')
+    command.add_argument('--provider', choices=['silent', 'azure', 'edge'])
+    command.add_argument('--voice')
+    command.add_argument('--rate', help='整数百分比，例如 0%% 或 +20%%；负值写为 --rate=-10%%')
     command = sub.add_parser('artifact')
     command.add_argument('--stage', choices=LEGACY_STAGES, required=True)
     command.add_argument('--path', required=True)
@@ -71,7 +75,7 @@ def main(argv=None):
     command.add_argument('--id', required=True)
     command.add_argument('--resolved', choices=['yes', 'no'], default='yes')
     for name, command in sub.choices.items():
-        if name in ('save', 'artifact', 'submit', 'approve', 'revise', 'resolve'):
+        if name in ('save', 'voice', 'artifact', 'submit', 'approve', 'revise', 'resolve'):
             command.add_argument('--task-id', dest='taskId')
             command.add_argument('--revision', type=int)
             if name not in ('submit', 'approve'):

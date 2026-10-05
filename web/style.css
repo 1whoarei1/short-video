@@ -35,7 +35,7 @@ dialog{border:1px solid var(--line);border-radius:16px;background:var(--paper);c
 #themeDetailTitle,#themeDetailDescription,.voice-choice strong,.voice-card-head,
 #assetMeta,.annotation p{overflow-wrap:anywhere}
 @media(max-width:700px){
-  #stages{display:grid;grid-template-columns:repeat(5,minmax(0,1fr))}
+  #stages{display:grid;grid-template-columns:repeat(var(--stage-count,5),minmax(0,1fr))}
   #stages button{min-width:0;min-height:44px}
   .dialog-footer{flex-wrap:wrap}
   .dialog-footer>span{min-width:0;overflow-wrap:anywhere}

@@ -11,8 +11,8 @@
 7. 到人工确认点，告诉用户在网页看什么，并再次运行有界 `wait --timeout 300`，等待其批准后继续；不要把半自动停在「生成文案」，也不要把全自动停在「静态预览」。模式语义和完整命令见 `docs/workflow-modes.md`。
 
 ## 重要边界
-- 只有五个可见阶段：需求沟通 → 文案（含调研）→ 静态预览 → 视频制作 → 导出。需求始终由用户提交和确认。
-- `manual` 每阶段人工审核；`semi` 需求和静态预览人工审核，其他阶段代理实测自审；`auto` 需求后代理实测自审直至导出。这来自用户明确选择，不可伪造 `--by human`。切换到更严格模式会重新打开必要人工检查点，并让下游失效。
+- 工作流保存五个阶段；手动/半自动显示需求沟通 → 文案（含调研）→ 静态预览 → 视频制作 → 导出。全自动显示四步：需求沟通 → 文案 → 视频制作 → 导出，跳过静态预览，不创建截图审核或伪造预览批准。需求始终由用户提交和确认。
+- `manual` 每阶段人工审核；`semi` 需求和静态预览人工审核，其他阶段代理实测自审；`auto` 需求后跳过静态预览，文案批准后直接制作并检查成片直至导出。这来自用户明确选择，不可伪造 `--by human`。切换到更严格模式会重新打开必要人工检查点，并让下游失效。
 - `mode --self-review on` 仅供用户明确授权的测试或样片，保留兼容；正常模式选择会关闭这一旧测试旁路。任何代理批准必须写真实检查记录，不能跳过实际内容/媒体验证。
 - 时长仅是「约多少秒」或「多少至多少秒」的创作提示。根据内容、自然口播和真实音频决定实际时长，不强塞固定字数、不机械变速、不裁掉必要解释。
 - 默认无声带字幕；可选 Edge 或 Azure 配音。先批准文案再合成，使用真实音频/词边界生成字幕和时间轴。Edge 遵循 `docs/edge-tts.md`，Azure 遵循 `docs/azure-tts.md`。密钥只由用户在本机安全配置：允许用户本人在专用 Azure 凭据密码框输入并保存到 Windows 凭据管理器。代理不得主动检查或读取系统凭据库，不得执行取密钥/解密命令；仅可使用工作台无密钥状态接口或已授权的合成入口。代理禁止读取、回显、导出或代填实际密钥；禁止放入聊天、普通网页表单、项目文件、日志或 Git。macOS/Linux 不提供文件存储降级；同账号任意代码执行仍可能访问系统凭据，不能宣称密码框或加密可绝对隔离 AI。
@@ -28,7 +28,7 @@
 - 背景音乐独立于配音：需求 `bgm_mode=none|ai|upload`、`bgm_direction`、`bgm_upload`。默认 none；silent 配音仍可有 BGM。没有音乐模型 API；由当前 Codex 自由创作任意 MIDI、编曲、源代码、分轨与 cue map。FluidSynth/FluidR3 GM 只提供真实采样演奏，不复制《初光》的固定旋律、结构或配器。
 - 先运行 `python scripts/setup_bgm.py` 检查；依用户安装授权再运行 `--install-soundfont`。官方来源、许可证、校验与 Windows 指引见 `docs/bgm-setup.md`。网页不自动下载，不把音色库提交 Git。
 - 当前项目路径：未指定 `--workspace` 的 `python -m app.cli status` 跟随网页当前项目；读取返回的 `workspace`，领取任务后所有命令固定传入该绝对路径。用户切换项目不能把进行中的制作写进另一项目。
-- 内容与真实 TTS 决定镜头时长；音乐不能拉长视频、机械伸缩旁白。静态预览阶段同时注册画面和音乐短样；共用既有人工/半自动/自动审核规则，不新增阶段。
+- 内容与真实 TTS 决定镜头时长；音乐不能拉长视频、机械伸缩旁白。手动/半自动在静态预览阶段同时注册画面和音乐短样。全自动直接创作整曲、制作和核对成片，不要求静态图片或音乐短样审核，不新增阶段。
 - `python scripts/engine.py bgm-prepare PROJECT --source music/original.mid --cues music/cues.json --retain-source music/compose.py --stem music/strings.wav`：所有输入在项目内；retain-source/stem 可重复。亦可用作者已混音 WAV，上传模式可省略 source 使用 bgm_upload。保留来源、分轨与 cue map，生成 `audio/bgm/full.wav` 整曲及 `audio/bgm/preview.wav` 15 秒试听。cue map 是 `[{"start":0,"end":10,"label":"开场"}]`。没有自动代写固定乐曲；需要代理完成真实创作。
 - 按所选模式先批准文案，再 synthesize/timeline；音乐短样可独立制作。最终 `python scripts/engine.py soundtrack PROJECT` 仅从独立音乐、旁白和可选音效混音，严格按 layout 的 total_frames/fps 裁切/补静音/淡出，整曲按实测响度以单一固定增益向 -18 LUFS 归一化（真峰值不超过 -1.5 dBTP，高动态曲目优先保留峰值与动态），保留未改动原始来源；纯音乐默认原响度，有旁白自动 -12dB 并 ducking；bgm_gain_db 默认 0，表示额外增益偏移。可在引擎配置添加 `sound_effects:[{"path":"audio/hit.wav","start":1.2,"gain_db":-6}]`；不得把已混音文件再次当旁白。
 - `render` 消费验证过的 `audio/soundtrack.wav`，即使无旁白；直接 renderer 和 mux-only 同样检查源/时间轴/设置哈希。源、方向、分轨、配音、时长等改变后重建相应下游，不重用旧片。注册 production/export 视频需保留渲染器同目录生成的 `.mp4.soundtrack.json` 验证记录。
@@ -37,7 +37,7 @@
 ## 主题资源包和图片创作
 - 写场景前读取 `theme-packs/catalog.json`、选定包 manifest、相关 assets/shared 和 runnable preview。旧23主题仍可选，新增 `pack-` 主题对应资源包 ID。资源是可拆用的参考，允许组合、改写和新创作，不强制套版。
 - 需要图片时读取 `.agents/skills/video-image-assets/SKILL.md`。按 image_mode/image_direction 使用当前 Codex 实际生图能力，取得真实文件、验证、记录并用于 HTML。不得仅写提示词就声称图片完成，也不通过项目配置模型 API 或密钥。
-- 用户控制旁白、人物、音色和语速。扩展主题或生成素材时不得擅自更换这些已选内容。
+- 用户明确指定的旁白、人物、音色和语速优先。代理可以提前配置非秘密的配音服务、音色与语速，使用 `app.cli voice`；Azure 默认候选为云帆多语言 `zh-CN-YunfanMultilingualNeural`，不得用 Edge 冒充。配置不发起合成、不授权代确认需求；改变已批准的设置会重开需求并使下游失效。实际合成仍在文案批准后执行。
 - 资源发现/复制使用 `app.theme_resources`（见 docs/theme-resource-tools.md）。先检索少量相关参考，查看真实动态效果，再按内容自由组合。不要把每个包全部塞入上下文。
 
 - 需要更多视觉构思时，参考 `docs/visual-remix-guide.md`：按当前内容检索少量材料，先验证关键运动和代表帧，再自由扩展；这一指南不新增审核阶段。

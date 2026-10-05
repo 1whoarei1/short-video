@@ -15,7 +15,7 @@ def main():
   for key,default in [('width',1920),('height',1080),('fps',24)]:config[key]=int(settings.get(key,default))
   mode=settings.get('audio_mode','silent')
   if mode not in ('silent','azure','edge'):raise ValueError('Unknown audio_mode')
-  config.update(gap=0,audio_mode=mode,provider=mode if mode!='silent' else 'none',azure_voice=settings.get('azure_voice','zh-CN-XiaoxiaoNeural'),azure_rate=settings.get('azure_rate','0%'),edge_voice=settings.get('edge_voice','zh-CN-YunxiNeural'),edge_rate=settings.get('edge_rate','0%'))
+  config.update(gap=0,audio_mode=mode,provider=mode if mode!='silent' else 'none',azure_voice=settings.get('azure_voice','zh-CN-YunfanMultilingualNeural'),azure_rate=settings.get('azure_rate','0%'),edge_voice=settings.get('edge_voice','zh-CN-YunxiNeural'),edge_rate=settings.get('edge_rate','0%'))
   from soundtrack import DEFAULTS
   config.update({key:settings.get(key,value) for key,value in DEFAULTS.items()})
   if before != config:

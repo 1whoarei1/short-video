@@ -67,10 +67,12 @@ def load_project(project):
     byid = {x['id']: x for x in items}
     mode = config.get('audio_mode', 'silent')
     if mode not in ('azure', 'edge'): raise ValueError('Choose azure or edge audio mode')
-    voice = config.get(mode + '_voice', 'zh-CN-YunxiNeural' if mode=='edge' else 'zh-CN-XiaoxiaoNeural')
+    voice = config.get(mode + '_voice', 'zh-CN-YunxiNeural' if mode=='edge' else 'zh-CN-YunfanMultilingualNeural')
     rate = config.get(mode + '_rate', '0%')
     if not isinstance(voice, str) or not re.fullmatch(r'[a-z]{2,3}-[A-Z]{2}-[A-Za-z][A-Za-z0-9]*Neural', voice):
         raise ValueError('Speech voice must name a standard Neural voice')
+    if mode == 'edge' and voice == 'zh-CN-YunfanMultilingualNeural':
+        raise ValueError('Yunfan multilingual requires the Azure Speech provider')
     if not isinstance(rate, str) or not re.fullmatch(r'[+-]?\d{1,3}%', rate) or not -50 <= int(rate[:-1]) <= 100:
         raise ValueError('Speech rate must be a percentage from -50% to +100%')
     for item in items:

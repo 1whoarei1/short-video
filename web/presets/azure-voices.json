@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-10-05",
+  "source": "https://learn.microsoft.com/en-us/azure/ai-services/speech-service/language-support?tabs=tts",
+  "voices": [
+    {
+      "id": "zh-CN-YunfanMultilingualNeural",
+      "name": "云帆 · 多语言",
+      "gender": "男声",
+      "description": "Azure 多语言音色，可根据中英文等输入文本自动识别语言",
+      "locale": "zh-CN",
+      "providers": [
+        "azure"
+      ],
+      "multilingual": true,
+      "sampleUrl": "/presets/voices/zh-CN-YunfanMultilingualNeural.mp3",
+      "sampleVoice": "zh-CN-YunfanMultilingualNeural",
+      "sampleProvider": "azure",
+      "sampleRate": "0%",
+      "sampleText": "你好，欢迎来到视频创作工作台。选一个喜欢的声音，把每一个想法讲清楚，让故事更有温度。Hello, welcome to the video studio.",
+      "generatedAt": "2026-10-05T08:59:44+00:00",
+      "sampleRegion": "southeastasia",
+      "wordBoundaryCount": 27,
+      "wordBoundaryEndSeconds": 13.0125,
+      "durationSeconds": 13.5625,
+      "decodedDurationSeconds": 13.5625,
+      "sampleRateHz": 24000,
+      "channels": 1,
+      "bytes": 218540,
+      "sha256": "f244a210db24d1136f2f8deb3247506970bf79a53715e73bc7fce13cf0be6171",
+      "peakDbfs": -3.344,
+      "rmsDbfs": -23.501,
+      "clippedSamples": 0
+    }
+  ]
+}

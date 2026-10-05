@@ -20,7 +20,7 @@ STAGES = ['requirements', 'narration', 'preview', 'production', 'export']
 LABELS = ['需求沟通', '文案', '静态预览', '视频制作', '导出交付']
 MODES = ('manual', 'semi', 'auto')
 LEGACY_STAGES = STAGES + ['research']
-AUDIO_DEFAULTS = {'audio_mode': 'silent', 'azure_voice': 'zh-CN-XiaoxiaoNeural', 'azure_rate': '0%', 'edge_voice': 'zh-CN-YunxiNeural', 'edge_rate': '0%'}
+AUDIO_DEFAULTS = {'audio_mode': 'silent', 'azure_voice': 'zh-CN-YunfanMultilingualNeural', 'azure_rate': '0%', 'edge_voice': 'zh-CN-YunxiNeural', 'edge_rate': '0%'}
 BGM_DEFAULTS = {'bgm_mode': 'none', 'bgm_direction': '', 'bgm_upload': '', 'bgm_gain_db': 0, 'bgm_ducking': True, 'bgm_fade_out': 1.5}
 IMAGE_DEFAULTS = {'image_mode': 'auto', 'image_direction': ''}
 CREATIVE_DEFAULTS = {'durationMode': 'approx', 'themeId': 'original', 'voicePresetId': ''}
@@ -46,7 +46,7 @@ def validate_settings(settings):
     if not isinstance(settings, dict):
         raise ValueError('项目配置格式不正确')
     if set(settings) - SETTING_KEYS:
-        raise ValueError('不支持的配置字段；密钥只能由你在进程环境中配置，不可存入项目')
+        raise ValueError('不支持的配置字段；密钥只能由用户在专用凭据设置或进程环境中配置，不可存入项目')
     settings = {**AUDIO_DEFAULTS, **BGM_DEFAULTS, **CREATIVE_DEFAULTS, **IMAGE_DEFAULTS, **settings}
     for key in ('width', 'height', 'fps'):
         if not finite_number(settings.get(key)):
@@ -73,6 +73,8 @@ def validate_settings(settings):
         if not isinstance(rate, str) or not re.fullmatch(r'[+-]?\d{1,3}%', rate) or not -50 <= int(rate[:-1]) <= 100:
             raise ValueError('语速必须是 -50% 至 +100% 的整数百分比')
         settings[f'{provider}_rate'] = f'{int(rate[:-1])}%'
+    if settings['edge_voice'] == 'zh-CN-YunfanMultilingualNeural':
+        raise ValueError('云帆多语言音色请使用 Azure Speech 渠道')
     for key in ('themeId', 'voicePresetId'):
         if not isinstance(settings[key], str) or not re.fullmatch(r'[A-Za-z0-9_.-]{0,100}', settings[key]):
             raise ValueError('主题或音色预设 ID 无效')
@@ -129,6 +131,20 @@ def process_lock(path):
                     fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
 
 
+def execution_stages(data):
+    """Keep historical previews, but do not make them part of an auto run."""
+    return [s for s in STAGES if s != 'preview' or data.get('workflowMode', 'manual') != 'auto']
+
+
+def present(data):
+    data['stageOrder'] = execution_stages(data)
+    data['skippedStages'] = [s for s in STAGES if s not in data['stageOrder']]
+    data['nextAction'] = next_action(data)
+    if data['active'] not in data['stageOrder']:
+        data['active'] = data['nextAction']['stage']
+    return data
+
+
 def agent_may_approve(data, stage):
     # selfReview is retained ONLY for explicitly authorized sample/test workflows.
     if data.get('selfReview', False):
@@ -139,13 +155,14 @@ def agent_may_approve(data, stage):
 
 
 def next_action(data, ignore_pause=False):
-    stage = next((s for s in STAGES if data['stages'][s]['status'] != 'approved'), None)
+    route = execution_stages(data)
+    stage = next((s for s in route if data['stages'][s]['status'] != 'approved'), None)
     if stage is None:
         return {'actor': 'none', 'action': 'complete', 'stage': 'export', 'checkpoint': None, 'reason': '成片已检查并导出'}
     current = data['stages'][stage]
     if not ignore_pause and data.get('taskRequest') and data['taskRequest']['status'] == 'cancelled' and stage != 'requirements' and (current['status'] != 'review' or agent_may_approve(data, stage)):
         return {'actor': 'human', 'action': 'resume', 'stage': stage, 'checkpoint': stage, 'reason': '继续请求已暂停；当前外部渲染可能仍在结束，明确继续后才制作下一阶段'}
-    checkpoint = next((s for s in STAGES[STAGES.index(stage):] if not agent_may_approve(data, s)), None)
+    checkpoint = next((s for s in route[route.index(stage):] if not agent_may_approve(data, s)), None)
     if current['status'] == 'review':
         actor = 'agent' if agent_may_approve(data, stage) else 'human'
         return {'actor': actor, 'action': 'approve', 'stage': stage, 'checkpoint': checkpoint, 'reason': '检查实际内容后记录批准' if actor == 'agent' else '等待你检查并确认此阶段'}
@@ -171,7 +188,8 @@ class Workflow:
 
     def _write(self, data):
         data = copy.deepcopy(data)
-        data.pop('nextAction', None)
+        for key in ('nextAction', 'stageOrder', 'skippedStages'):
+            data.pop(key, None)
         tmp = self.path.with_name('.' + uuid.uuid4().hex + '.tmp')
         tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
         os.replace(tmp, self.path)
@@ -244,9 +262,7 @@ class Workflow:
 
     def read(self):
         with LOCK:
-            data = self._load()
-            data['nextAction'] = next_action(data)
-            return data
+            return present(self._load())
 
     def asset(self, path):
         target = (self.root / path).resolve()
@@ -284,6 +300,8 @@ class Workflow:
         return True
 
     def _sync_request(self, data):
+        if data['active'] not in execution_stages(data):
+            data['active'] = next_action(data)['stage']
         request = data.get('taskRequest')
         if not request or request['status'] == 'cancelled':
             return
@@ -387,18 +405,19 @@ class Workflow:
                 raise ValueError('项目已被其他窗口更新，请刷新后重试')
             before = copy.deepcopy(d)
             request = d.get('taskRequest')
-            if action in ('save', 'artifact', 'submit', 'approve', 'revise', 'resolve') and (payload.get('by') == 'agent' or payload.get('taskId')):
+            if action in ('save', 'voice', 'artifact', 'submit', 'approve', 'revise', 'resolve') and (payload.get('by') == 'agent' or payload.get('taskId')):
                 if request and request['status'] == 'cancelled':
                     raise ValueError('用户已暂停继续请求；请等待明确继续')
                 if payload.get('taskId') and (not request or payload['taskId'] != request['id']):
                     raise ValueError('任务请求已更新，旧执行者不得继续写入')
                 if request and request['status'] == 'running' and payload.get('taskId') != request['id']:
                     raise ValueError('运行中的任务必须提供当前 taskId，防止取消或替换后的迟到写入')
-            requested_stage = payload.get('stage', d['active'])
+            requested_stage = 'requirements' if action == 'voice' else payload.get('stage', d['active'])
             s = 'narration' if requested_stage == 'research' else requested_stage
             if s not in STAGES:
                 raise ValueError('未知阶段')
             stage, idx = d['stages'][s], STAGES.index(s)
+            predecessors = [name for name in STAGES[:idx] if name in execution_stages(d)]
 
             def invalidate():
                 stage['version'] += 1
@@ -412,7 +431,31 @@ class Workflow:
                     if downstream['status'] != 'draft' or downstream['text'] or downstream['artifacts']:
                         downstream['status'] = 'stale'
 
-            if action == 'save':
+            if action == 'voice':
+                # Only nonsecret speech choices. A changed choice reopens requirements.
+                if not any(key in payload for key in ('provider', 'voice', 'rate')):
+                    raise ValueError('请至少设置配音服务、音色或语速之一')
+                settings = {'aspect': '16:9', 'width': 1920, 'height': 1080, 'fps': 30, 'duration': 90,
+                            **AUDIO_DEFAULTS, **BGM_DEFAULTS, **CREATIVE_DEFAULTS, **IMAGE_DEFAULTS, **d.get('settings', {})}
+                provider = payload.get('provider', settings['audio_mode'])
+                if provider not in ('silent', 'azure', 'edge'):
+                    raise ValueError('配音服务仅支持 silent、azure 或 edge')
+                if provider == 'silent' and any(key in payload for key in ('voice', 'rate')):
+                    raise ValueError('设置音色或语速时请指定 azure 或 edge 服务')
+                settings['audio_mode'] = provider
+                if provider != 'silent':
+                    for key in ('voice', 'rate'):
+                        if key in payload:
+                            settings[f'{provider}_{key}'] = payload[key]
+                    settings['voicePresetId'] = settings[f'{provider}_voice']
+                else:
+                    settings['voicePresetId'] = ''
+                settings = validate_settings(settings)
+                old_settings = {**AUDIO_DEFAULTS, **BGM_DEFAULTS, **CREATIVE_DEFAULTS, **IMAGE_DEFAULTS, **d.get('settings', {})}
+                if settings != old_settings:
+                    invalidate()
+                d['settings'] = settings
+            elif action == 'save':
                 value = str(payload.get('text', ''))
                 settings = payload.get('settings') if s == 'requirements' else None
                 if settings is not None:
@@ -457,7 +500,7 @@ class Workflow:
                     self.validate_soundtrack_artifacts(d, stage)
                 if s == 'requirements' and payload.get('by') == 'agent' and not d.get('selfReview'):
                     raise ValueError('需求必须由用户提交；运行模式不授权代理代替需求确认')
-                if idx and any(d['stages'][x]['status'] != 'approved' for x in STAGES[:idx]):
+                if any(d['stages'][x]['status'] != 'approved' for x in predecessors):
                     raise ValueError('请先确认所有前置阶段；过期内容需要重新审核')
                 if not stage['text'].strip() and not any(a['version'] == stage['version'] for a in stage['artifacts']):
                     raise ValueError('请先添加阶段内容或实际产物')
@@ -473,7 +516,7 @@ class Workflow:
                     self.validate_soundtrack_artifacts(d, stage)
                 if stage['status'] != 'review':
                     raise ValueError('请先提交审核')
-                if any(d['stages'][x]['status'] != 'approved' for x in STAGES[:idx]):
+                if any(d['stages'][x]['status'] != 'approved' for x in predecessors):
                     raise ValueError('前置阶段已改变，请先重新确认')
                 if s in ('preview', 'production', 'export') and not any(a['version'] == stage['version'] and self.valid_media(a, video=s != 'preview') for a in stage['artifacts']):
                     raise ValueError('审核前请重新检查实际媒体文件，当前产物不可用')
@@ -486,7 +529,8 @@ class Workflow:
                 if actor == 'agent' and not note:
                     raise ValueError('代理审核必须记录实际检查结果')
                 stage.update(status='approved', reviewNote=note, approvedBy=actor, approvedAt=now(), approvalMode='selfReview' if d.get('selfReview') and actor == 'agent' else d.get('workflowMode', 'manual'))
-                d['active'] = STAGES[min(idx + 1, len(STAGES) - 1)]
+                route = execution_stages(d)
+                d['active'] = next((name for name in route if STAGES.index(name) > idx), 'export')
                 if actor == 'human' and next_action(d)['actor'] == 'agent':
                     self._queue_request(d)
             elif action == 'revise':
@@ -506,19 +550,24 @@ class Workflow:
                     d['selfReview'] = payload['selfReview']
                 # Tightening permission reopens the earliest approval that now needs
                 # a human. Files and old approval evidence remain in revision history.
-                reopen = next((name for name in STAGES if d['stages'][name]['status'] == 'approved' and d['stages'][name].get('approvedBy') == 'agent' and not agent_may_approve(d, name)), None)
+                old_route = execution_stages(before)
+                reopen = next((name for name in execution_stages(d)
+                               if (d['stages'][name]['status'] == 'approved' and d['stages'][name].get('approvedBy') == 'agent' and not agent_may_approve(d, name))
+                               or (name not in old_route and d['stages'][name]['status'] != 'approved')), None)
                 if reopen:
                     review = d['stages'][reopen]
-                    review['previousApproval'] = {key: review.get(key) for key in ('approvedBy', 'approvedAt', 'approvalMode', 'reviewNote')}
-                    for key in ('approvedBy', 'approvedAt', 'approvalMode'):
-                        review.pop(key, None)
-                    review['status'] = 'review'
-                    review['reviewNote'] = ''
+                    if review['status'] == 'approved':
+                        review['previousApproval'] = {key: review.get(key) for key in ('approvedBy', 'approvedAt', 'approvalMode', 'reviewNote')}
+                        for key in ('approvedBy', 'approvedAt', 'approvalMode'):
+                            review.pop(key, None)
+                        review['status'] = 'review'
+                        review['reviewNote'] = ''
                     d['active'] = reopen
                     for name in STAGES[STAGES.index(reopen) + 1:]:
                         later = d['stages'][name]
                         if later['status'] != 'draft' or later['text'] or later['artifacts']:
                             later['status'] = 'stale'
+                d['active'] = next_action(d)['stage']
                 if d.get('taskRequest') and d['taskRequest']['status'] != 'cancelled' and (before.get('workflowMode') != d.get('workflowMode') or before.get('selfReview') != d.get('selfReview')):
                     self._queue_request(d)
             elif action == 'request':
@@ -674,5 +723,4 @@ class Workflow:
                 entry['by'] = stage.get('submittedBy', 'agent') if action == 'submit' else stage['approvedBy']
             d['history'].append(entry)
             self._write(d)
-            d['nextAction'] = next_action(d)
-            return d
+            return present(d)

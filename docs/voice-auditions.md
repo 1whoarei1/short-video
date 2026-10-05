@@ -10,7 +10,7 @@
 | 云健 | 男声 | `zh-CN-YunjianNeural` |
 | 云扬 | 男声 | `zh-CN-YunyangNeural` |
 
-所有样本使用相同文本，以正常语速 `0%` 录制，便于比较：
+这五个 Edge 样本使用相同文本，以正常语速 `0%` 录制，便于比较：
 
 > 你好，欢迎来到视频创作工作台。选一个喜欢的声音，把每一个想法讲清楚，让故事更有温度。
 
@@ -18,10 +18,14 @@
 
 界面的简短音色描述只是选用参考。描述参考了 Edge 返回的音色标签，不代表试听开启了某种情绪、角色或 SSML 风格。
 
+Azure 还可选择云帆多语言 `zh-CN-YunfanMultilingualNeural`。它使用 2026-10-05 经用户授权生成的真实 Azure 试听：正常语速 0%，约 13.6 秒，包含上述中文文本与英文 “Hello, welcome to the video studio.”。源音频为 24 kHz 单声道 PCM，仓库保存 128 kb/s MP3；完整解码及真实词边界检查通过。它只在 Azure 选项显示，不放入 Edge 列表，播放与选择不会再发起 Azure 请求。
+
 ## 文件和前端契约
 
 - `web/presets/voices.json`：版本 `schemaVersion: 1`，包含统一文本、生成日期、服务来源和五个 `voices` 条目
+- `web/presets/azure-voices.json`：独立的 Azure 音色目录，包含适用服务、Azure 实录来源、试听文本、日期、音频哈希及解码指标；重新生成五个 Edge 样本不会覆盖它
 - `web/presets/voices/<服务标识>.mp3`：24 kHz、单声道、48 kb/s 的服务原始 MP3，没有转码或加速
+- `web/presets/voices/zh-CN-YunfanMultilingualNeural.mp3`：独立的真实 Azure 中英文录音
 - 静态地址：`/presets/voices.json` 与 `/presets/voices/<服务标识>.mp3`
 - 每个条目有 `id`、`name`、`gender`、`description`、`locale`、`sampleUrl`、`sampleVoice`、`sampleProvider`、`sampleRate`、`sampleText` 和实测 `durationSeconds`
 - `durationSeconds` 为 MP3 容器时长；另存完整解码时长 `decodedDurationSeconds`、大小、SHA-256、峰值、均方根音量及完整词边界末尾时间，便于复核

@@ -41,11 +41,15 @@ Windows 凭据管理器提供静态加密与系统账号隔离，**不能阻止�
 
 ## 使用顺序
 
-1. 需求阶段选择 Azure 配音、中文音色和语速，保存并确认
+1. 需求阶段选择 Azure 配音、音色和语速；也可由代理提前配置非秘密语音选项，再由用户确认需求
 2. 调研与文案阶段完成旁白，确认内容后运行引擎 configure，将设置同步到所选视频项目
 3. 合成语音，收集音频和词边界；生成真实语音驱动的时间轴与字幕
-4. 用实际场景时长创作动画，预览、审核，再导出配音视频
+4. 用实际场景时长创作动画；手动/半自动按静态预览检查点推进，全自动直接渲染并核对成片，再导出配音视频
 5. 检查成片音频流、语音是否完整、字幕对应关系和画面节奏
+
+Azure 默认候选是云帆多语言 `zh-CN-YunfanMultilingualNeural`（男声）；已有项目明确保存的音色保持优先。此音色可以根据输入文本自动识别多种语言，适合包含中文与英文名称的旁白。本项目保留原文并使用该音色合成，不通过翻译或替换成别的声音模拟多语言。仓库提供已授权生成的云帆中英文真实 Azure 试听（0%，约 13.6 秒）；播放与选择只读本地文件，不再次调用合成。音色与语言可用性仍以资源区域的官方列表为准。
+
+核对日期：2026-10-05。参见微软 [音色与语言列表](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/language-support?tabs=tts) 和 [多语言自动识别说明](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/speech-synthesis-markup-voice#adjust-speaking-languages)。
 
 常见中文音色：晓晓 `zh-CN-XiaoxiaoNeural`、晓伊 `zh-CN-XiaoyiNeural`、云希 `zh-CN-YunxiNeural`、云健 `zh-CN-YunjianNeural`、云扬 `zh-CN-YunyangNeural`。音色可用性以所在区域官方列表为准。
 
@@ -66,6 +70,20 @@ Windows 凭据管理器提供静态加密与系统账号隔离，**不能阻止�
 
 Microsoft Edge 在线朗读及第三方 `edge-tts` 属于另一种接入方式，不属于这里的 Azure F0 渠道。
 
+## 提前配置语音
+
+代理可以在需求确认前设置配音服务、音色和语速；这一步不读取系统凭据，不发起合成，也不替用户确认需求。先读取最新状态和 revision，再运行：
+
+```sh
+python -m app.cli --workspace PROJECT status
+python -m app.cli --workspace PROJECT voice --provider azure --voice zh-CN-YunfanMultilingualNeural --rate 0% --revision REV
+python scripts/engine.py configure PROJECT
+```
+
+`voice` 只修改当前项目的非秘密配音设置，保留需求文字、尺寸、主题、音乐和其他服务的音色。`--provider` 可选 azure/edge/silent；语速范围为 -50% 至 +100%，负值使用 `--rate=-10%`。已领取任务时带 `--task-id ID`；旧任务、过期 revision 和取消后的写入都会被拒绝。已有的用户明确声音选择优先，未经新授权不能覆盖。
+
+修改已确认的声音会重新打开需求确认，并将后续阶段标为需要更新。配置同步后仍须批准文案，才执行 synthesize/timeline；不会因为提前配置就发送未批准文本。密钥与区域仍由用户在专用凭据设置中填写，不能通过 voice 参数传入或写进项目。云帆只支持 Azure 入口，不自动回退到 Edge。
+
 ## 命令入口
 
 ```sh
@@ -73,6 +91,7 @@ python -m pip install "azure-cognitiveservices-speech>=1.21.0"
 python scripts/engine.py configure workspace
 python scripts/engine.py synthesize workspace
 python scripts/engine.py timeline workspace
+# 手动/半自动需要静态预览；全自动省略本行
 python scripts/engine.py preview workspace
 python scripts/engine.py render workspace
 ```
