@@ -32,10 +32,11 @@
  *   --mux-only：跳过截图，用 render/frames 里已有的帧直接重新合成
  *               （改合参 / 换音轨后不用重渲 20 分钟）
  *
- *   --only coda：改完某一场的文案/动效后，只重渲这一场的帧，其余帧保持不动。
- *               仅当被改场景是**最后一场**时安全；若它在中间且时长变了，
- *               其后场景的帧号会整体前移，必须整片重渲。
- *               变短后记得删掉尾部的过期帧，否则成片会拖长（脚本会提示实际帧数）。
+ *   --only coda：仅修补输入完全相同的场景缺帧；输入变动后应完整重渲。
+ *   --resume：仅复用内容/设置/依赖和完整帧哈希都一致的 checkpoint。
+ *   --profile legacy|draft|balanced|final|master：编码/截图建议，默认关闭快门。
+ *   --quality 1080p|2k|4k / --shutter 180 / --samples 8 / --shutter-only id,id
+ *   --workers 1（默认）/ --recycle 150：保守浏览器预算和定期重建。
  *
  * 环境解析顺序：
  *   浏览器  env BROWSER_PATH → Chrome → Edge → playwright 自带 chromium
@@ -57,11 +58,71 @@ const require = createRequire(path.join(SKILL_ROOT, 'node', 'package.json'));
 const log = (msg) => process.stderr.write(`[render] ${msg}\n`);
 const die = (msg) => { process.stderr.write(`[render] ✗ ${msg}\n`); process.exit(1); };
 
+// Selective adaptation of upstream v2.0.3 profiles/resume/shutter. Keep the
+// studio's conservative defaults: project fps, one browser, no shutter.
+const PROFILES = {
+  legacy: { shot: 'png', crf: 18, preset: 'medium', concurrency: 1, workers: 1 },
+  draft: { shot: 'png-fast', crf: 20, preset: 'veryfast', concurrency: 1, workers: 1 },
+  balanced: { shot: 'png-fast', crf: 18, preset: 'medium', concurrency: 1, workers: 1 },
+  final: { shot: 'png-fast', crf: 16, preset: 'slow', concurrency: 1, workers: 1 },
+  master: { shot: 'png', crf: 14, preset: 'veryslow', concurrency: 1, workers: 1 },
+};
+const QUALITY = { '1080p': 1080, '2k': 1440, '4k': 2160 };
+const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
+const rendererVersion = sha256(fs.readFileSync(fileURLToPath(import.meta.url)));
+function withTimeout(promise, ms, label) {
+  let timer;
+  return Promise.race([promise, new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms);
+  })]).finally(() => clearTimeout(timer));
+}
+function imageSize(bytes) {
+  if (bytes.subarray(0, 8).equals(Buffer.from([137,80,78,71,13,10,26,10])))
+    return [bytes.readUInt32BE(16), bytes.readUInt32BE(20)];
+  // JPEG SOF markers (baseline and progressive); validate dimensions before mux.
+  for (let i = 2; i + 9 < bytes.length;) {
+    if (bytes[i++] !== 255) continue;
+    const marker = bytes[i++];
+    if (marker === 216 || marker === 217) continue;
+    const len = bytes.readUInt16BE(i);
+    if ([192,193,194].includes(marker)) return [bytes.readUInt16BE(i+5), bytes.readUInt16BE(i+3)];
+    if (len < 2) break;
+    i += len;
+  }
+  throw new Error('Invalid screenshot image');
+}
+// All project source/material/audio files participate. Generated output and
+// workflow history do not, while workflow settings are separately bound below.
+function sourceFingerprint(projectDir, generatedFiles = new Set()) {
+  const entries = [];
+  function walk(dir, rel = '') {
+    for (const item of fs.readdirSync(dir, { withFileTypes: true }).sort((a,b) => a.name.localeCompare(b.name))) {
+      if (!rel && ['render','out','output','.studio','.git','node_modules'].includes(item.name)) continue;
+      const name = path.posix.join(rel, item.name), file = path.join(dir, item.name);
+      if (generatedFiles.has(path.resolve(file))) continue;
+      if (item.isSymbolicLink()) throw new Error(`Project input symlinks are unsupported: ${name}`);
+      if (item.isDirectory()) walk(file, name);
+      else if (item.isFile()) entries.push([name, sha256(fs.readFileSync(file))]);
+    }
+  }
+  walk(projectDir);
+  return sha256(JSON.stringify(entries));
+}
+
 function parseArgs(argv) {
   const a = { _: [] };
   for (let i = 0; i < argv.length; i++) {
     const t = argv[i];
     if (t === '--out') a.out = argv[++i];
+    else if (t === '--profile') a.profile = argv[++i];
+    else if (t === '--list-profiles') a.listProfiles = true;
+    else if (t === '--quality') a.quality = argv[++i];
+    else if (t === '--workers') a.workers = parseInt(argv[++i], 10);
+    else if (t === '--resume') a.resume = true;
+    else if (t === '--recycle') a.recycle = parseInt(argv[++i], 10);
+    else if (t === '--shutter') a.shutter = parseFloat(argv[++i]);
+    else if (t === '--samples') a.samples = parseInt(argv[++i], 10);
+    else if (t === '--shutter-only') a.shutterOnly = String(argv[++i] || '').split(',').map(s => s.trim()).filter(Boolean);
     else if (t === '--preview') a.preview = parseFloat(argv[++i]);
     else if (t === '--fps') a.fps = parseFloat(argv[++i]);
     else if (t === '--concurrency') a.concurrency = parseInt(argv[++i], 10);
@@ -76,6 +137,7 @@ function parseArgs(argv) {
     else if (t === '--only') a.only = String(argv[++i] || '').split(',').map((s) => s.trim()).filter(Boolean);
     else if (t === '--browser') a.browser = argv[++i];
     else if (!t.startsWith('--')) a._.push(t);
+    else throw new Error(`Unknown renderer option: ${t}`);
   }
   return a;
 }
@@ -265,8 +327,10 @@ const frameSeek = async (o) => {
 async function captureFrame({ page, cdp, outPath, args, W, H }) {
   if (cdp) {
     const opts = { format: 'png', optimizeForSpeed: true, captureBeyondViewport: false };
-    const sc = args.scale || 1;
-    if (sc !== 1) opts.clip = { x: 0, y: 0, width: W, height: H, scale: sc };
+    // CDP clips are in CSS pixels and need the effective scale explicitly;
+    // Playwright screenshots instead use context deviceScaleFactor. Both
+    // paths are checked against actual PNG/JPEG dimensions below.
+    opts.clip = { x: 0, y: 0, width: W, height: H, scale: args.scale };
     const r = await cdp.send('Page.captureScreenshot', opts);
     fs.writeFileSync(outPath, Buffer.from(r.data, 'base64'));
     return;
@@ -281,11 +345,35 @@ async function captureFrame({ page, cdp, outPath, args, W, H }) {
 // ---------- 主流程 ----------
 async function main() {
   const args = parseArgs(process.argv.slice(2));
+  if (args.listProfiles) {
+    for (const [name, p] of Object.entries(PROFILES)) log(`${name}: ${p.shot}, crf ${p.crf}, ${p.preset}; project fps/size; shutter off; ${p.workers} browser`);
+    return;
+  }
+  const profileName = args.profile || 'legacy';
+  const profile = PROFILES[profileName];
+  if (!profile) die(`Unknown render profile: ${profileName}`);
+  if (!args.jpeg && !args.pngFast && profile.shot === 'png-fast') args.pngFast = true;
+  // Legacy concurrency remains an upper bound, never silently increases the
+  // explicit/default independent-browser budget.
+  args.concurrency ??= 8;
+  args.workers ??= profile.workers;
+  args.shutter ??= 0;
+  args.samples ??= 8;
+  args.recycle ??= 150;
+  args.crf ??= args.jpeg && !args.profile ? 23 : profile.crf;
+  args.preset ??= args.jpeg && !args.profile ? 'veryfast' : profile.preset;
+  for (const key of ['fps','scale','preview']) if (args[key] !== undefined && (!Number.isFinite(args[key]) || args[key] <= 0)) die(`Invalid --${key}`);
+  for (const key of ['concurrency','workers','samples']) if (!Number.isInteger(args[key]) || args[key] < 1 || args[key] > (key === 'samples' ? 32 : 8)) die(`Invalid --${key}`);
+  if (!Number.isFinite(args.shutter) || args.shutter < 0 || args.shutter > 360) die('Invalid --shutter (0–360)');
+  if (!Number.isInteger(args.recycle) || args.recycle < 0) die('Invalid --recycle');
   const projectDir = path.resolve(args._[0] || '.');
   const pjPath = path.join(projectDir, 'project.json');
   if (!fs.existsSync(pjPath)) die(`没有 project.json：${pjPath}`);
   const pjBytes = fs.readFileSync(pjPath, 'utf8');
   const pj = JSON.parse(pjBytes);
+  const generatedOutput = args.out ? path.resolve(projectDir,args.out)
+    : path.join(projectDir,'out',args.preview > 0 ? 'preview.mp4' : `${pj.slug || 'video'}.mp4`);
+  const generatedFiles = new Set([generatedOutput,generatedOutput+'.render.json',generatedOutput+'.soundtrack.json']);
   if (pj.bgm_mode !== undefined && !['none','ai','upload'].includes(pj.bgm_mode)) die('Invalid BGM mode');
   if (pj.bgm_ducking !== undefined && typeof pj.bgm_ducking !== 'boolean') die('Invalid BGM ducking setting');
   const workflowPath = path.join(projectDir, '.studio', 'workflow.json');
@@ -297,7 +385,13 @@ async function main() {
     for (const [key, value] of Object.entries(defaults)) if ((saved[key] ?? value) !== (pj[key] ?? value)) die('BGM settings changed; run engine configure and rebuild soundtrack');
   }
   const requireUnchangedInputs = () => {
+    if (sha256(fs.readFileSync(fileURLToPath(import.meta.url))) !== rendererVersion) die('Renderer changed during rendering; render again');
     if (fs.readFileSync(pjPath, 'utf8') !== pjBytes || briefSettings() !== initialBrief || fs.readFileSync(layoutPath, 'utf8') !== layoutBytes) die('Project settings changed during rendering; configure, rebuild soundtrack and render again');
+    if (sourceFingerprint(projectDir,generatedFiles) !== initialSources) die('Project inputs changed during rendering; rebuild soundtrack/timeline as needed and render again');
+    if (checkpoint) for (const [relative,hash] of Object.entries(checkpoint.dependencies || {})) {
+      try { if (sha256(fs.readFileSync(path.join(projectDir,relative))) === hash) continue; } catch {}
+      die('Loaded local asset changed during rendering; render again');
+    }
   };
 
   // Spoken modes must never silently fall back to a video without narration.
@@ -324,6 +418,10 @@ async function main() {
 
   const fps = args.fps || pj.fps || 30;
   const W = pj.width || 1920, H = pj.height || 1080;
+  if (args.quality && !QUALITY[args.quality]) die('Invalid --quality (1080p|2k|4k)');
+  args.scale ??= args.quality ? QUALITY[args.quality] / H : 1;
+  const outW = Math.round(W * args.scale), outH = Math.round(H * args.scale);
+  if (![W,H,outW,outH].every(x => Number.isInteger(x) && x > 0) || outW % 2 || outH % 2) die('Output width/height must be positive even integers');
   const order = pj.order || [];
   if (!order.length) die('project.json 里没有 order（场景顺序）');
 
@@ -331,6 +429,8 @@ async function main() {
   if (!fs.existsSync(layoutPath)) die(`没有 layout.json（先跑 timeline_build.py）：${layoutPath}`);
   const layoutBytes = fs.readFileSync(layoutPath, 'utf8');
   const layout = JSON.parse(layoutBytes);
+  const timelineFps = layout?._total?.fps ?? pj.fps ?? 30;
+  if (fps !== timelineFps) die('Timeline fps differs from render fps; configure and rebuild timeline/subtitles/soundtrack first');
   // Reject malformed AI-authored timing instead of silently exporting one frame.
   for (const id of order) {
     const scene = layout?.[id];
@@ -343,12 +443,15 @@ async function main() {
   let subs = { fps, segments: [] };
   const subsPath = path.join(projectDir, 'subs.json');
   if (fs.existsSync(subsPath)) subs = JSON.parse(fs.readFileSync(subsPath, 'utf8'));
+  if (subs.fps !== undefined && subs.fps !== fps) die('Subtitle fps differs from render fps; rebuild timeline/subtitles first');
 
   // 缺帧 HTML 的场景直接报错（别静默跳过）
   for (const id of order) {
     if (!fs.existsSync(path.join(projectDir, 'frames', `${id}.html`)))
       die(`缺场景帧：frames/${id}.html`);
   }
+  const initialSources = sourceFingerprint(projectDir,generatedFiles);
+  if (args.shutterOnly?.some(id => !order.includes(id))) die('Unknown scene in --shutter-only');
 
   // 渲染范围：正常全片；--preview N 只渲前 N 秒
   const totalSec = order.reduce((s, id) => s + (layout[id]?.duration_sec || 0), 0)
@@ -404,7 +507,54 @@ async function main() {
   const outDir = path.join(projectDir, 'out');
   fs.mkdirSync(outDir, { recursive: true });
   const slug = pj.slug || 'video';
-  const outPath = args.out || path.join(outDir, preview != null ? 'preview.mp4' : `${slug}.mp4`);
+  const outPath = args.out ? path.resolve(projectDir, args.out) : path.join(outDir, preview != null ? 'preview.mp4' : `${slug}.mp4`);
+  fs.mkdirSync(path.dirname(outPath), {recursive:true});
+  const ext = args.jpeg ? 'jpg' : 'png';
+  const checkpointPath = path.join(projectDir, 'render', 'checkpoint.json');
+  const signature = sha256(JSON.stringify({version: rendererVersion, blurVersion:args.shutter ? sha256(fs.readFileSync(path.join(__dirname,'blur_integrate.py'))) : null, profile:profileName, sources:initialSources, brief:initialBrief, fps, totalFrames, W,H, scale:args.scale, ext, jpegQuality:args.jpegQuality || 82, pngFast:!!args.pngFast, shutter:args.shutter, samples:args.samples, shutterOnly:args.shutterOnly || null}));
+  const lockPath = path.join(projectDir,'render','renderer.lock');
+  try { fs.writeFileSync(lockPath, String(process.pid), {flag:'wx'}); }
+  catch {
+    const owner = Number(fs.readFileSync(lockPath,'utf8'));
+    try { process.kill(owner,0); die(`Renderer already running (pid ${owner})`); }
+    catch (e) { if (e.code !== 'ESRCH') die('Renderer lock exists; verify its owner before removing it'); }
+    fs.unlinkSync(lockPath); fs.writeFileSync(lockPath,String(process.pid),{flag:'wx'});
+  }
+  process.on('exit', () => { try { if (fs.readFileSync(lockPath,'utf8') === String(process.pid)) fs.unlinkSync(lockPath); } catch {} });
+  let checkpoint = {version:1, signature, frames:{}, dependencies:{}};
+  if (args.resume || args.muxOnly || args.only?.length) {
+    try { checkpoint = JSON.parse(fs.readFileSync(checkpointPath,'utf8')); } catch { die('No render checkpoint; run a complete render first'); }
+    if (checkpoint.signature !== signature) die('Render inputs/settings changed; refuse stale frame reuse. Run a complete render without --resume/--mux-only/--only');
+    if (checkpoint.remoteAssets) die('Previous render loaded remote assets; cache reuse requires local material/font/script files');
+    if (checkpoint.nonlocalAssets) die('Previous render loaded files outside the project; copy dependencies into the project before cache reuse');
+    for (const [relative,hash] of Object.entries(checkpoint.dependencies || {})) {
+      try { if (sha256(fs.readFileSync(path.join(projectDir,relative))) === hash) continue; } catch {}
+      die('Loaded local asset changed; refuse stale frame reuse');
+    }
+  } else {
+    // Remove old frame suffixes so a shorter render never exports a stale tail.
+    for (const name of fs.readdirSync(framesDir)) if (/^f_\d+\.(png|jpg)$/.test(name)) fs.unlinkSync(path.join(framesDir,name));
+  }
+  function saveCheckpoint() {
+    fs.writeFileSync(checkpointPath+'.tmp',JSON.stringify(checkpoint));
+    fs.renameSync(checkpointPath+'.tmp',checkpointPath);
+  }
+  saveCheckpoint();
+  const frameName = n => `f_${String(n).padStart(6,'0')}.${ext}`;
+  let checkpointFrames = 0;
+  function recordFrame(n) {
+    const bytes = fs.readFileSync(path.join(framesDir,frameName(n)));
+    const size = imageSize(bytes);
+    if (size[0] !== outW || size[1] !== outH) throw new Error(`Screenshot resolution ${size.join('x')} differs from requested ${outW}x${outH}`);
+    checkpoint.frames[n] = sha256(bytes);
+    // Bound journal rewrite cost on long videos. An interrupted final batch
+    // is safely recaptured; only committed hashes are eligible for reuse.
+    checkpointFrames++;
+    if (checkpointFrames === 1 || checkpointFrames % 16 === 0) saveCheckpoint();
+  }
+  function validFrame(n) {
+    try { return checkpoint.frames[n] && sha256(fs.readFileSync(path.join(framesDir,frameName(n)))) === checkpoint.frames[n]; } catch { return false; }
+  }
 
   const ffmpeg = resolveFfmpeg();
   if (!ffmpeg) die('找不到 ffmpeg：装到 PATH，或设 FFMPEG_PATH，或 python 装好 imageio-ffmpeg');
@@ -415,7 +565,7 @@ async function main() {
   catch { die(`playwright-core 缺失：在技能目录 node/ 下 npm install playwright-core（见 setup_env.sh）`); }
 
   const browserExec = args.browser || resolveBrowserExec();
-  const launchOpts = { viewport: { width: W, height: H }, deviceScaleFactor: args.scale || 1 };
+  const launchOpts = {};
   if (browserExec) { launchOpts.executablePath = browserExec; log(`浏览器：${browserExec}`); }
   else log('浏览器：用 playwright 自带 chromium（首次需 npx playwright install chromium）');
 
@@ -423,12 +573,9 @@ async function main() {
   log(`场景 ${scenes.length} 个 · 总时长 ${renderSec.toFixed(2)}s · ${totalFrames} 帧 @${fps}fps`);
   const shotMode = args.pngFast ? 'PNG 速度优先（CDP，无损）'
     : args.jpeg ? `JPEG q${args.jpegQuality || 82}` : 'PNG 精细模式';
-  log(`画布 ${W}x${H} · ${shotMode} · 并发 ${args.concurrency || 3}`);
+  log(`画布 ${W}x${H} · 输出 ${outW}x${outH} · ${shotMode} · 独立浏览器上限 ${Math.min(args.workers,args.concurrency)} · 快门 ${args.shutter}°`);
 
-  let browser = null;
-  if (!args.muxOnly) {
-    browser = await chromium.launch(launchOpts);
-  } else {
+  if (args.muxOnly) {
     // 只重新合成：不启动浏览器，直接用 render/frames 里已有的帧
     const have = fs.existsSync(framesDir) ? fs.readdirSync(framesDir).filter(f => /^f_\d+\.(png|jpg)$/.test(f)).length : 0;
     log(`--mux-only：跳过截图，用现有 ${have}/${totalFrames} 帧重新合成`);
@@ -446,9 +593,25 @@ async function main() {
   let doneFrames = 0;
   const t0 = Date.now();
 
-  async function renderScene(sc) {
+  const timeoutMs = Math.max(1000, Number(process.env.HX_SHOT_TIMEOUT_MS) || 60000);
+  let retries = 0, reusedFrames = 0, shutterFrames = 0, activeBrowsers = 0, peakBrowsers = 0;
+  const quietClose = async object => { try { await withTimeout(object.close(), 8000, 'close'); } catch {} };
+  async function setupPage(browser, sc) {
     // ★ viewport 必须逐 page 指定（launch 的 viewport 不继承到 newPage）
-    const page = await browser.newPage({ viewport: { width: W, height: H } });
+    const page = await browser.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: args.scale });
+    page.on('request', request => {
+      const url=request.url();
+      if (/^https?:/.test(url)) checkpoint.remoteAssets=true;
+      if (/^file:/.test(url)) {
+        const file=fileURLToPath(url.split('#')[0].split('?')[0]);
+        const relative=path.relative(projectDir,file);
+        if (relative.startsWith('..'+path.sep) || path.isAbsolute(relative)) checkpoint.nonlocalAssets=true;
+        else {
+          try { checkpoint.dependencies ??= {}; checkpoint.dependencies[relative] ??= sha256(fs.readFileSync(file)); } catch {}
+        }
+      }
+      saveCheckpoint();
+    });
     // --png-fast：走 CDP 截图（见 captureFrame 注释）
     const cdp = args.pngFast ? await page.context().newCDPSession(page) : null;
     const htmlPath = path.join(projectDir, 'frames', `${sc.id}.html`);
@@ -500,27 +663,96 @@ async function main() {
       const seg = (subs.segments || []).find(s => s.id === sc.id);
       const blocks = (seg?.blocks || []).map(b => ({ from: b.from, to: b.to, text: b.text, size: b.size }));
       await page.evaluate(overlaySetupJs(blocks, fps, pj.progress !== false, chapterTicks));
+      return {page, cdp};
+    } catch (e) { await quietClose(page); throw e; }
+  }
 
-      // 逐帧 seek + 截图
+  async function renderScene(sc, workerId) {
+    let browser = null, ctx = null, mine = 0;
+    const workerDir = path.join(projectDir,'render',`worker-${workerId}`);
+    const pending = [];
+    let sampleBytes = 0;
+    const reopen = async () => {
+      if (browser) { await quietClose(browser); activeBrowsers--; browser=null; }
+      browser = await withTimeout(chromium.launch(launchOpts),timeoutMs,'launch browser');
+      activeBrowsers++; peakBrowsers=Math.max(peakBrowsers,activeBrowsers);
+      ctx = await withTimeout(setupPage(browser,sc),timeoutMs,'load scene');
+    };
+    const flush = () => {
+      if (!pending.length) return;
+      // Each worker owns its sample root. No worker can delete another's
+      // in-flight samples; flush at 16 frames / 128 MiB bounds disk usage.
+      execFileSync(process.env.PY || (process.platform === 'win32' ? 'python' : 'python3'),
+        [path.join(__dirname,'blur_integrate.py'),'--project',workerDir,'--workers','1','--ext',ext,'--jpeg-quality',String(args.jpegQuality || 82),'--keep-shutter','--json'],
+        {stdio:['ignore','pipe','pipe'],timeout:120000});
+      for (const n of pending) {
+        fs.renameSync(path.join(workerDir,'render','frames',frameName(n)),path.join(framesDir,frameName(n)));
+        recordFrame(n);
+      }
+      fs.rmSync(path.join(workerDir,'render','shutter'),{recursive:true,force:true});
+      pending.length = 0; sampleBytes = 0;
+    };
+    try {
+      requireUnchangedInputs();
       for (let i = 0; i < sc.n; i++) {
+        const n = sc.gf + i + 1;
+        if (args.resume && validFrame(n)) { reusedFrames++; continue; }
+        if (!ctx) await reopen();
         const t = i / fps;
         const globalT = sc.globalStart + t;
-        await page.evaluate(frameSeek, { t, globalT, total: renderSec });
-        const framePath = path.join(framesDir, `f_${String(sc.gf + i + 1).padStart(6, '0')}.${args.jpeg ? 'jpg' : 'png'}`);
-        await captureFrame({ page, cdp, outPath: framePath, args, W, H });
+        const framePath = path.join(framesDir,frameName(n));
+        const shutterHere = args.shutter > 0 && (!args.shutterOnly?.length || args.shutterOnly.includes(sc.id));
+        const sampleDir = path.join(workerDir,'render','shutter',`f_${String(n).padStart(6,'0')}`);
+        const shot = async () => {
+          if (!shutterHere) {
+            await ctx.page.evaluate(frameSeek, {t,globalT,total:renderSec});
+            await captureFrame({...ctx,outPath:framePath+'.tmp',args,W,H});
+            fs.renameSync(framePath+'.tmp',framePath); recordFrame(n);
+          } else {
+            fs.rmSync(sampleDir,{recursive:true,force:true}); fs.mkdirSync(sampleDir,{recursive:true});
+            const span = args.shutter / 360 / fps;
+            for (let k = 0; k < args.samples; k++) {
+              const sampleT = Math.max(0, Math.min(sc.dur - 1e-6,t-span/2+span*(k+0.5)/args.samples));
+              await ctx.page.evaluate(frameSeek,{t:sampleT,globalT:sc.globalStart+sampleT,total:renderSec});
+              // Samples are always true PNG, including in the JPEG channel.
+              await captureFrame({...ctx,outPath:path.join(sampleDir,`${String(k).padStart(2,'0')}.png`),args:{...args,jpeg:false},W,H});
+            }
+          }
+        };
+        for (let attempt=0;;attempt++) {
+          try { await withTimeout(shot(),timeoutMs,`capture ${sc.id}/${i+1}`); break; }
+          catch (e) {
+            // Close before cleanup/retry: a timed-out screenshot must not write
+            // into the replacement frame after the retry succeeds.
+            await quietClose(browser); activeBrowsers--; browser=null; ctx=null;
+            fs.rmSync(framePath+'.tmp',{force:true}); fs.rmSync(sampleDir,{recursive:true,force:true});
+            if (attempt >= 2) throw e;
+            retries++; await reopen();
+          }
+        }
+        if (shutterHere) {
+          pending.push(n); shutterFrames++;
+          sampleBytes += fs.readdirSync(sampleDir).reduce((sum,f) => sum+fs.statSync(path.join(sampleDir,f)).size,0);
+          if (pending.length >= 16 || sampleBytes >= 128*1024*1024) flush();
+        }
         doneFrames++;
+        mine++;
+        if (args.recycle && mine % args.recycle === 0) { flush(); requireUnchangedInputs(); await reopen(); }
         if (doneFrames % 300 === 0)
           log(`进度 ${doneFrames}/${totalFrames} 帧 · ${(doneFrames / ((Date.now() - t0) / 1000)).toFixed(1)} 帧/秒`);
       }
+      flush();
+      saveCheckpoint();
       log(`✓ 场景 ${sc.id}：${sc.n} 帧`);
     } catch (e) {
+      saveCheckpoint();
       errors.push(`场景 ${sc.id}: ${e.message}`);
     } finally {
-      await page.close();
+      if (browser) { await quietClose(browser); activeBrowsers--; }
     }
   }
 
-  // 场景级并发（默认 3；帧级不需要——同 page 顺序 seek）
+  // Bounded independent browsers at scene level; never parallel seek one page.
   if (!args.muxOnly) {
     // --only a,b：只重渲指定场景的帧（其余场景的帧保持不动）。
     // ★ 只允许改「帧号全在片尾、不影响其他场景偏移」的场景（通常是最后一场）；
@@ -535,12 +767,11 @@ async function main() {
       log(`--only：只渲 ${only.join(', ')}，跳过其余 ${scenes.length - new Set(only).size} 个场景`);
     }
     const queue = only ? scenes.filter((s) => only.includes(s.id)) : [...scenes];
-    const conc = Math.max(1, Math.min(args.concurrency || 3, queue.length));
-    const workers = Array.from({ length: conc }, () => (async () => {
-      while (queue.length && !errors.length) { const sc = queue.shift(); await renderScene(sc); }
+    const conc = Math.max(1, Math.min(args.workers, args.concurrency, queue.length));
+    const workers = Array.from({ length: conc }, (_,workerId) => (async () => {
+      while (queue.length && !errors.length) { const sc = queue.shift(); await renderScene(sc,workerId); }
     })());
     await Promise.all(workers);
-    await browser.close();
     if (errors.length) die(`渲染失败：\n  ${errors.join('\n  ')}`);
 
     log(`截图完成：${doneFrames} 帧，耗时 ${((Date.now() - t0) / 1000).toFixed(1)}s`);
@@ -554,13 +785,12 @@ async function main() {
   //   （实例：2026-09 小米/华为那期，f_006647 丢失 → 后 150s 无画面。）
   //   qc_check.py 的「帧数实测」也能抓到这个（lessons #57），但那是**成片之后**；
   //   本闸门提前到合成之前，且直接点名缺在哪个场景、该跑哪条 --only 命令。
-  const ext = args.jpeg ? 'jpg' : 'png';
   {
     const missing = [];
     for (const sc of scenes) {
       for (let i = 0; i < sc.n; i++) {
         const n = sc.gf + i + 1;
-        if (!fs.existsSync(path.join(framesDir, `f_${String(n).padStart(6, '0')}.${ext}`)))
+        if (!validFrame(n))
           missing.push({ n, id: sc.id });
       }
     }
@@ -601,6 +831,7 @@ async function main() {
     '-crf', String(crf), '-pix_fmt', 'yuv420p',
     '-movflags', '+faststart',
   );
+  cmd.push('-frames:v',String(totalFrames));
   log(`编码：libx264 · preset ${preset} · crf ${crf}`);
   if (hasAudio) {
     cmd.push('-c:a', 'aac', '-b:a', '160k');
@@ -626,6 +857,7 @@ async function main() {
     if (sha256(audioPath) !== muxSoundtrackSha) die('Soundtrack changed during mux; render again');
     fs.writeFileSync(outPath + '.soundtrack.json', JSON.stringify({videoSha256: sha256(outPath), soundtrackSha256: muxSoundtrackSha}));
   }
+  fs.writeFileSync(outPath+'.render.json',JSON.stringify({version:'studio-selective-v2',profile:profileName,fps,size:[outW,outH],viewport:[W,H],scale:args.scale,shutter:args.shutter,samples:args.shutter?args.samples:1,shutterScenes:args.shutterOnly || null,totalFrames,reusedFrames,shutterFrames,retries,peakBrowsers,signature,videoSha256:sha256(fs.readFileSync(outPath)),elapsedSec:(Date.now()-t0)/1000},null,2));
   log(`✓ 成片：${outPath}`);
   log(`  帧目录：${framesDir}（--keep-frames 未指定且为完整渲时，保留供 QC）`);
 
