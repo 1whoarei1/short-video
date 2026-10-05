@@ -1,0 +1,82 @@
+{
+  "passed": true,
+  "deterministicSeeks": 17,
+  "crossSceneBoundaryEqual": true,
+  "contactBeforeResponse": true,
+  "baselineRetained": true,
+  "resolution": [
+    1280,
+    720
+  ],
+  "maxTravelPerFrame": 31.812833899215597,
+  "browserErrors": [],
+  "hashes": {
+    "frames/01-trigger.html": {
+      "0": "926feaf37deec89ac993ac1564fdb4e962f19a87ae81b3a1824f750ee2aa2cdb",
+      "1": "0158f1f720aa2ee91cf369edd33c0a87bc7aecb87e1c31fb0c8fd5ffc8ff62e7",
+      "2": "a6b505b7056d9b7dc0a1d3207dcc2ac978d2dd3198ab244a5eee7c0b6accb450",
+      "3": "0540c7c586064f514038cfce93539e4f4d34458571830f27f23720d71202f1ff",
+      "4": "689e516fd0d46b354ce56ef684b6ebe5501898117c00e935edbb8021776a22be",
+      "5": "11a189afe52391f050907928d3ab5f91de6b199a555f1b4f39b3043a00450e8c",
+      "0.5": "2a92118dc7430939a0b376497b44d1ebbd85bfc142d04d4b81081a70f488bca1",
+      "1.99": "6306ee81fe64d41e3aa85c1e5d976f2101aa0a996a4c69ca8728f9b301ccffac",
+      "2.5": "5eb740edf4f30c812130092ce7774e186497e7a3041322d3cd473538353e8cee",
+      "4.5": "dad73ef9a60355300ece02411dd2d1df8e4330b4da7678bdc76fd501fa2acca7"
+    },
+    "frames/02-reason.html": {
+      "0": "11a189afe52391f050907928d3ab5f91de6b199a555f1b4f39b3043a00450e8c",
+      "5": "121a45d656ddae96f7b240d64345cad175e21d9ee6cc1246eb5abf0bf46640c6",
+      "0.5": "082032e245e75e6a8380571e200278ae8d7da8cdad753c0ed67426072420afe5",
+      "1.5": "bf39ae8df69ab25fb588f3864453301ee260c7045197926ae553805c8fb6b609",
+      "2.5": "bbfef2b696820f4039d8a3550671954356767e63fc5abf0ebefa3677ae7f9885",
+      "3.5": "121a45d656ddae96f7b240d64345cad175e21d9ee6cc1246eb5abf0bf46640c6",
+      "4.8": "121a45d656ddae96f7b240d64345cad175e21d9ee6cc1246eb5abf0bf46640c6"
+    }
+  },
+  "media": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "codec_type": "video",
+        "width": 1280,
+        "height": 720,
+        "r_frame_rate": "24/1",
+        "nb_frames": "240",
+        "nb_read_frames": "240",
+        "side_data_list": [
+          {}
+        ]
+      }
+    ],
+    "format": {
+      "duration": "10.000000"
+    }
+  },
+  "render": {
+    "version": "studio-selective-v2",
+    "profile": "legacy",
+    "fps": 24,
+    "size": [
+      1280,
+      720
+    ],
+    "viewport": [
+      1280,
+      720
+    ],
+    "scale": 1,
+    "shutter": 0,
+    "samples": 1,
+    "shutterScenes": null,
+    "totalFrames": 240,
+    "reusedFrames": 0,
+    "shutterFrames": 0,
+    "retries": 0,
+    "signature": "be61ad502e936c46c5ef4a496de4e8de20c1f8e46a5fa33d69372db4584a219a",
+    "videoSha256": "baa4fa59f5623703398b60cb3058d868d2f9abb4e53e51730218f32a61d9de36",
+    "elapsedSec": 10.551
+  },
+  "decodePassed": true
+}

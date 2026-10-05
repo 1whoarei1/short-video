@@ -1,0 +1,3 @@
+/* Original example; palette may be freely replaced to honor the user's theme. */
+:root{--paper:#f4f0e7;--ink:#172c35;--accent:#cb7135;--night:#172c35;--light:#f4f0e7;--subtle:#74838a}
+canvas{display:block;width:1280px;height:720px}

@@ -58,9 +58,12 @@ Canvas 或异步创建图片时，可以把加载/解码任务放入 `window.__a
 
 ## 已有可运行实践
 
+- `examples/causal-motion/`：10 秒两镜头示意，把新引入的 HXM 动作组成触发、建图、原因标注与结论；同一圆点和基期柱跨镜头保留，使用已有 engine-bridge 接上真实 `__tl`。打开 `index.html` 可看短预览，README 有导出、倒序 seek 测试和实测代表帧
 - `examples/strawberry-remix/`：实际生成的草莓图片，结合纸张、局部观察与路径，重组为六幕 24 秒短片
 - `examples/mountain-letter/`：借用山脊、松枝、触感版画与折纸鸟，以一封信贯穿重新创作的 28 秒短片；用持续主体连接三个不同场景
 - `examples/image-material-study/`：真实透明棱镜图片的保存、来源记录与 HTML 使用
 - 各包 README 的 variants：同一批材料可以使用不同构图或视角；主题清单是素材索引，最终画面由当前内容决定
 
 这些实践证明资源能组合、图片能落盘、代码能渲染。针对 GPT-6-Luna 的质量提升程度仍需在实际新会话制作中评估，不能用包数量或自动测试通过代替审美判断。
+
+HXM 是可选数值动效工具，见 `vendor/html-explainer/references/motion-library.md`；视觉主语、因果运动与跨镜头承接见 `references/showcase-mode.md`（同一 vendor 目录）。这些建议服务当前内容，尊重用户主题与现有审核模式，不强制每幕运镜、固定布局或默认快门。只定义 `__seek` 不足以导出；使用 GSAP `onUpdate` 长度载体或现有 `engine-bridge.js` 接到 `__tl`。
