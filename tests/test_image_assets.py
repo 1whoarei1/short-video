@@ -1,4 +1,4 @@
-import json, tempfile, unittest, struct, zlib
+import json, tempfile, unittest, struct, zlib, os, subprocess
 from pathlib import Path
 from app.image_assets import operate, local
 from app.workflow import Workflow, validate_settings
@@ -17,7 +17,15 @@ class ImageAssetsTests(unittest.TestCase):
   for p in ['../secret.png','.studio/x.png','a/../../x.png','/tmp/x.png','a\\b.png']:self.assertRaises(ValueError,local,self.root,p)
  def test_symlink_escape_rejected(self):
   with tempfile.TemporaryDirectory() as d:
-   (self.root/'escape').symlink_to(d,target_is_directory=True);self.assertRaises(ValueError,local,self.root,'escape/a.png')
+   escape=self.root/'escape';junction=False
+   try:escape.symlink_to(d,target_is_directory=True)
+   except OSError:
+    if os.name!='nt':raise
+    # Directory junctions need no developer-mode/symlink privilege on Windows.
+    subprocess.run(['cmd','/c','mklink','/J',str(escape),d],check=True,capture_output=True)
+    junction=True
+   try:self.assertRaises(ValueError,local,self.root,'escape/a.png')
+   finally:escape.rmdir() if junction else escape.unlink()
  def test_plan_and_duplicate_rejected(self):
   p=self.root/'plan.json';p.write_text(json.dumps([{'id':'a','purpose':'主体','prompt':'高质量插画'}]));self.assertEqual(len(operate(self.root,'plan',file='plan.json')['plans']),1);p.write_text(json.dumps([{'id':'a','purpose':'a'},{'id':'a','purpose':'b'}]));self.assertRaises(ValueError,operate,self.root,'plan',file='plan.json')
  def test_stale_task_rejected(self):self.assertRaises(ValueError,operate,self.root,'record',file='a.png',task_id='missing',revision=0)

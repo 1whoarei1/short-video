@@ -43,7 +43,12 @@ def library_path():
     override = os.environ.get('FLUIDSYNTH_LIBRARY')
     if override:
         return str(Path(override).expanduser().resolve())
-    found = ctypes.util.find_library('fluidsynth')
+    # On Windows ctypes' discovery indexes PATH directly. Minimal child
+    # environments may omit it; missing discovery must remain a readiness result.
+    try:
+        found = ctypes.util.find_library('fluidsynth')
+    except (KeyError, OSError):
+        found = None
     if found:
         return found
     for directory in (ROOT / '.cache/fluidsynth/bin', ROOT / '.cache/fluidsynth'):

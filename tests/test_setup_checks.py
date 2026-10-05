@@ -58,7 +58,7 @@ class SetupChecksTests(unittest.TestCase):
 
     def test_linux_nonexecutable_browser_not_ready(self):
         with tempfile.NamedTemporaryFile() as f:
-            with patch.object(setup.shutil, 'which', return_value=None):
+            with patch.object(setup.shutil, 'which', return_value=None), patch.object(setup.os, 'access', return_value=False):
                 report = setup.browser_check('linux', {'BROWSER_PATH': f.name})
         self.assertTrue(report['file_exists'])
         self.assertFalse(report['ready'])

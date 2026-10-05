@@ -1,0 +1,46 @@
+name: Verify studio and HTML engine
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install locked renderer dependency
+        working-directory: vendor/html-explainer/node
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Prepare media and Chromium for real rendering
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+          python -m pip install Pillow numpy
+          node vendor/html-explainer/node/node_modules/playwright-core/cli.js install --with-deps chromium
+          BROWSER_PATH=$(node -e "console.log(require('./vendor/html-explainer/node/node_modules/playwright-core').chromium.executablePath())")
+          echo "BROWSER_PATH=$BROWSER_PATH" >> "$GITHUB_ENV"
+      - name: Studio, audio, themes and workflow regressions
+        run: python -m unittest discover -s tests -v
+      - name: Upstream motion and style assertions
+        run: |
+          node vendor/html-explainer/tests/test_motion.mjs
+          python vendor/html-explainer/tests/test_style_director.py
+      - name: Real browser rendering and seek checks
+        run: |
+          node tests/renderer-stability.cjs
+          node tests/causal-motion.cjs
+          node tests/cover-check-smoke.cjs
+          node tests/ui-smoke.cjs
