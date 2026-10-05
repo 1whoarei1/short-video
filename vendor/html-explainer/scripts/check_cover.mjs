@@ -20,6 +20,7 @@
  *   · 钩子每行字数上限：16:9 ≤7、3:4 ≤5、9:16 ≤6（防孤字断行 / 放不下）
  *   · 9:16 禁止左右两栏（量「同一水平带内是否出现并排放置的块级元素」）
  *   · 无元素越出画布
+ *   · **两个不同元素的文字互不重叠**（量字墨、不量元素框 —— 见 PAGE_PROBE 第 5 节说明）
  *
  * 退出码：0 = 全 PASS；1 = 有 FAIL（可进 CI / 流水线门禁）
  */
@@ -46,11 +47,11 @@ const SPECS = {
     noColumns: false,
   },
   '34': {
-    key: '34', file: 'cover_34.html', width: 1440, height: 1080,
+    key: '34', file: 'cover_34.html', width: 1080, height: 1440,
     label: '3:4 · 主页栅格兼容',
     margin: 110,
     marginTop: 110, marginBottom: 110, marginX: 110,
-    hookMin: 120, hookMaxChars: 8,  // 钩子容器 1220px ÷ (130px×0.97) ≈ 9.7
+    hookMin: 120, hookMaxChars: 6,  // 钩子容器 860px ÷ (130px×0.97) ≈ 6.8
     noColumns: false,
   },
   '916': {
@@ -77,6 +78,7 @@ function parseArgs(argv) {
 }
 
 function resolveBrowserExec() {
+  if (process.env.BROWSER_PATH && fs.existsSync(process.env.BROWSER_PATH)) return process.env.BROWSER_PATH;
   const isWin = process.platform === 'win32';
   const cands = isWin ? [
     path.join(process.env['PROGRAMFILES'] || 'C:/Program Files', 'Google/Chrome/Application/chrome.exe'),
@@ -95,8 +97,10 @@ function resolveBrowserExec() {
 const PAGE_PROBE = `(() => {
   const W = document.documentElement.clientWidth, H = document.documentElement.clientHeight;
   const vis = (el) => {
-    const cs = getComputedStyle(el);
-    if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity) === 0) return false;
+    for (let p = el; p; p = p.parentElement) {
+      const cs = getComputedStyle(p);
+      if (cs.display === 'none' || cs.visibility === 'hidden' || cs.visibility === 'collapse' || parseFloat(cs.opacity) === 0) return false;
+    }
     const b = el.getBoundingClientRect();
     return b.width > 0.5 && b.height > 0.5;
   };
@@ -104,22 +108,38 @@ const PAGE_PROBE = `(() => {
 
   // ── 1) 找钩子：在"句子级"文本元素里取字号最大的（排掉 6.02 / 4 这类纯数字）──
   //     判据与判"钩子是否最大"必须分开，否则「钩子最大」永远自证成立。
-  let hookEl = null, hookFs = 0, maxFsAny = 0;
-  const norm = (s) => (s || '').replace(/\s+/g, '');
+  let hookEl = null, hookFs = 0, maxFsAny = 0, hookPriority = -1;
+  // ★ 这个正则必须写成双层反斜杠。只写一层时，模板字符串会把「反斜杠 + s」吃成 s ——
+  //   正则退化成 /s+/g，**剥掉的是字母 s、空格全留着**，于是「空格计入字位权重」
+  //   与「纯数字串判不出来」全部静默失效（实测 norm('a b') 原样返回 'a b'）。
+  const norm = (s) => (s || '').replace(/\\s+/g, '');
   for (const el of document.querySelectorAll('div, span, p, h1, h2')) {
     if (!vis(el)) continue;
-    const own = Array.from(el.childNodes).filter(n => n.nodeType === 3).map(n => n.textContent).join('');
-    if (!norm(own)) continue;
+    // ★ 用**完整文本**（含 em/span 等后代）判「句子级」，不能用直接子文本节点：
+    //   钩子常写成「家长<em>不骂</em>游戏了」，只取直接子文本就剩「家长」+「游戏了」共 5 字位，
+    //   过不了门槛 → 真正的钩子被跳过、退而选中 28px 的数值标签，
+    //   于是「钩子字号 / 钩子是最大的文字 / 末行孤字」整条链全部误判。
+    //   （实测：三张封面全部把 .val「2018 → 2026几乎消失」认成钩子。）
+    //   父容器也会因完整文本通过门槛，但它 font-size 小，最终按 fs 取最大者，赢不了。
+    const full = norm(el.textContent || '');
+    if (!full) continue;
+    const explicit = el.matches('[data-cover-hook], .hook, h1');
+    // A large wrapper around several blocks is not a sentence; nested inline emphasis is.
+    if (!explicit && Array.from(el.children).some(c =>
+      !['inline', 'inline-block', 'contents'].includes(getComputedStyle(c).display))) continue;
     const fs = parseFloat(getComputedStyle(el).fontSize) || 0;
     if (fs > maxFsAny) maxFsAny = fs;
-    // 句子级：自身文本 ≥6 个"字位"（CJK 记 1，拉丁/数字记 0.55），且不是纯数字串
-    const t = norm(own);
+    // 句子级：完整文本 ≥6 个"字位"（CJK 记 1，拉丁/数字记 0.55），且不是纯数字串
+    const t = full;
     const wide = (t.match(/[\u3400-\u9FFF\uF900-\uFAFF\u3000-\u303F\uFF00-\uFFEF]/g) || []).length;
     const narrow = t.length - wide;
     const weight = wide + narrow * 0.55;
-    const pureNumber = /^[\d.,%$¥+\-–—:：]+$/.test(t);
-    if (weight < 6 || pureNumber) continue;
-    if (fs > hookFs) { hookFs = fs; hookEl = el; }
+    const pureNumber = /^[\\d.,%$¥+\\-–—:：]+$/.test(t);
+    if ((!explicit && weight < 6) || pureNumber) continue;
+    const priority = explicit ? 1 : 0;
+    if (priority > hookPriority || (priority === hookPriority && fs > hookFs)) {
+      hookFs = fs; hookEl = el; hookPriority = priority;
+    }
   }
 
   // ── 2) 钩子按视觉行切分（Range client rects 的 top 分桶） ──
@@ -168,12 +188,17 @@ const PAGE_PROBE = `(() => {
     const hasOwnText = Array.from(el.childNodes).some(n => n.nodeType === 3 && n.textContent.trim());
     if (!hasOwnText) continue;
     const b = el.getBoundingClientRect();
-    leaves.push({ b, nm: el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\\s+/)[0] : el.tagName.toLowerCase() });
+    // fs 是给「9:16 禁两栏」用的字号门槛（见第 4 节）
+    const fs = parseFloat(getComputedStyle(el).fontSize) || 0;
+    leaves.push({ b, el, fs, nm: el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\\s+/)[0] : el.tagName.toLowerCase() });
   }
   const pairs = [];
   for (let i = 0; i < leaves.length; i++) {
     for (let j = i + 1; j < leaves.length; j++) {
       const A = leaves[i].b, B = leaves[j].b;
+      // 小字号短标签（柱状图左右两个数值标注）天然就左右分布，不算「两栏文字」——
+      // 不加这道门槛，9:16 的两个 .val 会被误报（实测）。
+      if (Math.max(leaves[i].fs, leaves[j].fs) < 40) continue;
       const ovTop = Math.min(A.bottom, B.bottom) - Math.max(A.top, B.top);
       const minH = Math.min(A.height, B.height);
       if (minH <= 0 || ovTop / minH < 0.6) continue;                 // 必须在同一水平带
@@ -185,7 +210,72 @@ const PAGE_PROBE = `(() => {
     }
   }
 
-  // ── 5) 比钩子还大的其它元素（纯数字另算）──
+  // ── 5) 字墨重叠：两个不同元素的文字矩形相交 ──
+  //     量「字墨」而不是「元素框」，三个理由：
+  //     ① 元素框在「文字溢出容器」时还是容器那么大，看不出溢出到谁身上
+  //        （下面的第 6 节用元素框，抓不到这一类）；
+  //     ② Range 返回的是**行框**（含 leading，比字墨高），直接比会把
+  //        「相邻两行」「line-height:1 的字形溢出」全报成重叠（实测 15 个假阳性）；
+  //        把高度收窄到 fontSize 后，剩下的才是真压字；
+  //     ③ 判据绑定「不同元素」且排除父子 —— 同一元素的多行折行不是压字。
+  //     阈值 4px²：抗锯齿/字距造成的 1–2px 接触不算，真压字动辄上千 px²。
+  const inks = [];
+  const eid = new Map();
+  for (const el of document.body.querySelectorAll('*')) {
+    if (!vis(el)) continue;
+    const tns = Array.from(el.childNodes).filter(n => n.nodeType === 3 && n.textContent.trim());
+    if (!tns.length) continue;
+    if (!eid.has(el)) eid.set(el, eid.size + 1);
+    const id = eid.get(el);
+    const fs = parseFloat(getComputedStyle(el).fontSize) || 0;
+    const cls = (el.className && typeof el.className === 'string') ? el.className.trim() : '';
+    const nm = cls ? '.' + cls.split(' ')[0] : el.tagName.toLowerCase();
+    const rg = document.createRange();
+    for (const tn of tns) {
+      rg.selectNodeContents(tn);
+      for (const r of rg.getClientRects()) {
+        if (r.width <= 0.5 || r.height <= 0.5) continue;
+        const h = fs > 0 ? Math.min(r.height, fs) : r.height;
+        inks.push({ x: r.left, y: r.top + (r.height - h) / 2, w: r.width, h, el, id, nm,
+                    text: norm(tn.textContent).slice(0, 14) });
+      }
+    }
+  }
+  const overlaps = [];
+  for (let i = 0; i < inks.length; i++) {
+    for (let j = i + 1; j < inks.length; j++) {
+      const A = inks[i], B = inks[j];
+      if (A.id === B.id) continue;                                    // 同一元素的多行不算
+      if (A.el.contains(B.el) || B.el.contains(A.el)) continue;        // 父子不算
+      const ow = Math.min(A.x + A.w, B.x + B.w) - Math.max(A.x, B.x);
+      const oh = Math.min(A.y + A.h, B.y + B.h) - Math.max(A.y, B.y);
+      if (ow <= 0 || oh <= 0) continue;
+      const area = ow * oh;
+      if (area <= 4) continue;
+      overlaps.push(A.nm + '「' + A.text + '」 × ' + B.nm + '「' + B.text + '」 ' + rnd(area) + 'px²');
+    }
+  }
+  overlaps.sort((a, b) => parseFloat(b.split(' ').pop()) - parseFloat(a.split(' ').pop()));
+
+  // ── 6) 钩子与其它文本块的重叠（旧版的漏检点）──
+  //     钩子行高一旦撑到统计块上，字会直接压字，但四边边距/行宽全部照样 PASS。
+  //     实测案例：9:16 钩子 3 行 ×132px 顶到 1646px，与 bottom:196px 的信息行
+  //     压了 34px，旧判据全绿。所以必须把"块间垂直重叠"独立成一条。
+  const hookOverlap = [];
+  if (hookEl) {
+    const hb = hookEl.getBoundingClientRect();
+    for (const L of leaves) {
+      if (L.el === hookEl || hookEl.contains(L.el) || L.el.contains(hookEl)) continue;
+      const A = hb, B = L.b;
+      const ox = Math.min(A.right, B.right) - Math.max(A.left, B.left);
+      const oy = Math.min(A.bottom, B.bottom) - Math.max(A.top, B.top);
+      if (ox <= 1 || oy <= 1) continue;
+      if ((ox * oy) / Math.min(A.width * A.height, B.width * B.height) < 0.06) continue;
+      hookOverlap.push(L.nm + ' 压住钩子 ' + rnd(ox) + '×' + rnd(oy) + 'px');
+    }
+  }
+
+  // ── 7) 比钩子还大的其它元素（纯数字另算）──
   const biggerThanHook = [];
   for (const el of document.body.querySelectorAll('*')) {
     const own = Array.from(el.childNodes).filter(n => n.nodeType === 3).map(n => n.textContent).join('');
@@ -213,6 +303,8 @@ const PAGE_PROBE = `(() => {
     // 非数字的比钩子大才是"焦点被抢"。
     biggerThanHook: biggerThanHook.slice(0, 5),
     columnPairs: pairs.slice(0, 4),
+    overlaps: overlaps.slice(0, 8),
+    hookOverlap: hookOverlap.slice(0, 4),
   };
 })()`;
 
@@ -262,6 +354,7 @@ async function main() {
     const fileUrl = pathToFileURL(path.join(projectDir, 'frames', spec.file)).href;
     const page = await browser.newPage({ viewport: { width: spec.width, height: spec.height }, deviceScaleFactor: 1 });
     await page.goto(fileUrl);
+    await page.evaluate(() => document.fonts.ready);
     await page.waitForTimeout(300);
     const fr = await page.evaluate(FREEZE);
     if (!fr.frozen) await page.waitForTimeout(1600 + 600);   // 无时间轴：等 CSS 动画自然结束
@@ -299,6 +392,11 @@ async function main() {
     // ③ 越界
     add('无元素越出画布', m.offenders.length === 0, m.offenders.length ? m.offenders.join(' ; ') : 'OK');
 
+    // ③b 文字互不压字（字墨级）。实测三张封面首版全命中：长标签折行后压住上面的数字 ——
+    //     这类问题在缩略图里几乎看不出来，但「块框」也照不出来（文字溢出了容器框）→ 必须量字墨。
+    add('文字无重叠', (m.overlaps || []).length === 0,
+      (m.overlaps || []).length ? m.overlaps.join(' ; ') : 'OK');
+
     // ④ 钩子
     if (m.hook) {
       add(`钩子字号 ≥${spec.hookMin}`, m.hook.fontSize >= spec.hookMin - 0.5,
@@ -315,6 +413,10 @@ async function main() {
         add('悖论数字未压过钩子', numBigger.every(b => b.fontSize <= m.hook.fontSize * 1.35),
           `${numBigger.map(b => b.sel + ' ' + b.fontSize + 'px').join(' ; ')}（上限 钩子×1.35 = ${Math.round(m.hook.fontSize * 1.35)}px）`, 'warn');
       }
+
+      // 钩子与其它文本块的重叠 —— 旧版漏检：字压字，但边距/行宽/字数全绿
+      add('钩子不与其它文字重叠', (m.hookOverlap || []).length === 0,
+        (m.hookOverlap || []).length ? m.hookOverlap.join(' ; ') : 'OK');
 
       const maxW = spec.width - spec.marginX * 2;
       const over = m.hook.lines.filter(L => L.width > maxW + 1);
