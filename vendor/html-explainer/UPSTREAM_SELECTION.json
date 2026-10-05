@@ -1,0 +1,15 @@
+{
+  "mode": "selective-adaptation",
+  "base_commit": "842c69531fc7ecf4a62265cd83fa8f1ccd4ec677",
+  "reviewed_commit": "820a295eb8d285f9023c715fe6cf6d0f31e03e45",
+  "reviewed_tag": "v2.0.3",
+  "date": "2026-10-05",
+  "modules": [
+    {"name": "motion", "source_commit": "a187d6dec8a1816cb7cbd13a543f75883b12a541", "files": ["assets/motion.js", "tests/test_motion.mjs"], "adaptation": "Optional primitives; renderer-compatible __tl bridge and native causal-motion example."},
+    {"name": "showcase", "source_commit": "a187d6dec8a1816cb7cbd13a543f75883b12a541", "files": ["references/showcase-mode.md", "references/motion-library.md"], "adaptation": "Visual subject, causal motion and cross-scene continuity; current native workflow modes retained."},
+    {"name": "style-advice", "source_commit": "a187d6dec8a1816cb7cbd13a543f75883b12a541", "files": ["scripts/style_director.py", "tests/test_style_director.py"], "adaptation": "Explainable advisory output; preserves selected studio theme; no automatic scene or render changes."},
+    {"name": "cover", "source_commit": "bd960342637a787fcdd0bc428c3df9d9367f3021", "files": ["scripts/check_cover.mjs"], "adaptation": "Probe, hook and overlap fixes plus paired local 3:4 builder/checker correction."},
+    {"name": "render", "source_commit": "820a295eb8d285f9023c715fe6cf6d0f31e03e45", "files": ["scripts/render_video.mjs", "scripts/blur_integrate.py"], "adaptation": "Conservative profiles, opt-in shutter, deterministic sampling, content-bound resume and timeout/recycle fixes; local audio freshness and soundtrack binding preserved."}
+  ],
+  "excluded": ["upstream gate_check.py stage-by-stage user confirmation", "automatic balanced/180-degree shutter/six-browser defaults", "automatic style-plan application", "full SKILL.md and workflow-guide replacement", "upstream lessons and broad reference bundle", "unmodified 23 theme directories"]
+}

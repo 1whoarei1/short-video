@@ -61,6 +61,8 @@ description: 用户要制作、修改或导出视频时，启动本地视频工�
 ## 引擎与恢复
 需求确认后、写场景前运行 `python scripts/engine.py configure workspace`，同步 width/height/fps/audio settings 到引擎 project.json，保留场景顺序与 slug，准备 GSAP/frames。时长是创作指导，不映射为强制渲染截断。原引擎 `vendor/html-explainer/` 保留来源/许可证，场景接口看其文档。
 
+需要构图或动效参考时可选 `python scripts/engine.py style PROJECT --dry-run`，解释性建议保留用户主题，不要求套版或新增人工审核。新 `assets/motion.js` 为可拆用的数字动效；原生 `__seek` 通过长度载体/engine-bridge 接入 `__tl`。真实双镜头示例和渲染/封面命令见 `docs/upstream-integration.md`。默认关闭快门；明确需要才传 `--shutter`。fps 改变后 configure 会删除旧时间轴，重新 timeline 再渲染；输入变更时不复用旧缓存。
+
 无声模式 `python scripts/silent_timeline.py workspace` 从 narration.json 的 id/text/duration/captions? 生成时间轴。配音见 docs/edge-tts.md 或 docs/azure-tts.md，用真实音频/词边界，文案或声音改变后重建下游。优先使用 `scripts/engine.py` 的 configure/synthesize/timeline/preview/render/layout 命令。
 
 工作流文件受跨进程锁保护，网页刷新不会覆盖未保存输入。源码修改前另外备份，workflow undo 不会回写源码。旧状态迁移备份在项目内部，不删除；undo 读取旧快照时也自动迁移，旧研究材料不会丢失。

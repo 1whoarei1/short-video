@@ -8,7 +8,7 @@
 需求确认、文案完成并同步引擎后，可运行：
 
 ```sh
-python scripts/engine.py style-plan PROJECT
+python scripts/engine.py style PROJECT
 # 或直接调用；dry-run 不写文件
 python vendor/html-explainer/scripts/style_director.py --project PROJECT --dry-run
 python vendor/html-explainer/scripts/style_director.py --project PROJECT
@@ -60,7 +60,7 @@ python -m unittest discover -s tests -p test_style_advisory.py -v
 node tests/cover-check-smoke.cjs
 ```
 
-Windows Edge 实测：60 条上游风格断言、8 个原生主题/建议测试、8 份真实 HTML 封面；
+Windows Edge 实测：60 条上游风格断言、10 个原生主题/建议测试、8 份真实 HTML 封面；
 确认嵌套强调、数字空格、祖先透明度、真实压叠、容器溢出、竖版小标签、短钩子与 3:4 比例。
 PNG 文件头核验 1920×1080、1080×1440 及 builder 的 2160×2880 像素。
 封面几何通过仍需检查事实、文案与缩略图效果，建议不承担成片质量评分。

@@ -74,9 +74,10 @@
     "reusedFrames": 0,
     "shutterFrames": 0,
     "retries": 0,
-    "signature": "be61ad502e936c46c5ef4a496de4e8de20c1f8e46a5fa33d69372db4584a219a",
+    "peakBrowsers": 1,
+    "signature": "3382e9264828a420a341ae455575f693dbf919a4ffaa2573f0d760dea6331164",
     "videoSha256": "baa4fa59f5623703398b60cb3058d868d2f9abb4e53e51730218f32a61d9de36",
-    "elapsedSec": 10.551
+    "elapsedSec": 10.708
   },
   "decodePassed": true
 }

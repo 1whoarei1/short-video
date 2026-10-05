@@ -20,6 +20,8 @@ examples/*/render/
 examples/*/out/qc/*.png
 # Rendered sample video is delivered separately; regenerate from source.
 examples/*/out/*.mp4
+examples/*/out/*.mp4.render.json
+examples/*/out/*.mp4.soundtrack.json
 examples/*/out/contact-sheet.png
 examples/*/_artifacts/
 examples/*/.studio/

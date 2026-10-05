@@ -1,5 +1,7 @@
 # 叙 · Short Video Studio
 
+选择性吸收 html-explainer v2.0.3：可选动效、尊重用户主题的风格建议、封面检查修复和稳定续渲。保持原生 HTML/CSS/JS 创作及三种工作流，详见 [使用与来源记录](docs/upstream-integration.md)。
+
 一个与 Codex 协作的视频工作台：先把问题讲清楚，再确认画面，最后导出视频。
 
 UI 负责输入、审核、批注和版本；Codex 负责调研、写稿、创作 HTML、渲染和检查。没有模型 API 配置，没有强制画面组件模板。默认制作 **无声、带字幕视频**，也可选择 **Microsoft Edge 或 Azure Speech 配音**，按真实音频时间生成字幕和场景时长。接入说明见 [Edge TTS](docs/edge-tts.md) 和 [Azure TTS](docs/azure-tts.md)。

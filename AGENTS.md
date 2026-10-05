@@ -41,3 +41,4 @@
 - 资源发现/复制使用 `app.theme_resources`（见 docs/theme-resource-tools.md）。先检索少量相关参考，查看真实动态效果，再按内容自由组合。不要把每个包全部塞入上下文。
 
 - 需要更多视觉构思时，参考 `docs/visual-remix-guide.md`：按当前内容检索少量材料，先验证关键运动和代表帧，再自由扩展；这一指南不新增审核阶段。
+- 可选动效、尊重用户主题的风格建议、封面检查和稳定续渲见 `docs/upstream-integration.md`。风格计划只供建议；使用原生 JS 动效时接入实际 `__tl` 契约。快门只按需显式启用，fps 改动后重建时间轴，续渲输入变更时完整重渲，沿用当前 manual/semi/auto 授权。
