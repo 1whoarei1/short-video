@@ -4,6 +4,7 @@
 const {chromium}=require('../vendor/html-explainer/node/node_modules/playwright-core');
 const {spawn,spawnSync}=require('child_process');
 const fs=require('fs'),os=require('os'),path=require('path'),assert=require('assert');
+const {revealBriefControl}=require('./brief-ui-helpers.cjs');
 (async()=>{
   const root=path.resolve(__dirname,'..');
   const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'mobile-layout-'));
@@ -33,8 +34,8 @@ const fs=require('fs'),os=require('os'),path=require('path'),assert=require('ass
     await page.setViewportSize({width:320,height:844});
     const title='MobileProject'+ 'X'.repeat(90),themeName='MobileTheme'+'Y'.repeat(60);
     await page.locator('#projectTitle').fill(title);await page.locator('#editor').fill('保留未保存的中文需求与人物设定。');
-    await page.locator('#briefTabVisual').click();await page.locator('[name=soundMode][value=voiced]').check();await page.locator('#edge_rate').fill('30');
-    await page.locator('#chooseVoice').click();await page.locator('[data-voice-id="zh-CN-XiaoyiNeural"] button').click();
+    await revealBriefControl(page,'[name=soundMode][value=voiced]');await page.locator('[name=soundMode][value=voiced]').check();await page.locator('#edge_rate').fill('30');
+    await page.locator('[data-voice-id="zh-CN-XiaoyiNeural"] button').click();await page.locator('#closeVoice').click();
     await page.locator('#save').click();await page.waitForFunction(()=>!busy&&!dirty);
     // Populate real image/video review and custom-theme settings with difficult names.
     await page.locator('#briefTabContent').click();const imagePath=path.join(workspace,'mobile-reference.png');await page.screenshot({path:imagePath});

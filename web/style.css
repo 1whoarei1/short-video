@@ -50,3 +50,25 @@ dialog{border:1px solid var(--line);border-radius:16px;background:var(--paper);c
   .voice-rate-controls{flex-wrap:wrap;gap:8px}
   .voice-rate-controls input{flex-basis:100%}
 }
+
+/* One audition desk: existing voice and music fields live here, not duplicated. */
+.audio-studio-open{width:100%;margin:14px 0;text-align:left;color:var(--green);font-weight:600}
+.audio-studio-open .voice-choice{width:100%;margin:0}#bgmSourceAudio{display:none}
+.audio-studio{width:min(960px,calc(100% - 36px))}
+.audio-studio-layout{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin:10px 0 22px}
+.audio-studio-layout h3{font-size:16px;margin:0 0 12px}
+.audio-studio-layout input[type=number]{max-width:140px}
+.audio-studio .voice-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.audio-studio .voice-card audio{width:100%}
+.audio-mixer{background:#e8eee3;padding:18px;border-radius:10px;margin:20px 0}
+.audio-mixer h3{margin:0 0 14px;font-size:17px}
+.audio-gains{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.audio-gains label{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+.audio-gains output{font-variant-numeric:tabular-nums;font-size:12px}
+.audio-gains input{grid-column:1/-1;accent-color:var(--green);padding:0;width:100%}
+.audio-ducking{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:16px 0}
+.audio-ducking label{margin:0}.audio-ducking input{width:auto;margin-right:6px}.audio-ducking select{width:auto;min-width:110px}
+.audio-transport{display:flex;gap:8px;flex-wrap:wrap}.audio-transport button{min-height:42px}
+.audio-preset-library>h3{font-size:17px}.audio-preset-row{display:flex;justify-content:space-between;gap:16px;border-top:1px solid var(--line);padding:12px 0;align-items:center}
+.audio-preset-row>div:first-child{min-width:0;overflow-wrap:anywhere}.audio-preset-actions{display:flex;gap:6px;flex-shrink:0}
+@media(max-width:700px){.audio-studio-layout,.audio-gains{grid-template-columns:1fr;gap:16px}.audio-studio .voice-list{grid-template-columns:1fr}.audio-preset-row{flex-wrap:wrap}.audio-transport button{flex:1 1 100px}.audio-studio{width:calc(100% - 20px)}}
