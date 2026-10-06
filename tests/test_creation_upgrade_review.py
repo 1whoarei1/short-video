@@ -13,6 +13,7 @@ import zlib
 from pathlib import Path
 
 from app.workflow import STAGES, Workflow, validate_settings
+from tests.publishing_helpers import prepare_publishing
 
 
 def png_bytes():
@@ -135,6 +136,8 @@ class UpgradeReviewTests(unittest.TestCase):
                         flow.mutate('artifact', {'stage': stage, 'path': 'frame.png' if stage == 'preview' else 'clip.mp4'})
                     else:
                         flow.mutate('save', {'stage': stage, 'text': 'Reviewed actual source and authored narration'})
+                    if stage == 'export':
+                        prepare_publishing(flow)
                     flow.mutate('submit', {'stage': stage, 'by': 'human' if stage == 'requirements' else 'agent'})
                     actor = 'human' if stage == 'requirements' or mode == 'manual' or (mode == 'semi' and stage == 'preview') else 'agent'
                     if actor=='agent' and stage in ('production','export'):

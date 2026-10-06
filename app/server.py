@@ -96,7 +96,7 @@ def create_server(root, port=8765, credential_settings=None):
                     and self.headers.get('Sec-Fetch-Site') not in ('cross-site', 'same-site')
                     and self.headers.get('Content-Type', '').split(';')[0].strip().lower() == 'application/json')
 
-        def file(self, path, project_asset=False):
+        def file(self, path, project_asset=False, attachment=None):
             kind = mimetypes.guess_type(path.name)[0] or 'application/octet-stream'
             if project_asset and kind in ('text/html', 'image/svg+xml'):
                 kind = 'text/plain; charset=utf-8'
@@ -126,6 +126,9 @@ def create_server(root, port=8765, credential_settings=None):
             self.send_header('Content-Length', str(max(0, end - start + 1)))
             self.send_header('X-Content-Type-Options', 'nosniff')
             self.send_header('X-Frame-Options', 'DENY')
+            if attachment:
+                self.send_header('Content-Disposition', 'attachment; filename="' + attachment + '"')
+                self.send_header('Cache-Control', 'no-store')
             if status == 206:
                 self.send_header('Content-Range', f'bytes {start}-{end}/{size}')
             self.end_headers()
@@ -182,6 +185,11 @@ def create_server(root, port=8765, credential_settings=None):
                     return self.reply(200, {'projects': catalog.list(), 'active': catalog.active_id()})
                 if path == '/api/state':
                     return self.reply(200, {'project': flow.read(), 'token': token, 'workspace': str(flow.root)})
+                if path == '/api/publishing/export':
+                    from .publishing import download_path
+                    format = parse_qs(urlparse(self.path).query).get('format', ['txt'])[0]
+                    target = download_path(flow, format)
+                    return self.file(target, project_asset=True, attachment='publishing-package.' + format)
                 if path == '/api/themes/export':
                     theme_id = parse_qs(urlparse(self.path).query).get('id', [''])[0]
                     return self.reply(200, flow.export_theme(theme_id))
@@ -302,6 +310,28 @@ def create_server(root, port=8765, credential_settings=None):
                     return self.reply(200, {'selected': catalog.select(data.get('id'))})
                 if action == 'theme-import':
                     return self.reply(200, {'project': flow.import_theme(data.get('pack'), data.get('revision'))})
+                if action == 'publishing/upload':
+                    if 'revision' not in data or data['revision'] != flow.read()['revision']:
+                        raise ValueError('封面替换需要当前项目版本，请刷新后重试')
+                    if data.get('orientation') not in ('landscape', 'portrait'):
+                        raise ValueError('请选择横版4:3或竖版3:4封面')
+                    filename = Path(str(data.get('name', 'cover.png'))).name
+                    extension = Path(filename).suffix.lower()
+                    if extension not in ('.png', '.jpg', '.jpeg', '.webp'):
+                        raise ValueError('封面仅支持PNG、JPEG或WebP图片')
+                    raw = base64.b64decode(data['data'].split(',', 1)[-1], validate=True)
+                    if not raw or len(raw) > 8_000_000:
+                        raise ValueError('封面需要8MB以内的实际图片')
+                    name = self.save_blob(flow, 'publish', f'upload-{uuid.uuid4().hex}{extension}', raw)
+                    try:
+                        project = flow.mutate('publishing/cover', {
+                            'orientation': data['orientation'], 'path': name,
+                            'source': 'user-supplied', 'origin': filename,
+                            'revision': data['revision'], 'by': 'human'})
+                    except Exception:
+                        flow.asset(name).unlink(missing_ok=True)
+                        raise
+                    return self.reply(200, {'project': project})
                 if action == 'bgm-upload':
                     if 'revision' not in data:
                         raise ValueError('音乐导入需要项目版本，请刷新后重试')

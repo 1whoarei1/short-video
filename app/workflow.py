@@ -159,6 +159,14 @@ def agent_may_approve(data, stage):
 def next_action(data, ignore_pause=False):
     route = execution_stages(data)
     stage = next((s for s in route if data['stages'][s]['status'] != 'approved'), None)
+    publishing = data.get('publishing', {})
+    if (stage is None or stage == 'export') and publishing.get('enabled') and (not publishing.get('ready', False) or (publishing.get('request') or {}).get('status') in ('queued', 'running')):
+        publishing_request = publishing.get('request') or {}
+        if not ignore_pause and publishing_request.get('status') == 'cancelled' and publishing_request.get('reason') == '用户取消生成':
+            return {'actor': 'human', 'action': 'resume_publish', 'stage': 'export', 'checkpoint': 'export', 'reason': '发布生成已取消；请明确重新生成后继续'}
+        if not ignore_pause and (data.get('taskRequest') or {}).get('status') == 'cancelled':
+            return {'actor': 'human', 'action': 'resume', 'stage': 'export', 'checkpoint': 'export', 'reason': '视频任务已暂停；明确继续后才制作发布材料'}
+        return {'actor': 'agent', 'action': 'publish', 'stage': 'export', 'checkpoint': 'export' if not agent_may_approve(data, 'export') else None, 'reason': 'Codex 应准备实际发布文案及4:3横版、3:4竖版封面，验证并登记后再交付'}
     if stage is None:
         return {'actor': 'none', 'action': 'complete', 'stage': 'export', 'checkpoint': None, 'reason': '成片已检查并导出'}
     current = data['stages'][stage]
@@ -179,11 +187,13 @@ class Workflow:
         self.root.mkdir(parents=True, exist_ok=True)
         self.path = self.root / '.studio' / 'workflow.json'
         self.path.parent.mkdir(parents=True, exist_ok=True)
+        from .publishing import initial
         with process_lock(self.root / '.studio' / 'write.lock'):
             if not self.path.exists():
-                self._write({'schema': 2, 'title': '新视频项目', 'revision': 0, 'active': 'requirements', 'workflowMode': 'manual', 'selfReview': False, 'updated': now(), 'stages': {s: {'label': label, 'version': 1, 'status': 'draft', 'text': '', 'artifacts': [], 'reviewNote': ''} for s, label in zip(STAGES, LABELS)}, 'annotations': [], 'history': [], 'customThemes': [], 'taskRequest': None})
+                self._write({'schema': 2, 'title': '新视频项目', 'revision': 0, 'active': 'requirements', 'workflowMode': 'manual', 'selfReview': False, 'updated': now(), 'stages': {s: {'label': label, 'version': 1, 'status': 'draft', 'text': '', 'artifacts': [], 'reviewNote': ''} for s, label in zip(STAGES, LABELS)}, 'annotations': [], 'history': [], 'customThemes': [], 'taskRequest': None, 'publishing': initial()})
             else:
-                original = self._load()
+                # Preserve the exact historical JSON, before presentation-only defaults.
+                original = json.loads(self.path.read_text(encoding='utf-8'))
                 if original.get('schema', 1) < 2 or 'research' in original.get('stages', {}):
                     self._archive_legacy(original)
                     self._write(self._migrate(original))
@@ -197,7 +207,10 @@ class Workflow:
         os.replace(tmp, self.path)
 
     def _load(self):
-        return json.loads(self.path.read_text(encoding='utf-8'))
+        data = json.loads(self.path.read_text(encoding='utf-8'))
+        from .publishing import present as publishing_present
+        data['publishing'] = publishing_present(self.root, data)
+        return data
 
     def _archive_legacy(self, data):
         # Content-addressed backups are outside normal undo snapshots, never replaced.
@@ -415,7 +428,7 @@ class Workflow:
                     raise ValueError('任务请求已更新，旧执行者不得继续写入')
                 if request and request['status'] == 'running' and payload.get('taskId') != request['id']:
                     raise ValueError('运行中的任务必须提供当前 taskId，防止取消或替换后的迟到写入')
-            requested_stage = 'requirements' if action == 'voice' or action.startswith('audio-presets/') else payload.get('stage', d['active'])
+            requested_stage = 'export' if action.startswith('publishing/') else ('requirements' if action == 'voice' or action.startswith('audio-presets/') else payload.get('stage', d['active']))
             s = 'narration' if requested_stage == 'research' else requested_stage
             if s not in STAGES:
                 raise ValueError('未知阶段')
@@ -434,7 +447,12 @@ class Workflow:
                     if downstream['status'] != 'draft' or downstream['text'] or downstream['artifacts']:
                         downstream['status'] = 'stale'
 
-            if action in ('audio-presets/save', 'audio-presets/apply', 'audio-presets/delete'):
+            if action.startswith('publishing/'):
+                from .publishing import mutate as mutate_publishing
+                if 'revision' not in payload:
+                    raise ValueError('发布包操作需要当前项目版本')
+                mutate_publishing(self.root, d, action, payload)
+            elif action in ('audio-presets/save', 'audio-presets/apply', 'audio-presets/delete'):
                 from .audio_presets import normalize_settings, project_preset
                 if 'revision' not in payload:
                     raise ValueError('音频预设操作需要项目版本，请刷新后重试')
@@ -548,6 +566,15 @@ class Workflow:
                 stage['artifacts'].append({'id': uuid.uuid4().hex, 'path': dest.relative_to(self.root).as_posix(), 'sourcePath': p, 'sha256': digest, 'label': str(payload.get('label', Path(p).name)), 'role': str(payload.get('role', '')), 'version': stage['version'], 'created': now(), **({'soundtrackSha256': soundtrack_sha} if soundtrack_sha else {})})
                 stage['status'] = 'draft'
             elif action == 'submit':
+                if s == 'export':
+                    from .publishing import ready, build_delivery
+                    publishing = d.get('publishing', {})
+                    if publishing.get('enabled'):
+                        if (publishing.get('request') or {}).get('status') in ('queued', 'running'):
+                            raise ValueError('发布生成请求尚未完成，请先登记完成或取消')
+                        if not ready(self.root, d, publishing):
+                            raise ValueError('请先完成当前发布文案及4:3、3:4双封面')
+                        build_delivery(self.root, d, publishing)
                 if s == 'requirements' and d.get('settings', {}).get('bgm_mode') == 'upload':
                     self.asset(d.get('settings', {}).get('bgm_upload', ''))
                 if s in ('production', 'export'):
@@ -566,6 +593,12 @@ class Workflow:
                 stage['submittedBy'] = payload.get('by', 'human' if s == 'requirements' else 'agent')
                 d['active'] = s
             elif action == 'approve':
+                if s == 'export' and d.get('publishing', {}).get('enabled'):
+                    from .publishing import ready
+                    if (d['publishing'].get('request') or {}).get('status') in ('queued', 'running'):
+                        raise ValueError('发布生成请求尚未完成，请先登记完成或取消')
+                    if not ready(self.root, d, d['publishing']):
+                        raise ValueError('发布材料缺失、损坏或已过期，请先核对')
                 if s in ('production', 'export'):
                     self.validate_soundtrack_artifacts(d, stage)
                 if stage['status'] != 'review':
@@ -590,6 +623,8 @@ class Workflow:
             elif action == 'revise':
                 invalidate()
             elif action == 'mode':
+                from .publishing import cancel_active
+                cancel_active(d.get('publishing', {}), '工作流模式改变，请重新领取发布请求')
                 if 'workflowMode' not in payload and 'selfReview' not in payload:
                     raise ValueError('请选择运行模式')
                 if 'workflowMode' in payload:
@@ -640,6 +675,8 @@ class Workflow:
                 request['status'] = 'running'
                 request['claimedAt'] = now()
             elif action == 'cancel':
+                from .publishing import cancel_active
+                cancel_active(d.get('publishing', {}), '视频任务已暂停')
                 request = d.get('taskRequest')
                 if not request or payload.get('id') != request['id']:
                     raise ValueError('任务请求已更新，请重新读取项目')
@@ -758,6 +795,10 @@ class Workflow:
                     d['taskRequest']['restoredAt'] = now()
                     if d['taskRequest']['status'] == 'running':
                         d['taskRequest']['status'] = 'queued'
+                restored_publishing = d.get('publishing', {})
+                publishing_request = restored_publishing.get('request')
+                if publishing_request and publishing_request.get('status') in ('queued', 'running'):
+                    publishing_request.update(id=uuid.uuid4().hex, status='queued', restoredAt=now(), doneTargets=[])
             else:
                 raise ValueError('未知操作')
             hist = self.root / '.studio' / 'history'
@@ -767,6 +808,8 @@ class Workflow:
                 snapshot_path.write_text(json.dumps(before, ensure_ascii=False, indent=2), encoding='utf-8')
             if action != 'undo':
                 d.pop('undoCursor', None)
+            from .publishing import present as publishing_present
+            d['publishing'] = publishing_present(self.root, d)
             self._sync_request(d)
             d['revision'] += 1
             d['updated'] = now()

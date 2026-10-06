@@ -17,6 +17,9 @@ def wait_for_request(flow, timeout=300, after_revision=None, interval=.5):
         state['workspace'] = str(flow.root)
         request = state.get('taskRequest')
         action = state['nextAction']
+        publishing_request = state.get('publishing', {}).get('request')
+        if publishing_request and publishing_request['status'] == 'queued':
+            return {'event': 'publishing-request', 'project': state, 'message': '发布材料请求已保存；请领取发布请求并生成真实文件'}
         if request and request['status'] == 'queued' and action['actor'] == 'agent':
             return {'event': 'request', 'project': state, 'message': '已收到本地继续请求；请领取并执行，直到当前模式确认点'}
         if request and request['status'] == 'cancelled':
@@ -36,6 +39,21 @@ def main(argv=None):
     parser.add_argument('--workspace', default=None)
     sub = parser.add_subparsers(dest='command', required=True)
     sub.add_parser('status')
+    command = sub.add_parser('publishing', help='发布材料独立请求、实际素材登记与交付包')
+    command.add_argument('operation', choices=['request', 'claim', 'cancel', 'save', 'text', 'cover', 'complete', 'review-current', 'export'])
+    command.add_argument('--revision', type=int, required=True)
+    command.add_argument('--id')
+    command.add_argument('--file', help='包含title、description、topics的JSON文件')
+    command.add_argument('--targets', nargs='+', choices=['text', 'landscape', 'portrait'])
+    command.add_argument('--direction')
+    command.add_argument('--orientation', choices=['landscape', 'portrait'])
+    command.add_argument('--path')
+    command.add_argument('--source', choices=['ai-generated', 'code-generated', 'user-supplied', 'licensed-reference'])
+    command.add_argument('--prompt')
+    command.add_argument('--origin')
+    command.add_argument('--model')
+    command.add_argument('--note')
+    command.add_argument('--by', choices=['agent', 'human'])
     command = sub.add_parser('wait', help='活跃 Codex 有界等待网页请求；不会唤醒空闲对话')
     command.add_argument('--timeout', type=float, default=300)
     command.add_argument('--after-revision', type=int)
@@ -90,6 +108,13 @@ def main(argv=None):
             result = flow.read()
         elif args.command == 'wait':
             result = wait_for_request(flow, args.timeout, args.after_revision)
+        elif args.command == 'publishing':
+            data = {key: value for key, value in vars(args).items() if value is not None and key not in ('workspace', 'command', 'operation', 'file')}
+            if args.file:
+                data['text'] = json.loads(Path(args.file).read_text(encoding='utf-8'))
+            if args.by is None:
+                data['by'] = 'agent' if args.operation in ('text', 'claim', 'complete') else 'human'
+            result = flow.mutate('publishing/' + args.operation, data)
         else:
             data = {key: value for key, value in vars(args).items() if value is not None}
             if args.command == 'save':

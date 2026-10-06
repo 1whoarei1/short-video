@@ -9,6 +9,7 @@ from pathlib import Path
 from unittest.mock import patch
 from app.cli import wait_for_request, main
 from app.workflow import Workflow, STAGES, validate_settings
+from tests.publishing_helpers import prepare_publishing
 
 import struct
 import zlib
@@ -33,6 +34,8 @@ class ModeTests(unittest.TestCase):
         self.flow.mutate('save', {'stage': stage, 'text': 'Checked content'})
         if stage in ('preview', 'production', 'export'):
             self.flow.mutate('artifact', {'stage': stage, 'path': 'frame.png' if stage == 'preview' else 'video.mp4'})
+        if stage == 'export':
+            prepare_publishing(self.flow)
         return self.flow.mutate('submit', {'stage': stage, 'by': 'human' if stage == 'requirements' else 'agent'})
 
     def approve(self, stage, actor):
