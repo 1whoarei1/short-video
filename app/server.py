@@ -9,8 +9,10 @@ import subprocess
 import tempfile
 import re
 import secrets
+import socket
 import sys
 import threading
+import time
 import uuid
 import webbrowser
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
@@ -65,11 +67,13 @@ def create_server(root, port=8765, credential_settings=None):
             # Do not log URLs, headers, or request bodies (even malformed ones).
             pass
 
-        def reply(self, code, body, kind='application/json'):
+        def reply(self, code, body, kind='application/json', close=False):
             data = json.dumps(body, ensure_ascii=False).encode() if kind == 'application/json' and not isinstance(body, bytes) else body
             self.send_response(code)
             self.send_header('Content-Type', kind)
             self.send_header('Content-Length', str(len(data)))
+            if close:
+                self.send_header('Connection', 'close')
             self.send_header('Cache-Control', 'no-store')
             self.send_header('Referrer-Policy', 'no-referrer')
             self.send_header('X-Frame-Options', 'DENY')
@@ -77,6 +81,45 @@ def create_server(root, port=8765, credential_settings=None):
             self.send_header('X-Content-Type-Options', 'nosniff')
             self.end_headers()
             self.wfile.write(data)
+
+        def reject_post(self, body, code=403):
+            """Deliver the rejection before a bounded, unparsed request-body drain.
+
+            Closing with unread TCP data can reset the connection and erase the
+            response on Windows. Half-close the write side first (RFC 9112 9.6).
+            Authorization still happens before any JSON parsing/backend access.
+            """
+            self.close_connection = True
+            try:
+                self.reply(code, body, close=True)
+                self.wfile.flush()
+                self.connection.shutdown(socket.SHUT_WR)
+            except OSError:
+                return
+            lengths = self.headers.get_all('Content-Length', [])
+            if self.headers.get_all('Transfer-Encoding', []) or len(lengths) != 1:
+                return
+            value = lengths[0]
+            if not re.fullmatch(r'[0-9]{1,6}', value):
+                return
+            remaining = int(value)
+            if not 0 < remaining <= 64 * 1024:
+                return
+            deadline = time.monotonic() + .25
+            while remaining:
+                timeout = deadline - time.monotonic()
+                if timeout <= 0:
+                    return
+                self.connection.settimeout(timeout)
+                try:
+                    # read1 does at most one underlying read: a trickling sender
+                    # cannot restart a .25-second timeout for each incoming byte.
+                    chunk = self.rfile.read1(min(8192, remaining))
+                except OSError:
+                    return
+                if not chunk:
+                    return
+                remaining -= len(chunk)
 
         def get_flow(self):
             key = parse_qs(urlparse(self.path).query).get('project', [catalog.active_id()])[0]
@@ -228,11 +271,14 @@ def create_server(root, port=8765, credential_settings=None):
 
         def credential_request(self, path):
             try:
-                if self.headers.get('Transfer-Encoding') or len(self.headers.get_all('Content-Length', [])) != 1:
-                    raise CredentialError('凭据请求格式无效')
-                length = int(self.headers.get('Content-Length', '0'))
+                if self.headers.get_all('Transfer-Encoding', []) or len(self.headers.get_all('Content-Length', [])) != 1:
+                    return self.reject_post({'error': '凭据请求格式无效'}, code=400)
+                try:
+                    length = int(self.headers.get('Content-Length', '0'))
+                except ValueError:
+                    return self.reject_post({'error': '凭据请求格式无效'}, code=400)
                 if not 0 < length <= 4096:
-                    raise CredentialError('凭据请求长度无效')
+                    return self.reject_post({'error': '凭据请求长度无效'}, code=400)
                 self.connection.settimeout(5)
                 data = json.loads(self.rfile.read(length))
                 if not isinstance(data, dict):
@@ -263,18 +309,18 @@ def create_server(root, port=8765, credential_settings=None):
 
         def do_POST(self):
             if not self.valid_host():
-                return self.reply(403, {'error': '仅允许本机访问'})
+                return self.reject_post({'error': '仅允许本机访问'})
             if self.headers.get('X-Workspace-Token') != token:
-                return self.reply(403, {'error': '请刷新本地工作台后重试'})
+                return self.reject_post({'error': '请刷新本地工作台后重试'})
             path = urlparse(self.path).path
             is_credential = path.startswith('/api/credentials/')
             if is_credential:
                 if not self.credential_authorized() or urlparse(self.path).query:
-                    return self.reply(403, {'error': '凭据操作仅允许本机同源工作台'})
+                    return self.reject_post({'error': '凭据操作仅允许本机同源工作台'})
                 return self.credential_request(path)
             origin = self.headers.get('Origin')
             if origin and origin not in ('http://' + self.headers.get('Host', ''),):
-                return self.reply(403, {'error': '拒绝跨站写入'})
+                return self.reject_post({'error': '拒绝跨站写入'})
             try:
                 flow = self.get_flow()
                 length = int(self.headers.get('Content-Length', '0'))
