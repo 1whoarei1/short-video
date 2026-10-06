@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<title>比较增长，先看基期 · 横版4:3</title>
+<style>
+*{box-sizing:border-box}html,body{width:1600px;height:1200px;margin:0;overflow:hidden}
+body{background:#f5f0e5;color:#153d3a;font-family:"Microsoft YaHei","PingFang SC","Noto Sans CJK SC",sans-serif}
+.accent{color:#cf572e}.eyebrow{position:absolute;left:104px;top:90px;font-size:30px;letter-spacing:5px;font-weight:700}
+h1{position:absolute;left:100px;top:165px;width:770px;margin:0;font-size:142px;line-height:1.45;letter-spacing:-5px}
+.note{position:absolute;left:104px;top:620px;margin:0;font-size:35px;line-height:1.7;width:680px}
+.footer{position:absolute;left:104px;bottom:88px;font-size:26px;letter-spacing:2px}
+.chart{position:absolute;left:890px;top:205px;width:590px;height:750px;border-bottom:3px solid #153d3a}
+.bar{position:absolute;bottom:0;width:180px;border-radius:10px 10px 0 0;background:#153d3a}
+.first{left:48px;height:360px;background:#a9bdb2}.second{left:328px;height:540px}
+.value{position:absolute;left:0;top:-70px;width:180px;text-align:center;font-size:48px;font-weight:700}
+.label{position:absolute;bottom:-74px;width:180px;text-align:center;font-size:30px}
+.bracket{position:absolute;left:230px;top:210px;width:80px;height:180px;border-right:4px solid #cf572e;border-top:4px solid #cf572e;border-bottom:4px solid #cf572e}
+.change{position:absolute;left:220px;top:35px;color:#cf572e;font-size:52px;font-weight:800}
+.basis{position:absolute;left:85px;top:840px;width:430px;font-size:27px;line-height:1.6;text-align:center;color:#536e65}
+</style>
+<div class="eyebrow">图形里的一个小细节</div>
+<h1 data-cover-hook>比较增长<br><span class="accent">先看基期</span></h1>
+<p class="note">保留起点，变化才有参照。<br>用一张柱图看清百分比的分母。</p>
+<div class="chart" role="img" aria-label="演示数据从100增加到150，增幅50%">
+  <div class="bracket"></div><div class="change">+50%</div>
+  <div class="bar first"><span class="value">100</span><span class="label">基期</span></div>
+  <div class="bar second"><span class="value">150</span><span class="label">本期</span></div>
+  <div class="basis">演示数据 · 增量50 ÷ 基期100</div>
+</div>
+<div class="footer">同一套数据，两种独立构图 · 4:3</div>
+</html>

@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "text": {
+    "title": "比较增长，先看基期",
+    "description": "用100增长到150的演示数据，说明计算增幅时为什么要保留基期：增量50除以基期100，得到50%。",
+    "topics": [
+      "图形解释",
+      "数据读图",
+      "百分比"
+    ]
+  },
+  "covers": {
+    "landscape": {
+      "path": "publishing/covers/d062984164566d9e59dd7e22bfd27fa0a53767781f2a77f9c359e1cc92785aff.png",
+      "sha256": "d062984164566d9e59dd7e22bfd27fa0a53767781f2a77f9c359e1cc92785aff",
+      "width": 1600,
+      "height": 1200,
+      "bytes": 89998,
+      "source": "code-generated",
+      "prompt": "",
+      "origin": "publish/cover-landscape.html",
+      "modelReported": "",
+      "note": "Actual independent HTML layout, exact dimensions and visible text inspected",
+      "created": "2026-10-06T09:03:13.494968+00:00",
+      "verification": "full-image-decode; exact-ratio; provenance author-declared",
+      "contentFingerprint": "495e5738235cdd41b9b4a1b39a2d66234229bb9078e94bcc64f7c5736a235846",
+      "valid": true,
+      "stale": false
+    },
+    "portrait": {
+      "path": "publishing/covers/0de1c0250ddfa0419d7ee70dec2129ee74a400a8ca6639f5e2506a1249b36c14.png",
+      "sha256": "0de1c0250ddfa0419d7ee70dec2129ee74a400a8ca6639f5e2506a1249b36c14",
+      "width": 1200,
+      "height": 1600,
+      "bytes": 93874,
+      "source": "code-generated",
+      "prompt": "",
+      "origin": "publish/cover-portrait.html",
+      "modelReported": "",
+      "note": "Actual independent HTML layout, exact dimensions and visible text inspected",
+      "created": "2026-10-06T09:03:13.628611+00:00",
+      "verification": "full-image-decode; exact-ratio; provenance author-declared",
+      "contentFingerprint": "495e5738235cdd41b9b4a1b39a2d66234229bb9078e94bcc64f7c5736a235846",
+      "valid": true,
+      "stale": false
+    }
+  },
+  "contentFingerprint": "495e5738235cdd41b9b4a1b39a2d66234229bb9078e94bcc64f7c5736a235846"
+}

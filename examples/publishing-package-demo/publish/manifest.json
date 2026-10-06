@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "contentFingerprint": "495e5738235cdd41b9b4a1b39a2d66234229bb9078e94bcc64f7c5736a235846",
+  "files": [
+    {
+      "path": "publish.txt",
+      "bytes": 213,
+      "sha256": "fb78108eb22b6b61e5f5d3848063840f22b8dd3e63a3087f3b8c8519aeb67c14"
+    },
+    {
+      "path": "publish.json",
+      "bytes": 1975,
+      "sha256": "084ffbf2b73ad4eb2d7667e8c3f5e67613228e85eaf2dffc266756e5fc550732"
+    },
+    {
+      "path": "covers/landscape.png",
+      "bytes": 89998,
+      "sha256": "d062984164566d9e59dd7e22bfd27fa0a53767781f2a77f9c359e1cc92785aff"
+    },
+    {
+      "path": "covers/portrait.png",
+      "bytes": 93874,
+      "sha256": "0de1c0250ddfa0419d7ee70dec2129ee74a400a8ca6639f5e2506a1249b36c14"
+    },
+    {
+      "path": "deliverables/bac07a4beaec1edafa1e92a33279ebe2011036699225634897f980ac5846e971.mp4",
+      "bytes": 54356,
+      "sha256": "bac07a4beaec1edafa1e92a33279ebe2011036699225634897f980ac5846e971"
+    },
+    {
+      "path": "deliverables/e0be75e05c0a4f3ac0679b21cc1347cfef9eea2ef9625a5896c0fa88a0185303.html",
+      "bytes": 2323,
+      "sha256": "e0be75e05c0a4f3ac0679b21cc1347cfef9eea2ef9625a5896c0fa88a0185303"
+    },
+    {
+      "path": "deliverables/6c3005ac263de94784104e2803a13366f24203e9868a4f6da9b834313c81f6dd.html",
+      "bytes": 2434,
+      "sha256": "6c3005ac263de94784104e2803a13366f24203e9868a4f6da9b834313c81f6dd"
+    },
+    {
+      "path": "deliverables/cf6e6aec0a582bcfd6138d0e4152b3aa604960d7bf7f6a110d23c99ea910d63b.json",
+      "bytes": 2292,
+      "sha256": "cf6e6aec0a582bcfd6138d0e4152b3aa604960d7bf7f6a110d23c99ea910d63b"
+    }
+  ]
+}
