@@ -7,7 +7,7 @@ const {spawn,spawnSync}=require('child_process'),fs=require('fs'),os=require('os
  if(process.env.THEME_VIDEO_FIXTURE)fs.copyFileSync(process.env.THEME_VIDEO_FIXTURE,path.join(workspace,'personal.mp4'));
  else assert.equal(spawnSync('ffmpeg',['-v','error','-f','lavfi','-i','testsrc2=s=160x90:r=12:d=2','-c:v','libx264','-pix_fmt','yuvj420p','-movflags','+faststart','-threads','1',path.join(workspace,'personal.mp4')]).status,0);
  const probe=spawnSync('ffprobe',['-v','error','-show_entries','stream=codec_name,pix_fmt','-of','json',path.join(workspace,'personal.mp4')]);assert.equal(probe.status,0);const stream=JSON.parse(probe.stdout).streams.find(s=>s.codec_name==='h264');assert(stream);assert.equal(stream.pix_fmt,'yuvj420p');
- const server=spawn('python3',['-m','app.server','--workspace',workspace,'--port',String(port)],{cwd:root,stdio:'ignore'});let browser;
+ const server=spawn(process.env.PYTHON || (process.platform === 'win32' ? 'python' : 'python3'),['-m','app.server','--workspace',workspace,'--port',String(port)],{cwd:root,stdio:'ignore'});let browser;
  try{
   for(let i=0;i<80;i++){try{if((await fetch(url+'/api/health')).ok)break}catch{}await new Promise(r=>setTimeout(r,100))}
   browser=await chromium.launch({executablePath:process.env.BROWSER_PATH||'/tmp/chromium',args:['--no-sandbox','--disable-dev-shm-usage','--no-zygote']});

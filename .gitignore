@@ -8,20 +8,38 @@ node_modules/
 !*.env.example
 **/tts.env
 workspace/
-**/render/frames/
-**/.studio/history/
-**/.studio/*.lock
-**/.studio/*.tmp
+# User state, immutable snapshots, generated media and credentials stay local.
+.studio/
+_artifacts/
+render/
+.aws/
+.codex/
+*.key
+*.pem
+*.pfx
+*.p12
+*.enc
+**/audio/.azure-cache/
+**/audio/narration-full.*
+**/audio/subtitles.*
+**/audio/timeline.json
+**/audio/soundtrack.*
+**/audio/bgm/full.wav
+**/audio/bgm/preview.wav
+**/publishing/covers/
+**/publishing/delivery/
+**/publish/cover-render-report.json
+**/publish/manifest.json
+**/publish/publish.json
+**/publish/publish.txt
+**/publish/*.zip
 *.log
 .DS_Store
 
 # Generated QA frames stay local; selected proofs are in out/preview-*.png
-examples/*/render/
 examples/*/out/qc/*.png
 # Rendered sample video is delivered separately; regenerate from source.
 examples/*/out/*.mp4
 examples/*/out/*.mp4.render.json
 examples/*/out/*.mp4.soundtrack.json
 examples/*/out/contact-sheet.png
-examples/*/_artifacts/
-examples/*/.studio/

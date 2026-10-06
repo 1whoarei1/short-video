@@ -3,11 +3,8 @@
 const fs=require('node:fs'),path=require('node:path'),os=require('node:os'),net=require('node:net');
 const {spawn}=require('node:child_process'),assert=require('node:assert/strict');
 const root=path.resolve(__dirname,'..');
-const modulePath=process.env.PLAYWRIGHT_MODULE||[
- path.join(root,'vendor/html-explainer/node/node_modules/playwright-core'),
- path.resolve(root,'../short-video/vendor/html-explainer/node/node_modules/playwright-core')
-].find(p=>fs.existsSync(p));
-assert(modulePath,'Set PLAYWRIGHT_MODULE to the documented renderer dependency');
+const modulePath=process.env.PLAYWRIGHT_MODULE||path.join(root,'vendor/html-explainer/node/node_modules/playwright-core');
+assert(fs.existsSync(modulePath),'Install the locked renderer dependencies: npm ci --prefix vendor/html-explainer/node; or explicitly set PLAYWRIGHT_MODULE');
 const {chromium}=require(modulePath),delay=ms=>new Promise(r=>setTimeout(r,ms));
 const python=process.env.PYTHON||'python';
 async function unusedPort(){const server=net.createServer();await new Promise((r,j)=>{server.once('error',j);server.listen(0,'127.0.0.1',r)});const port=server.address().port;await new Promise(r=>server.close(r));return port;}

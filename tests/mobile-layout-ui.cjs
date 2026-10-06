@@ -12,7 +12,7 @@ const {revealBriefControl}=require('./brief-ui-helpers.cjs');
   const port=18883,url=`http://127.0.0.1:${port}`;
   const videoPath=path.join(workspace,'mobile-review.webm');
   assert.equal(spawnSync('ffmpeg',['-v','error','-f','lavfi','-i','testsrc2=s=320x180:r=12:d=4','-c:v','libvpx-vp9','-threads','1',videoPath]).status,0);
-  const server=spawn(process.env.PYTHON||'python3',['-m','app.server','--workspace',workspace,'--port',String(port)],{cwd:root,stdio:'ignore'});
+  const server=spawn(process.env.PYTHON || (process.platform === 'win32' ? 'python' : 'python3'),['-m','app.server','--workspace',workspace,'--port',String(port)],{cwd:root,stdio:'ignore'});
   let browser;
   try{
     let healthy=false;

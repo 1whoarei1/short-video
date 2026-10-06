@@ -5,7 +5,7 @@ const {spawn,spawnSync}=require('child_process'),fs=require('fs'),os=require('os
 (async()=>{
  const root=path.resolve(__dirname,'..'),workspace=fs.mkdtempSync(path.join(os.tmpdir(),'custom-motion-')),port=18859,url=`http://127.0.0.1:${port}`;
  assert.equal(spawnSync('ffmpeg',['-v','error','-f','lavfi','-i','testsrc2=s=160x90:r=12:d=2','-c:v','libvpx-vp9','-threads','1',path.join(workspace,'personal.webm')]).status,0);
- const server=spawn('python3',['-m','app.server','--workspace',workspace,'--port',String(port)],{cwd:root,stdio:'ignore'});let browser;
+ const server=spawn(process.env.PYTHON || (process.platform === 'win32' ? 'python' : 'python3'),['-m','app.server','--workspace',workspace,'--port',String(port)],{cwd:root,stdio:'ignore'});let browser;
  try{
   for(let i=0;i<80;i++){try{if((await fetch(url+'/api/health')).ok)break}catch{}await new Promise(r=>setTimeout(r,100))}
   browser=await chromium.launch({executablePath:process.env.BROWSER_PATH||'/tmp/chromium',args:['--no-sandbox','--disable-dev-shm-usage','--no-zygote']});

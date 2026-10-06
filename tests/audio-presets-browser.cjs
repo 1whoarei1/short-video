@@ -6,11 +6,8 @@ const {spawn}=require('node:child_process');
 const assert=require('node:assert/strict');
 const {revealBriefControl}=require('./brief-ui-helpers.cjs');
 const root=path.resolve(__dirname,'..');
-const dependency=process.env.PLAYWRIGHT_MODULE||[
- path.join(root,'vendor/html-explainer/node/node_modules/playwright-core'),
- path.resolve(root,'../short-video/vendor/html-explainer/node/node_modules/playwright-core')
-].find(p=>fs.existsSync(p));
-assert(dependency,'Install the documented renderer dependencies, or set PLAYWRIGHT_MODULE');
+const dependency=process.env.PLAYWRIGHT_MODULE||path.join(root,'vendor/html-explainer/node/node_modules/playwright-core');
+assert(fs.existsSync(dependency),'Install the documented renderer dependencies, or set PLAYWRIGHT_MODULE');
 const {chromium}=require(dependency);
 const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const closeEnough=(actual,expected,label,tolerance=.025)=>assert(Math.abs(actual-expected)<=tolerance,`${label}: ${actual} vs ${expected}`);

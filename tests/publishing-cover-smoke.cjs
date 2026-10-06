@@ -28,7 +28,10 @@ function fail(name,html,expected){
   console.log('PASS rejected '+name);
 }
 try{
-  const demo=path.join(temp,'demo');fs.cpSync(path.join(root,'examples/publishing-package-demo'),demo,{recursive:true});
+  const demo=path.join(temp,'demo');fs.mkdirSync(path.join(demo,'publish'),{recursive:true});
+  // Copy declared inputs only; local demo builds and preview outputs are not fixtures.
+  for(const relative of ['project.json','publish/cover-landscape.html','publish/cover-portrait.html'])
+    fs.copyFileSync(path.join(root,'examples/publishing-package-demo',relative),path.join(demo,relative));
   const report=run(demo);
   assert.equal(report.route,'html-css-chromium');assert.equal(report.covers.length,2);
   const original=[];

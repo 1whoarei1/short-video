@@ -7,7 +7,7 @@ const fs=require('fs'),os=require('os'),path=require('path'),assert=require('ass
   const root=path.resolve(__dirname,'..');
   const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'brief-summary-'));
   const port=18879,url=`http://127.0.0.1:${port}`;
-  const server=spawn('python3',['-m','app.server','--workspace',workspace,'--port',String(port)],{cwd:root,stdio:'ignore'});
+  const server=spawn(process.env.PYTHON || (process.platform === 'win32' ? 'python' : 'python3'),['-m','app.server','--workspace',workspace,'--port',String(port)],{cwd:root,stdio:'ignore'});
   let browser;
   try{
     for(let i=0;i<80;i++){
