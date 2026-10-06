@@ -1,0 +1,7 @@
+{
+ "schemaVersion":1,
+ "defaults":{"voice_gain_db":0,"bgm_gain_db":0,"bgm_ducking":true,"bgm_ducking_strength":"standard","bgm_fade_out":1.5},
+ "ranges":{"voice_gain_db":{"min":-24,"max":6},"bgm_gain_db":{"min":-60,"max":6},"bgm_fade_out":{"min":0,"max":30}},
+ "musicBaselineDb":{"voiced":-12,"noVoice":0},
+ "ducking":{"gentle":{"threshold":0.04,"ratio":3,"attack":35,"release":450},"standard":{"threshold":0.025,"ratio":6,"attack":20,"release":300},"strong":{"threshold":0.015,"ratio":10,"attack":10,"release":350}}
+}
