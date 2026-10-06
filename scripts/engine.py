@@ -37,18 +37,15 @@ def main():
  config=json.loads((project/'project.json').read_text(encoding='utf-8'))
  mode=config.get('audio_mode','silent')
  if mode not in ('silent','azure','edge'):raise ValueError('Unknown audio_mode')
- if a.action in ('preview','render','layout','soundtrack') and mode!='silent':
-  from audio_timeline import validate_ready
-  validate_ready(project)
+ if a.action in ('preview','render','layout','soundtrack'):
+  from video_contract import validate_audio
+  validate_audio(project, require_mix=a.action=='render')
  if a.action=='bgm-prepare':
   from soundtrack import prepare
   print(json.dumps(prepare(project,a.source,a.cues,a.retain_source,a.stem),ensure_ascii=False,indent=2));return 0
  if a.action=='soundtrack':
   from soundtrack import mix
   print(json.dumps(mix(project),ensure_ascii=False,indent=2));return 0
- if a.action=='render' and (config.get('bgm_mode','none')!='none' or config.get('sound_effects') or (mode!='silent' and config.get('voice_gain_db',0)!=0)):
-  from soundtrack import validate_ready
-  validate_ready(project)
  if a.action=='style':
   cmd=[sys.executable,str(VENDOR/'scripts/style_director.py'),'--project',str(project)]
   if a.dry_run:cmd+=['--dry-run']

@@ -1,4 +1,5 @@
 """Independent workflow-upgrade regression tests; all writes use temporary projects."""
+from workflow_fixtures import mutate_as_agent
 import copy
 import json
 import struct
@@ -35,8 +36,8 @@ class UpgradeReviewTests(unittest.TestCase):
         return self.flow.mutate('save', {'stage': stage, 'text': text})
 
     def approve(self, stage, actor='human'):
-        self.flow.mutate('submit', {'stage': stage, 'by': 'human' if stage == 'requirements' else 'agent'})
-        return self.flow.mutate('approve', {'stage': stage, 'by': actor, 'note': 'Read the actual text or image and checked it.'})
+        mutate_as_agent(self.flow, 'submit', {'stage': stage, 'by': 'human' if stage == 'requirements' else 'agent'})
+        return mutate_as_agent(self.flow, 'approve', {'stage': stage, 'by': actor, 'note': 'Read the actual text or image and checked it.'})
 
     def start(self, mode):
         self.flow.mutate('mode', {'workflowMode': mode})
@@ -46,7 +47,7 @@ class UpgradeReviewTests(unittest.TestCase):
     def preview(self):
         (self.root / 'preview.png').write_bytes(png_bytes())
         self.flow.mutate('artifact', {'stage': 'preview', 'path': 'preview.png'})
-        return self.flow.mutate('submit', {'stage': 'preview', 'by': 'agent'})
+        return mutate_as_agent(self.flow, 'submit', {'stage': 'preview', 'by': 'agent'})
 
     def test_mode_matrix_keeps_requirements_human_and_records_actual_actor(self):
         for mode in ('manual', 'semi', 'auto'):
@@ -55,18 +56,18 @@ class UpgradeReviewTests(unittest.TestCase):
                 flow.mutate('mode', {'workflowMode': mode})
                 flow.mutate('save', {'stage': 'requirements', 'text': 'Reviewed brief'})
                 with self.assertRaises(ValueError):
-                    flow.mutate('submit', {'stage': 'requirements', 'by': 'agent'})
-                flow.mutate('submit', {'stage': 'requirements', 'by': 'human'})
+                    mutate_as_agent(flow, 'submit', {'stage': 'requirements', 'by': 'agent'})
+                mutate_as_agent(flow, 'submit', {'stage': 'requirements', 'by': 'human'})
                 with self.assertRaises(ValueError):
-                    flow.mutate('approve', {'stage': 'requirements', 'by': 'agent', 'note': 'Not user approval'})
-                state = flow.mutate('approve', {'stage': 'requirements', 'by': 'human'})
+                    mutate_as_agent(flow, 'approve', {'stage': 'requirements', 'by': 'agent', 'note': 'Not user approval'})
+                state = mutate_as_agent(flow, 'approve', {'stage': 'requirements', 'by': 'human'})
                 self.assertEqual(state['stages']['requirements']['approvedBy'], 'human')
                 self.assertEqual(state['taskRequest']['status'], 'queued')
                 flow.mutate('save', {'stage': 'narration', 'text': 'Research and narration together'})
-                state = flow.mutate('submit', {'stage': 'narration', 'by': 'agent'})
+                state = mutate_as_agent(flow, 'submit', {'stage': 'narration', 'by': 'agent'})
                 self.assertEqual(state['nextAction']['actor'], 'human' if mode == 'manual' else 'agent')
                 actor = 'human' if mode == 'manual' else 'agent'
-                state = flow.mutate('approve', {'stage': 'narration', 'by': actor, 'note': 'Checked'})
+                state = mutate_as_agent(flow, 'approve', {'stage': 'narration', 'by': actor, 'note': 'Checked'})
                 self.assertEqual(state['stages']['narration']['approvedBy'], actor)
                 self.assertEqual(state['history'][-1]['by'], actor)
 
@@ -76,16 +77,16 @@ class UpgradeReviewTests(unittest.TestCase):
         self.approve('narration', 'agent')
         self.save('preview', 'A screenshot description is not an actual screenshot.')
         with self.assertRaises(ValueError):
-            self.flow.mutate('submit', {'stage': 'preview', 'by': 'agent'})
+            mutate_as_agent(self.flow, 'submit', {'stage': 'preview', 'by': 'agent'})
         state = self.preview()
         self.assertEqual(state['nextAction']['actor'], 'human')
         self.assertEqual(state['taskRequest']['status'], 'waiting')
         with self.assertRaises(ValueError):
-            self.flow.mutate('approve', {'stage': 'preview', 'by': 'agent', 'note': 'Cannot skip human checkpoint'})
+            mutate_as_agent(self.flow, 'approve', {'stage': 'preview', 'by': 'agent', 'note': 'Cannot skip human checkpoint'})
         self.save('production')
         with self.assertRaises(ValueError):
-            self.flow.mutate('submit', {'stage': 'production', 'by': 'agent'})
-        state = self.flow.mutate('approve', {'stage': 'preview', 'by': 'human'})
+            mutate_as_agent(self.flow, 'submit', {'stage': 'production', 'by': 'agent'})
+        state = mutate_as_agent(self.flow, 'approve', {'stage': 'preview', 'by': 'human'})
         self.assertEqual(state['nextAction']['stage'], 'production')
         self.assertEqual(state['taskRequest']['status'], 'queued')
 
@@ -95,11 +96,11 @@ class UpgradeReviewTests(unittest.TestCase):
         self.approve('narration', 'agent')
         self.save('preview')
         with self.assertRaises(ValueError):
-            self.flow.mutate('submit', {'stage': 'preview', 'by': 'agent'})
+            mutate_as_agent(self.flow, 'submit', {'stage': 'preview', 'by': 'agent'})
         self.preview()
         with self.assertRaises(ValueError):
-            self.flow.mutate('approve', {'stage': 'preview', 'by': 'agent'})
-        state = self.flow.mutate('approve', {'stage': 'preview', 'by': 'agent', 'note': 'Inspected actual image pixels'})
+            mutate_as_agent(self.flow, 'approve', {'stage': 'preview', 'by': 'agent'})
+        state = mutate_as_agent(self.flow, 'approve', {'stage': 'preview', 'by': 'agent', 'note': 'Inspected actual image pixels'})
         self.assertEqual(state['stages']['preview']['approvedBy'], 'agent')
 
     def test_auto_goes_directly_to_production_and_requires_actual_video(self):
@@ -115,7 +116,7 @@ class UpgradeReviewTests(unittest.TestCase):
         self.assertNotIn('approvedBy',state['stages']['preview'])
         self.save('production','A description cannot replace a decoded video.')
         with self.assertRaises(ValueError):
-            self.flow.mutate('submit',{'stage':'production','by':'agent'})
+            mutate_as_agent(self.flow, 'submit', {'stage':'production','by':'agent'})
         self.assertFalse(any(row.get('stage')=='preview' for row in self.flow.read()['history']))
 
     @unittest.skipUnless(shutil.which('ffmpeg') and shutil.which('ffprobe'), 'Full media progression needs FFmpeg/ffprobe')
@@ -138,12 +139,12 @@ class UpgradeReviewTests(unittest.TestCase):
                         flow.mutate('save', {'stage': stage, 'text': 'Reviewed actual source and authored narration'})
                     if stage == 'export':
                         prepare_publishing(flow)
-                    flow.mutate('submit', {'stage': stage, 'by': 'human' if stage == 'requirements' else 'agent'})
+                    mutate_as_agent(flow, 'submit', {'stage': stage, 'by': 'human' if stage == 'requirements' else 'agent'})
                     actor = 'human' if stage == 'requirements' or mode == 'manual' or (mode == 'semi' and stage == 'preview') else 'agent'
                     if actor=='agent' and stage in ('production','export'):
                         with self.assertRaises(ValueError):
-                            flow.mutate('approve',{'stage':stage,'by':'agent'})
-                    state = flow.mutate('approve', {'stage': stage, 'by': actor, 'note': 'Checked actual stage content and decoded test media'})
+                            mutate_as_agent(flow, 'approve', {'stage':stage,'by':'agent'})
+                    state = mutate_as_agent(flow, 'approve', {'stage': stage, 'by': actor, 'note': 'Checked actual stage content and decoded test media'})
                     actors[stage] = state['stages'][stage]['approvedBy']
                 self.assertEqual(state['nextAction']['action'], 'complete')
                 self.assertEqual(state['nextAction']['actor'], 'none')
@@ -167,11 +168,11 @@ class UpgradeReviewTests(unittest.TestCase):
         self.assertEqual(state['stages']['preview']['artifacts'],[])
         self.assertNotEqual(state['taskRequest']['id'],old_id)
         with self.assertRaises(ValueError):
-            self.flow.mutate('submit',{'stage':'preview','by':'agent'})
+            mutate_as_agent(self.flow, 'submit', {'stage':'preview','by':'agent'})
         state=self.preview()
         self.assertEqual(state['nextAction']['actor'],'human')
         with self.assertRaises(ValueError):
-            self.flow.mutate('approve',{'stage':'preview','by':'agent','note':'An actual image still needs user approval'})
+            mutate_as_agent(self.flow, 'approve', {'stage':'preview','by':'agent','note':'An actual image still needs user approval'})
 
     def test_wait_observes_request_without_mutating_or_generating(self):
         from app.cli import wait_for_request
@@ -193,13 +194,13 @@ class UpgradeReviewTests(unittest.TestCase):
         self.save('narration')
         request = self.flow.read()['taskRequest']
         self.flow.mutate('claim', {'id': request['id']})
-        self.flow.mutate('submit', {'stage': 'narration', 'by': 'agent', 'taskId': request['id']})
+        mutate_as_agent(self.flow, 'submit', {'stage': 'narration', 'by': 'agent', 'taskId': request['id']})
         state = self.flow.mutate('mode', {'workflowMode': 'manual'})
         self.assertEqual(state['taskRequest']['status'], 'waiting')
         self.assertEqual(state['taskRequest']['stage'], state['nextAction']['stage'])
         self.assertEqual(state['taskRequest']['checkpoint'], 'narration')
         with self.assertRaises(ValueError):
-            self.flow.mutate('approve', {'stage': 'narration', 'by': 'agent', 'note': 'Old mode cannot authorize this'})
+            mutate_as_agent(self.flow, 'approve', {'stage': 'narration', 'by': 'agent', 'note': 'Old mode cannot authorize this'})
         state = self.flow.mutate('mode', {'workflowMode': 'semi'})
         self.assertEqual(state['taskRequest']['status'], 'queued')
         self.assertEqual(state['nextAction']['checkpoint'], 'preview')
@@ -209,7 +210,7 @@ class UpgradeReviewTests(unittest.TestCase):
         self.save('narration')
         self.approve('narration', 'agent')
         self.preview()
-        self.flow.mutate('approve', {'stage': 'preview', 'by': 'agent', 'note': 'Inspected actual image'})
+        mutate_as_agent(self.flow, 'approve', {'stage': 'preview', 'by': 'agent', 'note': 'Inspected actual image'})
         old_id = self.flow.read()['taskRequest']['id']
         self.flow.mutate('claim', {'id': old_id})
         state = self.flow.mutate('mode', {'workflowMode': 'semi'})
@@ -219,14 +220,14 @@ class UpgradeReviewTests(unittest.TestCase):
         self.assertTrue(state['stages']['preview']['artifacts'])
         self.assertNotEqual(state['taskRequest']['id'], old_id)
         with self.assertRaises(ValueError):
-            self.flow.mutate('save', {'stage': 'production', 'text': 'Old auto worker', 'by': 'agent', 'taskId': old_id})
+            mutate_as_agent(self.flow, 'save', {'stage': 'production', 'text': 'Old auto worker', 'by': 'agent', 'taskId': old_id})
 
     def test_tightening_auto_to_manual_reopens_script_and_preserves_preview(self):
         self.start('auto')
         self.save('narration')
         self.approve('narration', 'agent')
         self.preview()
-        self.flow.mutate('approve', {'stage': 'preview', 'by': 'agent', 'note': 'Inspected actual image'})
+        mutate_as_agent(self.flow, 'approve', {'stage': 'preview', 'by': 'agent', 'note': 'Inspected actual image'})
         state = self.flow.mutate('mode', {'workflowMode': 'manual'})
         self.assertEqual(state['nextAction']['stage'], 'narration')
         self.assertEqual(state['nextAction']['actor'], 'human')
@@ -234,7 +235,7 @@ class UpgradeReviewTests(unittest.TestCase):
         self.assertEqual(state['stages']['preview']['status'], 'stale')
         self.assertTrue(state['stages']['preview']['artifacts'])
         with self.assertRaises(ValueError):
-            self.flow.mutate('approve', {'stage': 'preview', 'by': 'agent', 'note': 'Old automatic approval cannot continue'})
+            mutate_as_agent(self.flow, 'approve', {'stage': 'preview', 'by': 'agent', 'note': 'Old automatic approval cannot continue'})
 
     def test_new_request_invalidates_old_claim_id_and_undo_never_revives_running(self):
         self.start('manual')
@@ -258,8 +259,8 @@ class UpgradeReviewTests(unittest.TestCase):
         request_id = self.flow.read()['taskRequest']['id']
         self.flow.mutate('claim', {'id': request_id})
         with self.assertRaises(ValueError):
-            self.flow.mutate('save', {'stage': 'narration', 'by': 'agent', 'text': 'Missing task guard'})
-        self.flow.mutate('save', {'stage': 'narration', 'by': 'agent', 'taskId': request_id, 'text': 'Valid in-progress draft'})
+            mutate_as_agent(self.flow, 'save', {'stage': 'narration', 'by': 'agent', 'text': 'Missing task guard'})
+        mutate_as_agent(self.flow, 'save', {'stage': 'narration', 'by': 'agent', 'taskId': request_id, 'text': 'Valid in-progress draft'})
         state = self.flow.mutate('cancel', {'id': request_id})
         self.assertEqual(state['taskRequest']['status'], 'cancelled')
         self.assertEqual(state['nextAction']['action'], 'resume')
@@ -271,11 +272,11 @@ class UpgradeReviewTests(unittest.TestCase):
             with self.subTest(action=action), self.assertRaises(ValueError):
                 self.flow.mutate(action, payload)
             self.assertEqual(before, self.flow.path.read_bytes())
-        state = self.flow.mutate('request', {'by': 'human'})
+        state = mutate_as_agent(self.flow, 'request', {'by': 'human'})
         self.assertEqual(state['taskRequest']['status'], 'queued')
         self.assertNotEqual(state['taskRequest']['id'], request_id)
         with self.assertRaises(ValueError):
-            self.flow.mutate('save', {'stage': 'narration', 'text': 'Old worker after resume', 'by': 'agent', 'taskId': request_id})
+            mutate_as_agent(self.flow, 'save', {'stage': 'narration', 'text': 'Old worker after resume', 'by': 'agent', 'taskId': request_id})
 
     def test_custom_theme_pack_roundtrip_preserves_preview_bytes_without_paths(self):
         (self.root / 'frame.png').write_bytes(png_bytes())

@@ -13,6 +13,10 @@ import subprocess
 import tempfile
 import wave
 try:
+    from .timeline_contract import caption_frames
+except ImportError:
+    from timeline_contract import caption_frames
+try:
     from .azure_tts import SAMPLE_RATE, cache_key, digest, invalidate, load_project, project_locked, read_cache, source_parts, write_json
 except ImportError:
     from azure_tts import SAMPLE_RATE, cache_key, digest, invalidate, load_project, project_locked, read_cache, source_parts, write_json
@@ -99,9 +103,8 @@ def build(project):
                     a, b = cap['start'], cap['end']
                     # Renderer uses f >= from-1 and f <= to. Ceil prevents early
                     # display, exclusive-end prevents neighboring block overlap.
-                    first, last = math.ceil(a * fps - 1e-9), math.ceil(b * fps - 1e-9) - 1
-                    if last < first: raise ValueError('Caption shorter than one display frame; merge caption chunks')
-                    blocks.append(dict(text=cap['text'], spoken=cap['text'], **{'from': first + 1, 'to': last}, size=44,
+                    first, last = caption_frames(a, b, fps)
+                    blocks.append(dict(text=cap['text'], spoken=cap['text'], **{'from': first, 'to': last}, size=44,
                                        local_start_sec=a, local_end_sec=b, global_start_sec=start+a, global_end_sec=start+b))
                     srt.append((start+a, start+b, cap['text']))
                 speech_end = cached['words'][-1]['end']

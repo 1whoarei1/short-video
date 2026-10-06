@@ -91,23 +91,6 @@ function imageSize(bytes) {
   }
   throw new Error('Invalid screenshot image');
 }
-// All project source/material/audio files participate. Generated output and
-// workflow history do not, while workflow settings are separately bound below.
-function sourceFingerprint(projectDir, generatedFiles = new Set()) {
-  const entries = [];
-  function walk(dir, rel = '') {
-    for (const item of fs.readdirSync(dir, { withFileTypes: true }).sort((a,b) => a.name.localeCompare(b.name))) {
-      if (!rel && ['render','out','output','.studio','.git','node_modules'].includes(item.name)) continue;
-      const name = path.posix.join(rel, item.name), file = path.join(dir, item.name);
-      if (generatedFiles.has(path.resolve(file))) continue;
-      if (item.isSymbolicLink()) throw new Error(`Project input symlinks are unsupported: ${name}`);
-      if (item.isDirectory()) walk(file, name);
-      else if (item.isFile()) entries.push([name, sha256(fs.readFileSync(file))]);
-    }
-  }
-  walk(projectDir);
-  return sha256(JSON.stringify(entries));
-}
 
 function parseArgs(argv) {
   const a = { _: [] };
@@ -371,9 +354,7 @@ async function main() {
   if (!fs.existsSync(pjPath)) die(`没有 project.json：${pjPath}`);
   const pjBytes = fs.readFileSync(pjPath, 'utf8');
   const pj = JSON.parse(pjBytes);
-  const generatedOutput = args.out ? path.resolve(projectDir,args.out)
-    : path.join(projectDir,'out',args.preview > 0 ? 'preview.mp4' : `${pj.slug || 'video'}.mp4`);
-  const generatedFiles = new Set([generatedOutput,generatedOutput+'.render.json',generatedOutput+'.soundtrack.json']);
+  if (pj.audio_mode !== undefined && !['silent','azure','edge'].includes(pj.audio_mode)) die('Invalid audio mode; configure silent, azure or edge explicitly');
   if (pj.bgm_mode !== undefined && !['none','ai','upload','preset'].includes(pj.bgm_mode)) die('Invalid BGM mode');
   if (pj.bgm_ducking !== undefined && typeof pj.bgm_ducking !== 'boolean') die('Invalid BGM ducking setting');
   if (pj.voice_gain_db !== undefined && (typeof pj.voice_gain_db !== 'number' || !Number.isFinite(pj.voice_gain_db) || pj.voice_gain_db < -24 || pj.voice_gain_db > 6)) die('Invalid voice gain');
@@ -389,7 +370,7 @@ async function main() {
   const requireUnchangedInputs = () => {
     if (sha256(fs.readFileSync(fileURLToPath(import.meta.url))) !== rendererVersion) die('Renderer changed during rendering; render again');
     if (fs.readFileSync(pjPath, 'utf8') !== pjBytes || briefSettings() !== initialBrief || fs.readFileSync(layoutPath, 'utf8') !== layoutBytes) die('Project settings changed during rendering; configure, rebuild soundtrack and render again');
-    if (sourceFingerprint(projectDir,generatedFiles) !== initialSources) die('Project inputs changed during rendering; rebuild soundtrack/timeline as needed and render again');
+    if (JSON.stringify(contract('snapshot')) !== JSON.stringify(initialInputs)) die('Project inputs changed during rendering; render again');
     if (checkpoint) for (const [relative,hash] of Object.entries(checkpoint.dependencies || {})) {
       try { if (sha256(fs.readFileSync(path.join(projectDir,relative))) === hash) continue; } catch {}
       die('Loaded local asset changed during rendering; render again');
@@ -407,13 +388,16 @@ async function main() {
     if (!present) die('Spoken audio is missing or empty; run synthesize and timeline before render. No silent fallback was used.');
   };
   requireSpeechAudio();
-  const requiresSoundtrack = (pj.bgm_mode && pj.bgm_mode !== 'none') || (pj.sound_effects && pj.sound_effects.length) || (requiresSpeech && (pj.voice_gain_db ?? 0) !== 0);
+  const contractHelper = path.resolve(SKILL_ROOT, '../../scripts/video_contract.py');
+  const contract = action => {
+    try { return JSON.parse(execFileSync(process.env.PY || (process.platform === 'win32' ? 'python' : 'python3'), [contractHelper, action, projectDir], {encoding:'utf8', stdio:['ignore','pipe','pipe']})); }
+    catch (e) { die(`Render inputs/audio missing or stale; rebuild timeline/soundtrack. ${e.stderr || e.message}`); }
+  };
+  let requiresSoundtrack = false;
   const requireSoundtrack = () => {
-    if (!requiresSoundtrack) return;
-    const helper = path.resolve(SKILL_ROOT, '../../scripts/soundtrack.py');
-    try { execFileSync(process.env.PY || (process.platform === 'win32' ? 'python' : 'python3'), [helper, 'validate', projectDir], {stdio: ['ignore', 'pipe', 'pipe']}); }
-    catch (e) { die(`Soundtrack missing or stale; run bgm-prepare then soundtrack. No silent fallback was used. ${e.stderr || e.message}`); }
-    audioPath = path.join(projectDir, 'audio', 'soundtrack.wav');
+    const mix = contract('audio');
+    requiresSoundtrack = !!mix;
+    if (mix) audioPath = path.join(projectDir, 'audio', 'soundtrack.wav');
   };
   requireSoundtrack();
   if (requiresSoundtrack && args.fps && args.fps !== pj.fps) die('Soundtrack requires timeline fps; configure and rebuild for a new fps');
@@ -428,7 +412,7 @@ async function main() {
   if (!order.length) die('project.json 里没有 order（场景顺序）');
 
   const layoutPath = path.join(projectDir, 'layout.json');
-  if (!fs.existsSync(layoutPath)) die(`没有 layout.json（先跑 timeline_build.py）：${layoutPath}`);
+  if (!fs.existsSync(layoutPath)) die(`没有 layout.json（先跑 engine.py timeline）：${layoutPath}`);
   const layoutBytes = fs.readFileSync(layoutPath, 'utf8');
   const layout = JSON.parse(layoutBytes);
   const timelineFps = layout?._total?.fps ?? pj.fps ?? 30;
@@ -452,12 +436,26 @@ async function main() {
     if (!fs.existsSync(path.join(projectDir, 'frames', `${id}.html`)))
       die(`缺场景帧：frames/${id}.html`);
   }
-  const initialSources = sourceFingerprint(projectDir,generatedFiles);
+  const initialInputs = contract('snapshot');
+  const initialSources = sha256(JSON.stringify(initialInputs));
   if (args.shutterOnly?.some(id => !order.includes(id))) die('Unknown scene in --shutter-only');
 
   // 渲染范围：正常全片；--preview N 只渲前 N 秒
   const totalSec = order.reduce((s, id) => s + (layout[id]?.duration_sec || 0), 0)
     + (pj.gap || 0) * (order.length - 1);
+  if (!Number.isFinite(fps) || fps < 1 || fps > 120 || !Number.isFinite(pj.gap ?? 0) || (pj.gap ?? 0) < 0) die('Invalid layout: fps/gap');
+  const roundingTolerance = 1 + order.length * fps * 0.0005;
+  if (layout._total?.total_frames !== undefined && Math.abs(layout._total.total_frames - totalSec * fps) > roundingTolerance)
+    die('Invalid layout: total_frames contradicts scene durations/fps');
+  if (layout._total?.video_duration_sec !== undefined && (!Number.isFinite(layout._total.video_duration_sec) || Math.abs(layout._total.video_duration_sec - totalSec) * fps > roundingTolerance))
+    die('Invalid layout: video_duration_sec contradicts scene durations');
+  let expectedStart = 0;
+  for (const id of order) {
+    if (layout[id].duration_sec * fps < 1 - 1e-6) die(`Invalid layout: ${id} shorter than one frame`);
+    if (layout[id].start_sec !== undefined && (!Number.isFinite(layout[id].start_sec) || Math.abs(layout[id].start_sec - expectedStart) * fps > roundingTolerance))
+      die(`Invalid layout: ${id}.start_sec contradicts scene order`);
+    expectedStart += layout[id].duration_sec + (pj.gap || 0);
+  }
   const preview = args.preview && args.preview > 0 ? Math.min(args.preview, totalSec) : null;
   const renderSec = preview != null ? preview : totalSec;
   // ★ 全片渲染时以 layout._total.total_frames 为**唯一出口**（qc_check.py 就是拿这个数对帧数的）。
@@ -818,7 +816,7 @@ async function main() {
   requireSpeechAudio();
   requireSoundtrack();
   const muxSoundtrackSha = requiresSoundtrack ? createHash('sha256').update(fs.readFileSync(audioPath)).digest('hex') : null;
-  const hasAudio = requiresSoundtrack || (pj.audio_mode !== 'silent' && fs.existsSync(audioPath));
+  const hasAudio = requiresSoundtrack || requiresSpeech;
   const cmd = [
     '-hide_banner', '-loglevel', 'error', '-xerror', '-y',
     '-framerate', String(fps), '-i', path.join(framesDir, `f_%06d.${ext}`),
@@ -859,7 +857,7 @@ async function main() {
     if (sha256(audioPath) !== muxSoundtrackSha) die('Soundtrack changed during mux; render again');
     fs.writeFileSync(outPath + '.soundtrack.json', JSON.stringify({videoSha256: sha256(outPath), soundtrackSha256: muxSoundtrackSha}));
   }
-  fs.writeFileSync(outPath+'.render.json',JSON.stringify({version:'studio-selective-v2',profile:profileName,fps,size:[outW,outH],viewport:[W,H],scale:args.scale,shutter:args.shutter,samples:args.shutter?args.samples:1,shutterScenes:args.shutterOnly || null,totalFrames,reusedFrames,shutterFrames,retries,peakBrowsers,signature,videoSha256:sha256(fs.readFileSync(outPath)),elapsedSec:(Date.now()-t0)/1000},null,2));
+  fs.writeFileSync(outPath+'.render.json',JSON.stringify({version:'studio-selective-v2',profile:profileName,fps,size:[outW,outH],viewport:[W,H],scale:args.scale,shutter:args.shutter,samples:args.shutter?args.samples:1,shutterScenes:args.shutterOnly || null,totalFrames,reusedFrames,shutterFrames,retries,peakBrowsers,signature,inputs:initialInputs,dependencies:checkpoint.dependencies,preview:preview!=null,hasAudio,videoSha256:sha256(fs.readFileSync(outPath)),elapsedSec:(Date.now()-t0)/1000},null,2));
   log(`✓ 成片：${outPath}`);
   log(`  帧目录：${framesDir}（--keep-frames 未指定且为完整渲时，保留供 QC）`);
 

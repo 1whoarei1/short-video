@@ -3,6 +3,69 @@ import struct
 import zlib
 from pathlib import Path
 
+_VIDEO_CHECKS = {}
+
+
+def valid_video(path, expected_sha=None, proof=None, requires_audio=False):
+    """Probe and fully decode; cache successful checks by bytes and tool identity."""
+    import json
+    import math
+    import shutil
+    import subprocess
+    from scripts.video_contract import digest
+
+    path = Path(path)
+    probe, decoder = shutil.which('ffprobe'), shutil.which('ffmpeg')
+    if not probe or not decoder:
+        return False  # UI works without FFmpeg; media approval cannot guess.
+    def matches(record):
+        if requires_audio and not record['audio']:
+            return False
+        if proof and proof.get('size') and list(record['size']) != proof['size']:
+            return False
+        if proof and proof.get('totalFrames') and record['frames'] != proof['totalFrames']:
+            return False
+        if proof and proof.get('fps') and abs(record['fps'] - proof['fps']) > 1e-6:
+            return False
+        return True
+    try:
+        sha = digest(path)
+        if expected_sha and sha != expected_sha:
+            return False
+        key = (sha, path.suffix.lower(), probe, decoder, Path(decoder).stat().st_mtime_ns)
+        if key in _VIDEO_CHECKS:
+            return matches(_VIDEO_CHECKS[key])
+        demuxer = {'.mp4': 'mov', '.webm': 'matroska'}.get(path.suffix.lower())
+        if not demuxer:
+            return False
+        source = ['-protocol_whitelist', 'file,pipe', '-f', demuxer, '-i', str(path)]
+        result = subprocess.run([probe, '-v', 'error', *source,
+                                 '-show_entries', 'stream=codec_type,codec_name,width,height,r_frame_rate:format=duration', '-of', 'json'],
+                                capture_output=True, timeout=20)
+        metadata = json.loads(result.stdout)
+        stream = next(s for s in metadata.get('streams', []) if s.get('codec_type') == 'video')
+        duration = float(metadata.get('format', {}).get('duration', 0))
+        if result.returncode or result.stderr or stream.get('codec_type') != 'video' or not stream.get('width', 0) or not stream.get('height', 0) or not math.isfinite(duration) or duration <= 0:
+            return False
+        # Already-probed container metadata avoids Opus packet-parser
+        # heuristics, while full audio/video decoder errors remain fatal.
+        parser_options = ['-fflags', '+noparse+nofillin'] if any(s.get('codec_name') == 'opus' for s in metadata['streams']) else []
+        result = subprocess.run([decoder, '-v', 'error', '-xerror', *parser_options, *source, '-map', '0:v:0',
+                                 '-map', '0:a?', '-progress', 'pipe:1', '-nostats', '-f', 'null', '-'],
+                                capture_output=True, timeout=180)
+        progress = dict(line.split('=', 1) for line in result.stdout.decode('ascii').splitlines() if '=' in line)
+        if result.returncode or result.stderr or int(progress.get('frame', 0)) <= 0 or digest(path) != sha:
+            return False
+        if len(_VIDEO_CHECKS) >= 128:
+            _VIDEO_CHECKS.clear()
+        num, den = stream['r_frame_rate'].split('/')
+        record = {'size': (stream['width'], stream['height']), 'frames': int(progress['frame']),
+                  'fps': float(num) / float(den), 'audio': any(s.get('codec_type') == 'audio' for s in metadata['streams'])}
+        _VIDEO_CHECKS[key] = record
+        return matches(record)
+    except (OSError, ValueError, IndexError, TypeError, KeyError, StopIteration, ZeroDivisionError, subprocess.TimeoutExpired):
+        return False
+
 
 def valid_image(path):
     path = Path(path)
@@ -164,7 +227,8 @@ def validate_theme_video(raw, extension):
             raise ValueError('动态预览限 15 秒、1920×1920、60 fps 以内')
         # Full decode with errors fatal. Pipes plus a forced demuxer forbid playlists,
         # network protocols, and references to any other local file.
-        result = subprocess.run([decoder, '-v', 'error', '-xerror', '-threads', '1', '-max_pixels', '3686400', '-max_alloc', '64000000', *source,
+        parser_options = ['-fflags', '+noparse+nofillin'] if any(s.get('codec_name') == 'opus' for s in streams) else []
+        result = subprocess.run([decoder, '-v', 'error', '-xerror', '-threads', '1', '-max_pixels', '3686400', '-max_alloc', '64000000', *parser_options, *source,
                                  '-map', '0:v:0', '-map', '0:a?', '-threads', '1', '-fps_mode', 'passthrough', '-progress', 'pipe:1', '-nostats', '-f', 'null', '-'],
                                 input=raw, capture_output=True, timeout=25)
         if result.returncode or result.stderr:

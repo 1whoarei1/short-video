@@ -45,6 +45,6 @@ class AudioPresetRendererTests(unittest.TestCase):
             p=Path(directory);soundtrack.write(p/'project.json',dict(order=['a'],audio_mode='edge',bgm_mode='none',voice_gain_db=-6))
             (p/'audio').mkdir();(p/'audio/narration-full.mp3').write_bytes(b'placeholder')
             result=subprocess.run(['node',str(ROOT/'vendor/html-explainer/scripts/render_video.mjs'),str(p)],capture_output=True,text=True,encoding='utf8',timeout=30)
-            self.assertNotEqual(result.returncode,0);self.assertIn('Soundtrack missing or stale',result.stderr)
+            self.assertNotEqual(result.returncode,0);self.assertIn('Speech audio/timing is missing or stale',result.stderr)
 
 if __name__=='__main__':unittest.main()

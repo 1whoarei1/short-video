@@ -2,17 +2,17 @@
 // Local artifact editor and Codex task bridge. No model endpoint is called here.
 window.PublishingWorkspace=(()=>{
   const $=id=>document.getElementById(id),orientations=['landscape','portrait'];
-  let bridge=null,dirty=false,project=null,lastText='',requestKey=null;
+  let bridge=null,dirty=false,project=null,lastText='',requestKey=null,baseRevision=null;
   const fields={title:'publishTitle',description:'publishDescription',topics:'publishTopics'};
   const requestNames={text:'发布文案',landscape:'横版封面',portrait:'竖版封面'};
   function draft(){return{title:$('publishTitle').value,description:$('publishDescription').value,topics:$('publishTopics').value.split(/[\s,，]+/).map(s=>s.replace(/^#+/, '')).filter(Boolean)};}
   function textSnapshot(value){return JSON.stringify({title:value?.title||'',description:value?.description||'',topics:value?.topics||[]});}
   function hasDirty(){return dirty;}
-  function changed(){dirty=true;$('publishingSaved').textContent='文案有未保存修改';}
+  function changed(){if(!dirty)baseRevision=bridge.getState().revision;dirty=true;$('publishingSaved').textContent='文案有未保存修改';}
   function publication(){return bridge.getState()?.publishing||{};}
   function feedback(message,error=false){$('publishingSaved').textContent=message;bridge.notice(message,error);}
   async function mutate(action,data={}){bridge.assertMutable();const key=bridge.projectKey;await bridge.api('publishing/'+action,data);if(key!==bridge.projectKey)throw Error('项目已切换，请在原项目查看操作结果');}
-  async function save(){await mutate('save',draft());dirty=false;lastText=textSnapshot(publication().text);render();feedback('发布文案已保存');}
+  async function save(){await mutate('save',{...draft(),revision:baseRevision??bridge.getState().revision});dirty=false;baseRevision=null;lastText=textSnapshot(publication().text);render();feedback('发布文案已保存');}
   function run(fn,button){return bridge.operation(async()=>{try{await fn();}catch(error){feedback(error.message,true);throw error;}},button).finally(()=>render());}
   function printable(){const d=draft();return `视频标题\n${d.title}\n\n简介\n${d.description}\n\n话题\n${d.topics.map(t=>'#'+t).join(' ')}`;}
   async function copy(value){try{await navigator.clipboard.writeText(value);feedback('已复制');}catch{throw Error('浏览器无法自动复制，请选中对应文案复制');}}
@@ -38,7 +38,7 @@ window.PublishingWorkspace=(()=>{
   function render(current,stage){
     if(!bridge)return;
     const key=bridge.projectKey,p=current?.publishing||publication();
-    if(project!==key){project=key;dirty=false;lastText='';requestKey=null;$('publishingDirection').value='';}
+    if(project!==key){project=key;dirty=false;baseRevision=null;lastText='';requestKey=null;$('publishingDirection').value='';}
     $('publishingPanel').hidden=(stage||bridge.getStage())!=='export';
     const snapshot=textSnapshot(p.text);
     if(!dirty&&snapshot!==lastText){$('publishTitle').value=p.text?.title||'';$('publishDescription').value=p.text?.description||'';$('publishTopics').value=(p.text?.topics||[]).map(t=>'#'+t.replace(/^#+/, '')).join(' ');lastText=snapshot;}
@@ -84,5 +84,5 @@ window.PublishingWorkspace=(()=>{
     for(const orientation of orientations){const id='replace'+orientation[0].toUpperCase()+orientation.slice(1)+'Cover';$(id).onclick=()=>run(()=>upload(orientation),$(id));}
     for(const format of ['txt','json','zip'])$('downloadPublishing'+format[0].toUpperCase()+format.slice(1)).onclick=e=>{e.preventDefault();run(()=>download(format));};
   }
-  return{init,render,hasDirty,discard:()=>{dirty=false;}};
+  return{init,render,hasDirty,discard:()=>{dirty=false;baseRevision=null;lastText='';}};
 })();

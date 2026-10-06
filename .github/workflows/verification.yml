@@ -50,5 +50,24 @@ jobs:
           node tests/voice-speed-ui-smoke.cjs
           node tests/bgm-ui-smoke.cjs
           node tests/mobile-layout-ui.cjs
+          node tests/review-ui-regressions.cjs
       - name: Rebuild the public publishing example in this checkout
         run: python examples/publishing-package-demo/build.py
+
+  windows-contracts:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Windows paths, locks, HTTP recovery and mocked credentials
+        run: |
+          python -m pip install Pillow
+          python -m unittest discover -s tests -p test_project_catalog.py -v
+          python -m unittest discover -s tests -p test_studio_http.py -v
+          python -m unittest discover -s tests -p test_workflow_modes.py -v
+          python -m unittest discover -s tests -p test_silent_engine.py -v
+          python -m unittest discover -s tests -p test_credentials.py -v
+          python -m unittest discover -s tests -p test_review_regressions.py -v

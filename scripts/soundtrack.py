@@ -275,6 +275,12 @@ def validate_source(project,cfg=None):
 
 def snapshot(project):
     p=Path(project);cfg=config(p);duration=video_duration(p,cfg)
+    if read(p/'layout.json').get('_total', {}).get('mode') == 'silent-author-timed':
+        try:
+            from .silent_timeline import validate_ready
+        except ImportError:
+            from silent_timeline import validate_ready
+        validate_ready(p)
     files={'layout.json':digest(p/'layout.json')}
     for name in ['narration.json','subs.json']:
         if (p/name).exists(): files[name]=digest(p/name)

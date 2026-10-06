@@ -1,3 +1,4 @@
+from workflow_fixtures import mutate_as_agent
 import base64
 import copy
 import json
@@ -36,10 +37,10 @@ class ModeTests(unittest.TestCase):
             self.flow.mutate('artifact', {'stage': stage, 'path': 'frame.png' if stage == 'preview' else 'video.mp4'})
         if stage == 'export':
             prepare_publishing(self.flow)
-        return self.flow.mutate('submit', {'stage': stage, 'by': 'human' if stage == 'requirements' else 'agent'})
+        return mutate_as_agent(self.flow, 'submit', {'stage': stage, 'by': 'human' if stage == 'requirements' else 'agent'})
 
     def approve(self, stage, actor):
-        return self.flow.mutate('approve', {'stage': stage, 'by': actor, 'note': 'Verified actual output and sources'})
+        return mutate_as_agent(self.flow, 'approve', {'stage': stage, 'by': actor, 'note': 'Verified actual output and sources'})
 
     def requirements(self):
         self.ready('requirements')
@@ -74,8 +75,8 @@ class ModeTests(unittest.TestCase):
         self.flow.mutate('mode', {'workflowMode': 'auto'})
         self.flow.mutate('save', {'stage': 'requirements', 'text': 'brief'})
         with self.assertRaises(ValueError):
-            self.flow.mutate('submit', {'stage': 'requirements', 'by': 'agent'})
-        self.flow.mutate('submit', {'stage': 'requirements', 'by': 'human'})
+            mutate_as_agent(self.flow, 'submit', {'stage': 'requirements', 'by': 'agent'})
+        mutate_as_agent(self.flow, 'submit', {'stage': 'requirements', 'by': 'human'})
         with self.assertRaises(ValueError):
             self.approve('requirements', 'agent')
 
@@ -98,8 +99,8 @@ class ModeTests(unittest.TestCase):
         request_id = d['taskRequest']['id']
         self.flow.mutate('claim', {'id': request_id})
         with self.assertRaises(ValueError):
-            self.flow.mutate('save', {'stage': 'narration', 'text': 'late', 'by': 'agent'})
-        self.flow.mutate('save', {'stage': 'narration', 'text': 'current', 'by': 'agent', 'taskId': request_id})
+            mutate_as_agent(self.flow, 'save', {'stage': 'narration', 'text': 'late', 'by': 'agent'})
+        mutate_as_agent(self.flow, 'save', {'stage': 'narration', 'text': 'current', 'by': 'agent', 'taskId': request_id})
         d = self.flow.mutate('cancel', {'id': request_id})
         self.assertEqual(d['nextAction']['action'], 'resume')
         self.flow.mutate('mode', {'workflowMode': 'auto'})
@@ -107,11 +108,11 @@ class ModeTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.flow.mutate('release', {'id': request_id, 'note': 'late'})
         with self.assertRaises(ValueError):
-            self.flow.mutate('save', {'stage': 'narration', 'text': 'late', 'by': 'agent', 'taskId': request_id})
+            mutate_as_agent(self.flow, 'save', {'stage': 'narration', 'text': 'late', 'by': 'agent', 'taskId': request_id})
         d = self.flow.mutate('request', {})
         self.assertNotEqual(d['taskRequest']['id'], request_id)
         with self.assertRaises(ValueError):
-            self.flow.mutate('save', {'stage': 'narration', 'text': 'late', 'by': 'agent', 'taskId': request_id})
+            mutate_as_agent(self.flow, 'save', {'stage': 'narration', 'text': 'late', 'by': 'agent', 'taskId': request_id})
 
     def test_stale_revision_rejects_old_worker(self):
         d = self.requirements()
@@ -119,7 +120,7 @@ class ModeTests(unittest.TestCase):
         d = self.flow.mutate('claim', {'id': request_id})
         self.flow.mutate('save', {'stage': 'requirements', 'text': 'new human brief'})
         with self.assertRaises(ValueError):
-            self.flow.mutate('save', {'stage': 'narration', 'text': 'old', 'by': 'agent', 'taskId': request_id, 'revision': d['revision']})
+            mutate_as_agent(self.flow, 'save', {'stage': 'narration', 'text': 'old', 'by': 'agent', 'taskId': request_id, 'revision': d['revision']})
 
     def test_no_fabricated_submit_history(self):
         self.requirements()

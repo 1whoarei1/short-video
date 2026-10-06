@@ -53,7 +53,10 @@ class ProjectCatalog:
         key = self._read()['active']
         if key == 'sample' and not self.sample:
             return 'default'
-        self.workspace(key)
+        try:
+            self.workspace(key)
+        except ValueError:
+            return 'default'
         return key
 
     def list(self):
@@ -63,14 +66,19 @@ class ProjectCatalog:
             ids.append('sample')
         items = []
         for key in ids:
-            root = self.workspace(key)
-            state = Workflow(root).read()
+            try:
+                root = self.workspace(key)
+                state = Workflow(root).read()
+            except (ValueError, OSError) as exc:
+                items.append({'id': key, 'title': '暂不可用的项目', 'available': False,
+                              'error': str(exc), 'sample': key == 'sample'})
+                continue
             title = state.get('title') or '未命名视频'
             if key == 'sample':
                 title = '示例：加工肉与癌症'
             items.append({'id': key, 'title': title, 'workspace': str(root),
                           'stage': state.get('active'), 'updated': state.get('updated'),
-                          'sample': key == 'sample'})
+                          'sample': key == 'sample', 'available': True})
         return items
 
     def select(self, key):

@@ -40,10 +40,11 @@ class RenderAudioGuardTests(unittest.TestCase):
                 self.assertIn('没有 layout.json', result.stderr)
                 self.assertNotIn('No silent fallback was used', result.stderr)
 
-    def test_present_spoken_audio_reaches_existing_layout_validation(self):
+    def test_present_spoken_audio_without_timing_proof_is_rejected(self):
         result = self.invoke('edge', b'placeholder')
-        self.assertIn('没有 layout.json', result.stderr)
-        self.assertNotIn('No silent fallback was used', result.stderr)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('Speech audio/timing is missing or stale', result.stderr)
+        self.assertIn('No silent fallback was used', result.stderr)
 
 
 if __name__ == '__main__':

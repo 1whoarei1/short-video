@@ -3,6 +3,8 @@ import json
 import tempfile
 import unittest
 import zipfile
+import shutil
+import subprocess
 from pathlib import Path
 from PIL import Image
 from app.workflow import Workflow, STAGES
@@ -25,6 +27,15 @@ class PublishingTests(unittest.TestCase):
 
     def act(self, action, **payload):
         return self.flow.mutate('publishing/' + action, {'revision': self.flow.read()['revision'], **payload})
+
+    def video_fixture(self):
+        if not shutil.which('ffmpeg'):
+            self.skipTest('FFmpeg required for verified publishing-video fixtures')
+        video = self.root / 'synthetic.mp4'
+        if not video.exists():
+            subprocess.run(['ffmpeg', '-v', 'error', '-f', 'lavfi', '-i', 'color=s=160x120:r=4:d=1',
+                            '-c:v', 'libx264', '-pix_fmt', 'yuv420p', str(video)], check=True, capture_output=True)
+        return video
 
     def ready(self):
         self.act('save', title='数字如何变成结论', description='对一个简单关系逐步展开。', topics=['图形讲解', '#数据'])
@@ -65,10 +76,20 @@ class PublishingTests(unittest.TestCase):
             self.assertIn('publish.txt', package.namelist())
             metadata = json.loads(package.read('publish.json'))
             self.assertEqual(metadata['text']['topics'], ['测试'])
+            for orientation, cover in metadata['covers'].items():
+                self.assertIn(cover['path'], package.namelist())
+                self.assertTrue(cover['sourcePath'].startswith('publishing/covers/'))
         path = download_path(self.flow, 'txt')
         path.write_text('tampered', encoding='utf-8')
         with self.assertRaises(ValueError):
             download_path(self.flow, 'txt')
+
+    def test_state_calculates_publishing_fingerprint_once(self):
+        from unittest.mock import patch
+        from app import publishing
+        with patch.object(publishing, 'fingerprint', wraps=publishing.fingerprint) as hashed:
+            self.flow.read()
+        self.assertEqual(hashed.call_count, 1)
 
     def test_user_edit_cancels_and_protects_from_late_agent(self):
         identifier = self.request(['text'])
@@ -144,11 +165,14 @@ class PublishingTests(unittest.TestCase):
             self.act('text', id=identifier, title='wrong', by='agent')
 
     def test_publishing_preserves_video_states_config_and_audio(self):
+        (self.root / 'project.json').write_text('{"audio_mode":"silent"}')
+        video = self.video_fixture()
+        for name in ('production', 'export'):
+            self.flow.mutate('artifact', {'stage': name, 'path': video.name})
         data = self.flow._load()
         for stage in STAGES:
             data['stages'][stage].update(status='approved', text='actual content')
         self.flow._write(data)
-        (self.root / 'project.json').write_text('{"audio_mode":"silent"}')
         (self.root / 'audio').mkdir()
         (self.root / 'audio/voice.wav').write_bytes(b'original')
         before = self.flow.read()['stages']
@@ -160,6 +184,8 @@ class PublishingTests(unittest.TestCase):
         self.assertEqual(b'original', (self.root / 'audio/voice.wav').read_bytes())
 
     def test_auto_publish_is_agent_action_and_manual_retains_export_review(self):
+        video = self.video_fixture()
+        self.flow.mutate('artifact', {'stage': 'production', 'path': video.name})
         for mode in ('manual', 'semi', 'auto'):
             self.flow.mutate('mode', {'workflowMode': mode})
             data = self.flow._load()
@@ -210,8 +236,7 @@ class PublishingTests(unittest.TestCase):
             self.act('text', id=identifier, title='late', by='agent')
 
     def test_zip_contains_registered_deliverable(self):
-        video = self.root / 'synthetic.mp4'
-        video.write_bytes(b'\x00\x00\x00\x20ftyp' + b'synthetic-only')
+        video = self.video_fixture()
         self.flow.mutate('artifact', {'stage': 'production', 'path': 'synthetic.mp4'})
         self.ready()
         self.act('export')

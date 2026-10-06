@@ -104,10 +104,11 @@ def decode_cover(path, orientation):
     return content, width, height
 
 
-def ready(root, data, publishing):
+def ready(root, data, publishing, current=None):
     if not publishing.get('enabled'):
         return True
-    current = fingerprint(root, data)
+    if current is None:
+        current = fingerprint(root, data)
     if publishing.get('textFingerprint') != current:
         return False
     text = publishing.get('text', {})
@@ -135,7 +136,7 @@ def present(root, data):
     request = value.get('request')
     if request:
         request['stale'] = request.get('contentFingerprint') != current
-    value['ready'] = ready(root, data, value)
+    value['ready'] = ready(root, data, value, current=current)
     for orientation, cover in value['covers'].items():
         try:
             content, width, height = decode_cover(local(root, cover['path']), orientation)
@@ -210,17 +211,32 @@ def atomic(path, content):
     os.replace(temporary, path)
 
 
-def build_delivery(root, data, publishing):
-    if not ready(root, data, publishing):
+def build_delivery(root, data, publishing, current=None, media_validator=None):
+    if current is None:
+        current = fingerprint(root, data)
+    if not ready(root, data, publishing, current=current):
         raise ValueError('发布包缺少有效文案、双比例封面或内容已过期')
+    # Rechecking copy/covers cannot restore a video invalidated by source edits.
+    from scripts.video_contract import validate_stage_video
+    for name in ('production', 'export'):
+        stage = data['stages'][name]
+        if stage['status'] == 'stale':
+            raise ValueError('视频已过期；请先重新制作和审核，再导出发布包')
+        if any(Path(a['path']).suffix.lower() in ('.mp4', '.webm') and a.get('version') == stage['version'] for a in stage['artifacts']):
+            validate_stage_video(root, stage, media_validator=media_validator)
     folder = local(root, 'publishing/delivery')
     folder.mkdir(parents=True, exist_ok=True)
     text = publishing['text']
     readable = '标题\n' + text['title'] + '\n\n简介\n' + text['description'] + '\n\n话题\n' + ' '.join('#' + x for x in text['topics']) + '\n'
-    body = {'schemaVersion': 1, 'text': text, 'covers': publishing['covers'], 'contentFingerprint': publishing['contentFingerprint']}
+    covers = copy.deepcopy(publishing['covers'])
+    for orientation, cover in covers.items():
+        cover['sourcePath'] = cover['path']
+        cover['path'] = 'covers/' + orientation + Path(cover['path']).suffix
+    body = {'schemaVersion': 1, 'text': text, 'covers': covers, 'contentFingerprint': publishing['contentFingerprint']}
     encoded = (json.dumps(body, ensure_ascii=False, indent=2) + '\n').encode()
     entries = {'publish.txt': readable.encode(), 'publish.json': encoded}
     files = {}
+    source_paths = {}
     for orientation, cover in publishing['covers'].items():
         entries['covers/' + orientation + Path(cover['path']).suffix] = local(root, cover['path']).read_bytes()
     # Include registered deliverables, never sweep private project folders/configuration.
@@ -234,10 +250,12 @@ def build_delivery(root, data, publishing):
                 continue
             if file_hash(path) != artifact.get('sha256'):
                 raise ValueError('已登记交付文件发生变化，请重新核验')
-            files['deliverables/' + artifact['sha256'] + path.suffix.lower()] = path
+            name = 'deliverables/' + artifact['sha256'] + path.suffix.lower()
+            files[name] = path
+            source_paths.setdefault(name, []).append(artifact.get('sourcePath', artifact['path']))
     manifest = {'schemaVersion': 1, 'contentFingerprint': publishing['contentFingerprint'], 'files': [
         {'path': name, 'bytes': len(content), 'sha256': hashlib.sha256(content).hexdigest()} for name, content in entries.items()] + [
-        {'path': name, 'bytes': path.stat().st_size, 'sha256': file_hash(path)} for name, path in files.items()]}
+        {'path': name, 'sourcePaths': list(dict.fromkeys(source_paths[name])), 'bytes': path.stat().st_size, 'sha256': file_hash(path)} for name, path in files.items()]}
     entries['manifest.json'] = (json.dumps(manifest, ensure_ascii=False, indent=2) + '\n').encode()
     for name in ('publish.txt', 'publish.json', 'manifest.json'):
         target = local(root, 'publishing/delivery/' + name)
@@ -255,7 +273,7 @@ def build_delivery(root, data, publishing):
         temporary.unlink(missing_ok=True)
     publishing['delivery'] = {'textPath': 'publishing/delivery/publish.txt', 'jsonPath': 'publishing/delivery/publish.json',
                              'manifestPath': 'publishing/delivery/manifest.json', 'zipPath': 'publishing/delivery/publishing-package.zip',
-                             'created': stamp(), 'contentFingerprint': fingerprint(root, data),
+                             'created': stamp(), 'contentFingerprint': current,
                              'publishingRevision': publishing['revision'],
                              'hashes': {name: hashlib.sha256(entries[name]).hexdigest() for name in ('publish.txt', 'publish.json', 'manifest.json')},
                              'zipSha256': file_hash(target)}
@@ -269,7 +287,10 @@ def download_path(flow, format):
     data = flow.read()
     publishing = data['publishing']
     delivery = publishing.get('delivery', {})
-    if not ready(flow.root, data, publishing) or delivery.get('contentFingerprint') != fingerprint(flow.root, data) or delivery.get('publishingRevision') != publishing['revision']:
+    if any(data['stages'][name]['status'] == 'stale' for name in ('production', 'export')):
+        raise ValueError('视频已过期；请先重新制作和审核，再下载发布包')
+    current = publishing.get('currentFingerprint')
+    if not ready(flow.root, data, publishing, current=current) or delivery.get('contentFingerprint') != current or delivery.get('publishingRevision') != publishing['revision']:
         raise ValueError('请先重新导出当前发布包')
     key, name = formats[format]
     path = local(flow.root, delivery.get(key))
@@ -279,7 +300,7 @@ def download_path(flow, format):
     return path
 
 
-def mutate(root, data, action, payload):
+def mutate(root, data, action, payload, media_validator=None):
     publishing = data.setdefault('publishing', initial())
     publishing['enabled'] = True
     operation = action.removeprefix('publishing/')
@@ -359,9 +380,9 @@ def mutate(root, data, action, payload):
             raise ValueError('请求中的生成目标尚未实际登记，不得只领取就宣称完成')
         if not isinstance(payload.get('note'), str) or not payload['note'].strip():
             raise ValueError('完成登记需要实际检查说明')
-        if not ready(root, data, publishing):
+        if not ready(root, data, publishing, current=current):
             raise ValueError('双比例封面或发布文案尚未有效完成')
-        build_delivery(root, data, publishing)
+        build_delivery(root, data, publishing, current=current, media_validator=media_validator)
         request.update(status='completed', completedAt=stamp(), note=payload['note'])
     elif operation == 'review-current':
         if not isinstance(payload.get('note'), str) or not payload['note'].strip():
@@ -375,7 +396,7 @@ def mutate(root, data, action, payload):
         publishing['revision'] += 1
         invalidate_delivery(publishing)
     elif operation == 'export':
-        build_delivery(root, data, publishing)
+        build_delivery(root, data, publishing, current=current, media_validator=media_validator)
     else:
         raise ValueError('未知发布包操作')
     publishing['updated'] = stamp()

@@ -186,21 +186,30 @@ async function main() {
   const framesDir = path.join(projectDir, 'frames');
   let ids = [];
   if (args.all) {
-    ids = (pj.order || []).filter((id) => fs.existsSync(path.join(framesDir, `${id}.html`)));
+    ids = pj.order || [];
   } else {
     const id = args._[1];
     if (!id) die('用法：node peek_frame.mjs <项目> <帧id> | <项目> --all');
-    if (!fs.existsSync(path.join(framesDir, `${id}.html`))) die(`没有 frames/${id}.html`);
     ids = [id];
   }
   if (!ids.length) die('没有可截的帧');
+  if (new Set(ids).size !== ids.length || ids.some(id => !/^[A-Za-z0-9_-]+$/.test(id)))
+    die('请求的场景缺失、重复或 ID 无效');
 
   const pcts = args.at
-    ? String(args.at).split(',').map((s) => parseFloat(s)).filter((x) => !Number.isNaN(x))
+    ? String(args.at).split(',').map(Number)
     : (args.n ? Array.from({ length: args.n }, (_, i) => Math.round(((i + 1) / (args.n + 1)) * 100)) : [85]);
 
+  if (!pcts.length || pcts.some(x => !Number.isFinite(x) || x < 0 || x > 100) || new Set(pcts).size !== pcts.length)
+    die('截图百分比必须是 0–100 的不同有限数字');
   const outDir = path.join(projectDir, 'render', 'peek');
-  fs.mkdirSync(outDir, { recursive: true });
+  fs.mkdirSync(path.dirname(outDir), { recursive: true });
+  // Mark previous results unavailable immediately. Never leave a success
+  // manifest from an older run when this run fails.
+  fs.rmSync(path.join(outDir, 'manifest.json'), { force: true });
+  for (const id of ids) for (const pct of pcts)
+    fs.rmSync(path.join(outDir, `${id}@${String(pct).replace('.', '_')}.png`), { force: true });
+  if (ids.some(id => !fs.existsSync(path.join(framesDir, `${id}.html`)))) die('请求的场景文件缺失，本轮截图未发布');
 
   let chromium;
   try { ({ chromium } = require('playwright-core')); }
@@ -211,7 +220,10 @@ async function main() {
   if (be) { launchOpts.executablePath = be; log(`浏览器：${be}`); }
 
   const browser = await chromium.launch(launchOpts);
+  const tempDir = fs.mkdtempSync(path.join(path.dirname(outDir), '.peek-'));
   let n = 0;
+  const results = [], errors = [];
+  try {
   for (const id of ids) {
     const page = await browser.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: args.scale || 1 });
     try {
@@ -221,19 +233,35 @@ async function main() {
       for (const pct of pcts) {
         const r = await page.evaluate(seek, { pct });
         if (args.guides) await page.evaluate(guides, { W, H, safeSide: 64, safeBottom: args.safeBottom || 170 });
-        const out = path.join(outDir, `${id}@${String(pct).replace('.', '_')}.png`);
+        const out = path.join(tempDir, `${id}@${String(pct).replace('.', '_')}.png`);
         await page.screenshot({ path: out, type: 'png', scale: 'device' });
         log(`✓ ${id} @${pct}%  seek ${r.seekTo.toFixed(2)}s / 轴长 ${r.dur == null ? '无' : r.dur.toFixed(2)}s  →  ${path.basename(out)}`);
         n++;
+        results.push({scene: id, percent: pct, file: path.basename(out)});
       }
     } catch (e) {
       log(`✗ ${id}: ${e.message}`);
+      errors.push(`${id}: ${e.message}`);
     } finally {
       await page.close();
     }
   }
-  await browser.close();
+  if (errors.length || n !== ids.length * pcts.length) throw new Error(`截图失败；本轮结果未发布。${errors.join('; ')}`);
+  fs.writeFileSync(path.join(tempDir, 'manifest.json'), JSON.stringify({created: new Date().toISOString(), results}, null, 2));
+  const backup = tempDir + '-previous';
+  const hadPrevious = fs.existsSync(outDir);
+  if (hadPrevious) fs.renameSync(outDir, backup);
+  try { fs.renameSync(tempDir, outDir); }
+  catch (error) {
+    if (hadPrevious) fs.renameSync(backup, outDir);
+    throw error;
+  }
+  if (hadPrevious) fs.rmSync(backup, { recursive: true, force: true });
   log(`共 ${n} 张 → ${outDir}`);
+  } finally {
+    await browser.close();
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
 }
 
 main().catch((e) => die(e.stack || String(e)));

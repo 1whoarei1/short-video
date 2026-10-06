@@ -14,7 +14,7 @@ import uuid
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
-from .media import valid_image, validate_theme_video, THEME_VIDEO_MAX_BYTES
+from .media import valid_image, valid_video, validate_theme_video, THEME_VIDEO_MAX_BYTES
 from .audio_presets import MIX_DEFAULTS, validate_mix_settings
 
 STAGES = ['requirements', 'narration', 'preview', 'production', 'export']
@@ -277,7 +277,9 @@ class Workflow:
 
     def read(self):
         with LOCK:
-            return present(self._load())
+            data = self._load()
+            self._refresh_video_validity(data)
+            return present(data)
 
     def asset(self, path):
         target = (self.root / path).resolve()
@@ -286,34 +288,36 @@ class Workflow:
         return target
 
     def validate_soundtrack_artifacts(self, data, stage):
-        settings = data.get('settings', {})
-        if settings.get('bgm_mode', 'none') == 'none' and not (settings.get('audio_mode', 'silent') != 'silent' and settings.get('voice_gain_db', 0) != 0):
-            return
-        from scripts.soundtrack import validate_ready
-        marker = validate_ready(self.root)
-        if not any(a.get('version') == stage['version'] and a.get('soundtrackSha256') == marker['sha256'] and hashlib.sha256(self.asset(a['path']).read_bytes()).hexdigest() == a.get('sha256') and self.valid_media(a, video=True) for a in stage['artifacts']):
-            raise ValueError('视频与当前混音不匹配；请重新渲染并注册视频，而非沿用旧视频')
+        from scripts.video_contract import validate_stage_video
+        validate_stage_video(self.root, stage, media_validator=self.valid_media)
+
+    def _refresh_video_validity(self, data):
+        """Source edits outside CLI cannot retain an approved video status."""
+        for name in ('production', 'export'):
+            stage = data['stages'][name]
+            if stage['status'] not in ('review', 'approved'):
+                continue
+            try:
+                self.validate_soundtrack_artifacts(data, stage)
+            except (ValueError, OSError, KeyError, TypeError) as exc:
+                for later in STAGES[STAGES.index(name):]:
+                    downstream = data['stages'][later]
+                    downstream['status'] = 'stale'
+                    downstream['invalidReason'] = str(exc)
+                    for key in ('approvedBy', 'approvedAt', 'approvalMode'):
+                        downstream.pop(key, None)
+                data['active'] = name
+                self._sync_request(data)
+                break
 
     def valid_media(self, artifact, video=False):
         p = self.asset(artifact['path'])
-        ext = p.suffix.lower()
-        with p.open('rb') as file:
-            header = file.read(32)
-        if not video:
-            return valid_image(p)
-        signature = (ext == '.mp4' and header[4:8] == b'ftyp') or (ext == '.webm' and header[:4] == b'\x1a\x45\xdf\xa3')
-        if not signature:
+        if video:
+            return valid_video(p, artifact.get('sha256'), artifact.get('renderProof'),
+                               bool(artifact.get('soundtrackSha256') or artifact.get('renderProof', {}).get('hasAudio')))
+        if artifact.get('sha256') and hashlib.sha256(p.read_bytes()).hexdigest() != artifact['sha256']:
             return False
-        probe = shutil.which('ffprobe')
-        if probe:
-            try:
-                result = subprocess.run([probe, '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=codec_type,width,height', '-show_entries', 'format=duration', '-of', 'json', str(p)], capture_output=True, text=True, timeout=20)
-                data = json.loads(result.stdout)
-                stream = data.get('streams', [{}])[0]
-                return result.returncode == 0 and stream.get('codec_type') == 'video' and stream.get('width', 0) > 0 and stream.get('height', 0) > 0 and float(data.get('format', {}).get('duration', 0)) > 0
-            except (ValueError, IndexError, OSError, subprocess.TimeoutExpired):
-                return False
-        return True
+        return valid_image(p)
 
     def _sync_request(self, data):
         if data['active'] not in execution_stages(data):
@@ -417,6 +421,7 @@ class Workflow:
     def mutate(self, action, payload):
         with process_lock(self.root / '.studio' / 'write.lock'):
             d = self._load()
+            self._refresh_video_validity(d)
             if 'revision' in payload and payload['revision'] != d['revision']:
                 raise ValueError('项目已被其他窗口更新，请刷新后重试')
             before = copy.deepcopy(d)
@@ -428,6 +433,9 @@ class Workflow:
                     raise ValueError('任务请求已更新，旧执行者不得继续写入')
                 if request and request['status'] == 'running' and payload.get('taskId') != request['id']:
                     raise ValueError('运行中的任务必须提供当前 taskId，防止取消或替换后的迟到写入')
+                if request and request['status'] in ('queued', 'running', 'waiting'):
+                    if payload.get('taskId') != request['id'] or 'revision' not in payload:
+                        raise ValueError('活动任务的代理写入必须提供当前 taskId 和 revision，防止覆盖用户修改')
             requested_stage = 'export' if action.startswith('publishing/') else ('requirements' if action == 'voice' or action.startswith('audio-presets/') else payload.get('stage', d['active']))
             s = 'narration' if requested_stage == 'research' else requested_stage
             if s not in STAGES:
@@ -436,11 +444,18 @@ class Workflow:
             predecessors = [name for name in STAGES[:idx] if name in execution_stages(d)]
 
             def invalidate():
+                reference_version = stage['version']
                 stage['version'] += 1
+                if s == 'requirements':
+                    # Reference files remain current when the brief is edited.
+                    for reference in stage['artifacts']:
+                        if reference['version'] == reference_version:
+                            reference['version'] = stage['version']
                 stage['status'] = 'draft'
                 stage['reviewNote'] = ''
                 for key in ('approvedBy', 'approvedAt', 'approvalMode'):
                     stage.pop(key, None)
+                stage.pop('invalidReason', None)
                 d['active'] = s
                 for later in STAGES[idx + 1:]:
                     downstream = d['stages'][later]
@@ -451,7 +466,7 @@ class Workflow:
                 from .publishing import mutate as mutate_publishing
                 if 'revision' not in payload:
                     raise ValueError('发布包操作需要当前项目版本')
-                mutate_publishing(self.root, d, action, payload)
+                mutate_publishing(self.root, d, action, payload, media_validator=self.valid_media)
             elif action in ('audio-presets/save', 'audio-presets/apply', 'audio-presets/delete'):
                 from .audio_presets import normalize_settings, project_preset
                 if 'revision' not in payload:
@@ -546,14 +561,24 @@ class Workflow:
                     invalidate()
                 digest = hashlib.sha256(source.read_bytes()).hexdigest()
                 soundtrack_sha = None
-                settings = d.get('settings', {})
-                if s in ('production', 'export') and source.suffix.lower() in ('.mp4', '.webm') and (settings.get('bgm_mode', 'none') != 'none' or (settings.get('audio_mode', 'silent') != 'silent' and settings.get('voice_gain_db', 0) != 0)):
-                    from scripts.soundtrack import validate_ready
-                    current_mix = validate_ready(self.root)
+                current_mix = None
+                render_proof = None
+                if s in ('production', 'export') and source.suffix.lower() in ('.mp4', '.webm'):
+                    from scripts.video_contract import validate_audio, render_binding
+                    current_mix = validate_audio(self.root)
+                    prior_artifact = next((a for stage_record in d['stages'].values()
+                                        for a in reversed(stage_record['artifacts'])
+                                        if a['path'] == source.relative_to(self.root).as_posix() and a.get('sha256') == digest), None)
+                    prior_proof = prior_artifact.get('renderProof') if prior_artifact else None
+                    render_proof = render_binding(self.root, source, prior_proof=prior_proof)
+                if current_mix:
                     try:
                         binding = json.loads(Path(str(source) + '.soundtrack.json').read_text(encoding='utf-8'))
                     except (OSError, ValueError):
-                        raise ValueError('BGM 视频缺少混音验证记录；请使用 engine render 重新渲染') from None
+                        if prior_artifact and prior_artifact.get('soundtrackSha256'):
+                            binding = {'videoSha256': prior_artifact['sha256'], 'soundtrackSha256': prior_artifact['soundtrackSha256']}
+                        else:
+                            raise ValueError('BGM 视频缺少混音验证记录；请使用 engine render 重新渲染') from None
                     if binding.get('videoSha256') != digest or binding.get('soundtrackSha256') != current_mix['sha256']:
                         raise ValueError('视频与当前混音不匹配，请重新渲染')
                     soundtrack_sha = current_mix['sha256']
@@ -563,7 +588,9 @@ class Workflow:
                     raise ValueError('产物存储路径超出项目目录')
                 if not dest.exists():
                     shutil.copyfile(source, dest)
-                stage['artifacts'].append({'id': uuid.uuid4().hex, 'path': dest.relative_to(self.root).as_posix(), 'sourcePath': p, 'sha256': digest, 'label': str(payload.get('label', Path(p).name)), 'role': str(payload.get('role', '')), 'version': stage['version'], 'created': now(), **({'soundtrackSha256': soundtrack_sha} if soundtrack_sha else {})})
+                if hashlib.sha256(dest.read_bytes()).hexdigest() != digest:
+                    raise ValueError('产物快照已损坏，请保留文件并检查；不能复用已有快照')
+                stage['artifacts'].append({'id': uuid.uuid4().hex, 'path': dest.relative_to(self.root).as_posix(), 'sourcePath': p, 'sha256': digest, 'label': str(payload.get('label', Path(p).name)), 'role': str(payload.get('role', '')), 'version': stage['version'], 'created': now(), **({'soundtrackSha256': soundtrack_sha} if soundtrack_sha else {}), **({'renderProof': render_proof} if render_proof else {})})
                 stage['status'] = 'draft'
             elif action == 'submit':
                 if s == 'export':
@@ -574,7 +601,7 @@ class Workflow:
                             raise ValueError('发布生成请求尚未完成，请先登记完成或取消')
                         if not ready(self.root, d, publishing):
                             raise ValueError('请先完成当前发布文案及4:3、3:4双封面')
-                        build_delivery(self.root, d, publishing)
+                        build_delivery(self.root, d, publishing, media_validator=self.valid_media)
                 if s == 'requirements' and d.get('settings', {}).get('bgm_mode') == 'upload':
                     self.asset(d.get('settings', {}).get('bgm_upload', ''))
                 if s in ('production', 'export'):

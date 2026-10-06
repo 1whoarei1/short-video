@@ -122,7 +122,8 @@ def create_server(root, port=8765, credential_settings=None):
                 remaining -= len(chunk)
 
         def get_flow(self):
-            key = parse_qs(urlparse(self.path).query).get('project', [catalog.active_id()])[0]
+            selected = parse_qs(urlparse(self.path).query).get('project')
+            key = selected[0] if selected else catalog.active_id()
             workspace = catalog.workspace(key)
             if key not in projects:
                 projects[key] = Workflow(workspace)
@@ -223,9 +224,13 @@ def create_server(root, port=8765, credential_settings=None):
                         self.send_header('Cache-Control', 'no-store')
                         self.end_headers()
                         return
-                flow = self.get_flow()
                 if path == '/api/projects':
                     return self.reply(200, {'projects': catalog.list(), 'active': catalog.active_id()})
+                if path == '/api/health':
+                    return self.reply(200, {'ok': True, 'workspace': str(default_flow.root), 'python': sys.version.split()[0], 'bridge': 'file', 'modelApi': False})
+                # Recovery and static resources must remain available without opening
+                # a broken selected project. Only project APIs need its workflow.
+                flow = self.get_flow() if path.startswith('/api/') or path.startswith('/assets/') else None
                 if path == '/api/state':
                     return self.reply(200, {'project': flow.read(), 'token': token, 'workspace': str(flow.root)})
                 if path == '/api/publishing/export':
@@ -251,8 +256,6 @@ def create_server(root, port=8765, credential_settings=None):
                             or candidate.suffix.lower() not in ('.html', '.css', '.js', '.svg', '.json', '.png', '.webp', '.jpg', '.md', '.txt')):
                         return self.reply(404, {'error': '未找到主题资源'})
                     return self.preview_file(candidate)
-                if path == '/api/health':
-                    return self.reply(200, {'ok': True, 'workspace': str(flow.root), 'python': sys.version.split()[0], 'bridge': 'file', 'modelApi': False})
                 if path.startswith('/assets/'):
                     if any(part.startswith('.') for part in Path(path[8:]).parts):
                         raise ValueError('隐藏的内部文件不可下载')
@@ -322,7 +325,6 @@ def create_server(root, port=8765, credential_settings=None):
             if origin and origin not in ('http://' + self.headers.get('Host', ''),):
                 return self.reject_post({'error': '拒绝跨站写入'})
             try:
-                flow = self.get_flow()
                 length = int(self.headers.get('Content-Length', '0'))
                 limit = 45 * 1024 * 1024 if path == '/api/bgm-upload' else 12_000_000
                 if not 0 < length <= limit:
@@ -334,6 +336,9 @@ def create_server(root, port=8765, credential_settings=None):
                 if not path.startswith('/api/'):
                     raise ValueError('未知 API 操作')
                 action = path.removeprefix('/api/')
+                if action == 'projects/select':
+                    return self.reply(200, {'selected': catalog.select(data.get('id'))})
+                flow = self.get_flow() if action != 'projects/create' or data.get('audioPresetId') else None
                 if action == 'projects/create':
                     audio = None
                     if data.get('audioPresetId'):
@@ -352,8 +357,6 @@ def create_server(root, port=8765, credential_settings=None):
                         new_flow.mutate('save', {'stage':'requirements', 'text':'', 'revision':state['revision'],
                                                 'settings':{'width':1920,'height':1080,'fps':30,'duration':90, **audio}})
                     return self.reply(200, {'created': created})
-                if action == 'projects/select':
-                    return self.reply(200, {'selected': catalog.select(data.get('id'))})
                 if action == 'theme-import':
                     return self.reply(200, {'project': flow.import_theme(data.get('pack'), data.get('revision'))})
                 if action == 'publishing/upload':
