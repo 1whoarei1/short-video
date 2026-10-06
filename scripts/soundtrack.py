@@ -29,8 +29,8 @@ def locked(fn):
     return wrapped
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULTS = dict(bgm_mode='none', bgm_direction='', bgm_upload='', bgm_gain_db=0,
-                bgm_ducking=True, bgm_fade_out=1.5)
+from app.audio_presets import MIX_DEFAULTS, validate_mix_settings, mixing_parameters, music_preset, catalog_fingerprint
+DEFAULTS = dict(bgm_mode='none', bgm_direction='', bgm_upload='', bgm_preset_id='', **MIX_DEFAULTS)
 
 
 def digest(path):
@@ -59,8 +59,11 @@ def asset(project, name):
 
 def config(project):
     p = Path(project); cfg = read(p/'project.json')
-    if cfg.get('bgm_mode','none') not in ('none','ai','upload') or cfg.get('audio_mode','silent') not in ('silent','azure','edge') or not isinstance(cfg.get('bgm_ducking',True),bool):
+    if cfg.get('bgm_mode','none') not in ('none','ai','upload','preset') or cfg.get('audio_mode','silent') not in ('silent','azure','edge'):
         raise ValueError('Invalid soundtrack mode/ducking configuration')
+    validate_mix_settings(cfg)
+    if cfg.get('bgm_mode') == 'preset':
+        music_preset(cfg.get('bgm_preset_id'))
     # A changed brief is stale even before the next engine configure.
     workflow = p/'.studio/workflow.json'
     if workflow.exists():
@@ -69,6 +72,59 @@ def config(project):
             if saved[key] != cfg.get(key, DEFAULTS[key]):
                 raise ValueError('BGM settings changed; run engine configure and rebuild soundtrack')
     return cfg
+
+
+def video_duration(project, cfg):
+    total = read(Path(project)/'layout.json')['_total']
+    if not all(isinstance(total.get(k), (int,float)) and not isinstance(total[k],bool) and math.isfinite(total[k])
+               for k in ('total_frames','fps','video_duration_sec')):
+        raise ValueError('Invalid video timeline duration')
+    if total['total_frames'] != int(total['total_frames']) or not 1 <= total['fps'] <= 120:
+        raise ValueError('Invalid video frame count/fps')
+    duration=total['total_frames']/total['fps']
+    if not 0 < duration <= 3600 or abs(duration-total['video_duration_sec'])>.001:
+        raise ValueError('Invalid video timeline duration')
+    if float(cfg.get('fps',24)) != total['fps']:
+        raise ValueError('Timeline fps changed; rebuild timeline')
+    return duration
+
+
+def _prepare_preset(project, cfg):
+    """Repeat the exact local audition loop; never claim an authored long score."""
+    p=Path(project); item,src=music_preset(cfg['bgm_preset_id'])
+    duration=video_duration(p,cfg); layout_sha=digest(p/'layout.json');source_sha=digest(src);catalog_sha=catalog_fingerprint()
+    loop_duration=probe(src)
+    if abs(loop_duration-item['loopSeconds'])>.05:
+        raise ValueError('Bundled music loop duration differs from catalog')
+    folder=p/'audio/bgm';folder.mkdir(parents=True,exist_ok=True)
+    (p/'audio/bgm-source.json').unlink(missing_ok=True);(p/'audio/soundtrack.json').unlink(missing_ok=True)
+    integrated,peak=loudness(src)
+    gain=min(-18-integrated,-1.5-peak) if all(math.isfinite(x) for x in (integrated,peak)) else 0
+    with tempfile.TemporaryDirectory(prefix='.bgm-preset-',dir=p) as tmp:
+        tmp=Path(tmp); retained=tmp/'source.wav';shutil.copyfile(src,retained)
+        edge=min(.1,duration/4)
+        filters=f'volume={gain}dB,atrim=duration={duration},afade=t=in:d={min(.02,duration)},afade=t=out:st={duration-edge}:d={edge}'
+        run(['-stream_loop','-1','-i',retained,'-t',duration,'-vn','-map','0:a:0','-af',filters,'-ar','48000','-ac','2','-c:a','pcm_s16le',tmp/'full.wav'])
+        sample=min(15,duration)
+        run(['-i',tmp/'full.wav','-t',sample,'-af',f'afade=t=out:st={max(0,sample-.5)}:d={min(.5,sample)}','-c:a','pcm_s16le',tmp/'preview.wav'])
+        if abs(probe(tmp/'full.wav')-duration)>1/48000+1e-6:
+            raise ValueError('Preset loop assembly duration mismatch')
+        if digest(src)!=source_sha or digest(retained)!=source_sha or digest(p/'layout.json')!=layout_sha or config(p)!=cfg or music_preset(item['id'])[0]!=item or catalog_fingerprint()!=catalog_sha:
+            raise ValueError('Preset music or timeline changed during preparation; rerun bgm-prepare')
+        dest=folder/'sources'/(source_sha+'.wav');dest.parent.mkdir(exist_ok=True)
+        if dest.exists() and digest(dest)!=source_sha:raise ValueError('Retained preset music source changed')
+        if not dest.exists():shutil.copyfile(retained,dest)
+        os.replace(tmp/'full.wav',folder/'full.wav');os.replace(tmp/'preview.wav',folder/'preview.wav')
+    relative=dest.relative_to(p).as_posix()
+    files={name:digest(p/name) for name in ('audio/bgm/full.wav','audio/bgm/preview.wav',relative)}
+    marker=dict(schema=1,mastering_policy='constant-gain-lufs-v2',mode='preset',direction=cfg.get('bgm_direction',''),upload=cfg.get('bgm_upload',''),
+                inputs={relative:source_sha},files=files,full_track='audio/bgm/full.wav',preview='audio/bgm/preview.wav',duration=duration,
+                preset=dict(entry=item,source_sha256=source_sha,catalog_sha256=catalog_sha,loop_duration=loop_duration,layout_sha256=layout_sha),
+                renderer=dict(method='Exact local loop repetition, constant gain, safety edge fades; no time stretching or newly composed long score',
+                              mastering=dict(gain_db=gain,source_lufs=integrated if math.isfinite(integrated) else None,source_true_peak_dbtp=peak if math.isfinite(peak) else None,target_lufs=-18)),
+                cues=None,stems=[],sources=[relative])
+    write(p/'audio/bgm-source.json',marker)
+    return marker
 
 
 def probe(path):
@@ -161,6 +217,10 @@ def render_midi(midi, output, soundfont=None):
 def prepare(project, source=None, cues=None, sources=(), stems=()):
     p=Path(project).resolve();cfg=config(p); mode=cfg.get('bgm_mode','none')
     if mode=='none': raise ValueError('Select AI composition or uploaded BGM first')
+    if mode=='preset':
+        if source or cues or sources or stems:
+            raise ValueError('Preset music uses its exact catalog loop; choose AI/upload for authored sources')
+        return _prepare_preset(p,cfg)
     source=source or cfg.get('bgm_upload')
     if not source: raise ValueError('Author MIDI or an original rendered track and pass --source; no fixed composition is generated')
     src=asset(p,source); metadata={}; folder=p/'audio/bgm';folder.mkdir(parents=True,exist_ok=True)
@@ -205,15 +265,16 @@ def validate_source(project,cfg=None):
         if (marker['mode'],marker['direction'],marker['upload']) != (cfg.get('bgm_mode','none'),cfg.get('bgm_direction',''),cfg.get('bgm_upload','')): raise ValueError()
         for name,sha in {**marker['inputs'],**marker['files']}.items():
             if digest(asset(p,name))!=sha: raise ValueError()
+        if cfg.get('bgm_mode')=='preset':
+            item,src=music_preset(cfg['bgm_preset_id']);saved=marker['preset']
+            if saved['entry']!=item or saved['source_sha256']!=digest(src) or saved['catalog_sha256']!=catalog_fingerprint() or saved['layout_sha256']!=digest(p/'layout.json') or abs(marker['duration']-video_duration(p,cfg))>.0001:
+                raise ValueError()
         return marker
     except (OSError,KeyError,TypeError,ValueError): raise ValueError('BGM source missing or stale; run bgm-prepare with the approved composition/upload') from None
 
 
 def snapshot(project):
-    p=Path(project);cfg=config(p);layout=read(p/'layout.json');total=layout['_total']
-    duration=float(total['total_frames'])/float(total['fps'])
-    if not math.isfinite(duration) or not 0<duration<=3600 or abs(duration-float(total['video_duration_sec']))>0.001: raise ValueError('Invalid video timeline duration')
-    if float(cfg.get('fps',24))!=float(total['fps']): raise ValueError('Timeline fps changed; rebuild timeline')
+    p=Path(project);cfg=config(p);duration=video_duration(p,cfg)
     files={'layout.json':digest(p/'layout.json')}
     for name in ['narration.json','subs.json']:
         if (p/name).exists(): files[name]=digest(p/name)
@@ -233,7 +294,7 @@ def snapshot(project):
         start=cue.get('start',0);gain=cue.get('gain_db',0)
         if not all(isinstance(x,(int,float)) and not isinstance(x,bool) and math.isfinite(x) for x in (start,gain)) or not 0<=start<duration or not -60<=gain<=12: raise ValueError('Invalid SFX timing/gain')
         path=asset(p,cue['path']);probe(path);files[cue['path']]=digest(path)
-    return dict(settings={k:cfg.get(k,v) for k,v in DEFAULTS.items()},audio_mode=cfg.get('audio_mode','silent'),duration=duration,files=files,sound_effects=sfx)
+    return dict(settings={k:cfg.get(k,v) for k,v in DEFAULTS.items()},mixing_policy=mixing_parameters(),audio_mode=cfg.get('audio_mode','silent'),duration=duration,files=files,sound_effects=sfx)
 
 
 @locked
@@ -244,16 +305,19 @@ def mix(project):
     def add(path,chain,label):
         idx=len(inputs);inputs.append(path);filters.append(f'[{idx}:a]{chain}[{label}]');return label
     common=f'aresample=48000,aformat=channel_layouts=stereo,apad,atrim=duration={duration},asetpts=PTS-STARTPTS,asetnsamples=n=1024:p=0'
-    if before['audio_mode']!='silent':voice=add(p/'audio/narration-full.mp3',common,'voice')
+    policy=before['mixing_policy']
+    if before['audio_mode']!='silent':voice=add(p/'audio/narration-full.mp3',common+f',volume={float(cfg.get("voice_gain_db",0))}dB','voice')
     if cfg.get('bgm_mode','none')!='none':
         gain=float(cfg.get('bgm_gain_db',0));fade=float(cfg.get('bgm_fade_out',1.5))
         if not math.isfinite(gain) or not -60<=gain<=6 or not math.isfinite(fade) or not 0<=fade<=30: raise ValueError('Invalid BGM gain/fade')
-        gain += -12 if voice else 0
+        gain += policy['musicBaselineDb']['voiced' if voice else 'noVoice']
         fade=min(fade,duration);chain=common+f',volume={gain}dB,afade=t=in:d={min(.02,duration)}'
         if fade:chain+=f',afade=t=out:st={duration-fade}:d={fade}'
         music=add(p/'audio/bgm/full.wav',chain,'music')
     if voice and music and cfg.get('bgm_ducking',True):
-        filters.extend(['[voice]asplit=2[voiceout][sidechain]','[music][sidechain]sidechaincompress=threshold=0.025:ratio=6:attack=20:release=300[ducked]']);voice='voiceout';music='ducked'
+        duck=policy['ducking'][cfg.get('bgm_ducking_strength','standard')]
+        params=':'.join(f'{key}={value}' for key,value in duck.items())
+        filters.extend(['[voice]asplit=2[voiceout][sidechain]',f'[music][sidechain]sidechaincompress={params}[ducked]']);voice='voiceout';music='ducked'
     labels += [x for x in (voice,music) if x]
     for i,cue in enumerate(sfx):
         labels.append(add(asset(p,cue['path']),f'aresample=48000,aformat=channel_layouts=stereo,volume={cue.get("gain_db",0)}dB,adelay={round(cue.get("start",0)*1000)}:all=1,apad,atrim=duration={duration}',f'sfx{i}'))

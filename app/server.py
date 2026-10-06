@@ -187,6 +187,9 @@ def create_server(root, port=8765, credential_settings=None):
                     return self.reply(200, flow.export_theme(theme_id))
                 if path == '/api/themes':
                     return self.reply(200, {'customThemes': flow.read().get('customThemes', [])})
+                if path == '/api/audio-presets':
+                    from .audio_presets import response
+                    return self.reply(200, response(flow.read()))
                 if path == '/api/theme-packs':
                     catalog_file = BASE / 'theme-packs' / 'catalog.json'
                     return self.reply(200, json.loads(catalog_file.read_text(encoding='utf-8')) if catalog_file.is_file() else {'packs': []})
@@ -278,7 +281,23 @@ def create_server(root, port=8765, credential_settings=None):
                     raise ValueError('未知 API 操作')
                 action = path.removeprefix('/api/')
                 if action == 'projects/create':
-                    return self.reply(200, {'created': catalog.create(data.get('title'))})
+                    audio = None
+                    if data.get('audioPresetId'):
+                        from .audio_presets import normalize_settings, project_preset
+                        current = flow.read()
+                        if data.get('revision') != current['revision']:
+                            raise ValueError('选择新项目音频预设需要当前项目版本，请刷新后重试')
+                        audio = normalize_settings(project_preset(current, data['audioPresetId'])['settings'])
+                        if audio['bgm_mode'] == 'upload':
+                            raise ValueError('上传音乐属于原项目；请在新项目重新导入，不跨项目复制文件路径')
+                        audio['bgm_upload'] = ''
+                    created = catalog.create(data.get('title'))
+                    if audio is not None:
+                        new_flow = Workflow(created['workspace'])
+                        state = new_flow.read()
+                        new_flow.mutate('save', {'stage':'requirements', 'text':'', 'revision':state['revision'],
+                                                'settings':{'width':1920,'height':1080,'fps':30,'duration':90, **audio}})
+                    return self.reply(200, {'created': created})
                 if action == 'projects/select':
                     return self.reply(200, {'selected': catalog.select(data.get('id'))})
                 if action == 'theme-import':

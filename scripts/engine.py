@@ -46,7 +46,7 @@ def main():
  if a.action=='soundtrack':
   from soundtrack import mix
   print(json.dumps(mix(project),ensure_ascii=False,indent=2));return 0
- if a.action=='render' and (config.get('bgm_mode','none')!='none' or config.get('sound_effects')):
+ if a.action=='render' and (config.get('bgm_mode','none')!='none' or config.get('sound_effects') or (mode!='silent' and config.get('voice_gain_db',0)!=0)):
   from soundtrack import validate_ready
   validate_ready(project)
  if a.action=='style':

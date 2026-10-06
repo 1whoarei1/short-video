@@ -15,13 +15,14 @@ from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from .media import valid_image, validate_theme_video, THEME_VIDEO_MAX_BYTES
+from .audio_presets import MIX_DEFAULTS, validate_mix_settings
 
 STAGES = ['requirements', 'narration', 'preview', 'production', 'export']
 LABELS = ['需求沟通', '文案', '静态预览', '视频制作', '导出交付']
 MODES = ('manual', 'semi', 'auto')
 LEGACY_STAGES = STAGES + ['research']
-AUDIO_DEFAULTS = {'audio_mode': 'silent', 'azure_voice': 'zh-CN-YunfanMultilingualNeural', 'azure_rate': '0%', 'edge_voice': 'zh-CN-YunxiNeural', 'edge_rate': '0%'}
-BGM_DEFAULTS = {'bgm_mode': 'none', 'bgm_direction': '', 'bgm_upload': '', 'bgm_gain_db': 0, 'bgm_ducking': True, 'bgm_fade_out': 1.5}
+AUDIO_DEFAULTS = {'audio_mode': 'silent', 'azure_voice': 'zh-CN-YunfanMultilingualNeural', 'azure_rate': '0%', 'edge_voice': 'zh-CN-YunxiNeural', 'edge_rate': '0%', 'voice_gain_db': MIX_DEFAULTS['voice_gain_db']}
+BGM_DEFAULTS = {'bgm_mode': 'none', 'bgm_direction': '', 'bgm_upload': '', 'bgm_preset_id': '', **{k:v for k,v in MIX_DEFAULTS.items() if k != 'voice_gain_db'}}
 IMAGE_DEFAULTS = {'image_mode': 'auto', 'image_direction': ''}
 CREATIVE_DEFAULTS = {'durationMode': 'approx', 'themeId': 'original', 'voicePresetId': ''}
 SETTING_KEYS = {'aspect', 'width', 'height', 'fps', 'duration', 'durationMode', 'durationMin', 'durationMax', 'styleDirection', 'qualityNote', 'themeId', 'voicePresetId', *AUDIO_DEFAULTS, *BGM_DEFAULTS, *IMAGE_DEFAULTS}
@@ -83,18 +84,19 @@ def validate_settings(settings):
             raise ValueError('创作说明必须是合理长度的文字')
     if settings['image_mode'] not in ('auto', 'existing') or not isinstance(settings['image_direction'], str) or len(settings['image_direction']) > 20000:
         raise ValueError('图片素材设置无效')
-    if settings['bgm_mode'] not in ('none', 'ai', 'upload'):
-        raise ValueError('BGM 模式仅支持 none、ai 或 upload')
+    if settings['bgm_mode'] not in ('none', 'ai', 'upload', 'preset'):
+        raise ValueError('BGM 模式仅支持 none、ai、upload 或 preset')
+    if not isinstance(settings['bgm_preset_id'], str) or not re.fullmatch(r'[a-z0-9-]{0,80}', settings['bgm_preset_id']):
+        raise ValueError('音乐预设 ID 无效')
+    if settings['bgm_mode'] == 'preset':
+        from .audio_presets import music_preset
+        music_preset(settings['bgm_preset_id'])
     if not isinstance(settings['bgm_direction'], str) or len(settings['bgm_direction']) > 20000:
         raise ValueError('音乐方向文字过长')
     upload = settings['bgm_upload']
     if not isinstance(upload, str) or len(upload) > 500 or '\\' in upload or (upload and (Path(upload).is_absolute() or '..' in Path(upload).parts or ':' in upload)):
         raise ValueError('BGM 上传文件必须是项目内相对路径')
-    if not isinstance(settings['bgm_ducking'], bool):
-        raise ValueError('旁白压低音乐必须为布尔值')
-    for key, low, high in [('bgm_gain_db', -60, 6), ('bgm_fade_out', 0, 30)]:
-        if not finite_number(settings[key]) or not low <= settings[key] <= high:
-            raise ValueError('BGM 音量或淡出时间无效')
+    validate_mix_settings(settings)
     return settings
 
 
@@ -271,7 +273,8 @@ class Workflow:
         return target
 
     def validate_soundtrack_artifacts(self, data, stage):
-        if data.get('settings', {}).get('bgm_mode', 'none') == 'none':
+        settings = data.get('settings', {})
+        if settings.get('bgm_mode', 'none') == 'none' and not (settings.get('audio_mode', 'silent') != 'silent' and settings.get('voice_gain_db', 0) != 0):
             return
         from scripts.soundtrack import validate_ready
         marker = validate_ready(self.root)
@@ -405,14 +408,14 @@ class Workflow:
                 raise ValueError('项目已被其他窗口更新，请刷新后重试')
             before = copy.deepcopy(d)
             request = d.get('taskRequest')
-            if action in ('save', 'voice', 'artifact', 'submit', 'approve', 'revise', 'resolve') and (payload.get('by') == 'agent' or payload.get('taskId')):
+            if action in ('save', 'voice', 'artifact', 'submit', 'approve', 'revise', 'resolve', 'audio-presets/save', 'audio-presets/apply', 'audio-presets/delete') and (payload.get('by') == 'agent' or payload.get('taskId')):
                 if request and request['status'] == 'cancelled':
                     raise ValueError('用户已暂停继续请求；请等待明确继续')
                 if payload.get('taskId') and (not request or payload['taskId'] != request['id']):
                     raise ValueError('任务请求已更新，旧执行者不得继续写入')
                 if request and request['status'] == 'running' and payload.get('taskId') != request['id']:
                     raise ValueError('运行中的任务必须提供当前 taskId，防止取消或替换后的迟到写入')
-            requested_stage = 'requirements' if action == 'voice' else payload.get('stage', d['active'])
+            requested_stage = 'requirements' if action == 'voice' or action.startswith('audio-presets/') else payload.get('stage', d['active'])
             s = 'narration' if requested_stage == 'research' else requested_stage
             if s not in STAGES:
                 raise ValueError('未知阶段')
@@ -431,7 +434,54 @@ class Workflow:
                     if downstream['status'] != 'draft' or downstream['text'] or downstream['artifacts']:
                         downstream['status'] = 'stale'
 
-            if action == 'voice':
+            if action in ('audio-presets/save', 'audio-presets/apply', 'audio-presets/delete'):
+                from .audio_presets import normalize_settings, project_preset
+                if 'revision' not in payload:
+                    raise ValueError('音频预设操作需要项目版本，请刷新后重试')
+                allowed = {'revision', 'by', 'taskId', 'id'}
+                if action == 'audio-presets/save':
+                    allowed |= {'name', 'description', 'settings'}
+                if set(payload) - allowed:
+                    raise ValueError('音频预设操作含不支持的字段')
+                items = d.setdefault('audioPresets', [])
+                if action == 'audio-presets/save':
+                    name = payload.get('name', '')
+                    description = payload.get('description', '')
+                    if not isinstance(name, str) or not 0 < len(name.strip()) <= 80 or not isinstance(description, str) or len(description) > 2000:
+                        raise ValueError('请填写有效的预设名称与说明')
+                    settings = normalize_settings(payload.get('settings'))
+                    if payload.get('id'):
+                        item = project_preset(d, payload['id'])
+                        if item.get('builtin'):
+                            if len(items) >= 50:
+                                raise ValueError('每个项目最多保存 50 个音频预设')
+                            item = {'id': 'audio-' + uuid.uuid4().hex, 'created': now()}
+                    else:
+                        if len(items) >= 50:
+                            raise ValueError('每个项目最多保存 50 个音频预设')
+                        item = {'id': 'audio-' + uuid.uuid4().hex, 'created': now()}
+                    item.update(name=name.strip(), description=description, settings=settings, updated=now())
+                    d['audioPresets'] = [entry for entry in items if entry['id'] != item['id']] + [item]
+                elif action == 'audio-presets/delete':
+                    item = project_preset(d, payload.get('id'))
+                    if item.get('builtin'):
+                        raise ValueError('内置音频组合不能删除；可另存为当前项目预设')
+                    d['audioPresets'] = [entry for entry in items if entry['id'] != item['id']]
+                    if d.get('selectedAudioPresetId') == item['id']:
+                        d.pop('selectedAudioPresetId', None)
+                else:
+                    item = project_preset(d, payload.get('id'))
+                    audio = normalize_settings(item['settings'])
+                    settings = validate_settings({'width':1920,'height':1080,'fps':30,'duration':90,
+                                                  **d.get('settings', {}), **audio})
+                    if settings['bgm_mode'] == 'upload':
+                        self.asset(settings['bgm_upload'])
+                    old_settings = {**AUDIO_DEFAULTS, **BGM_DEFAULTS, **CREATIVE_DEFAULTS, **IMAGE_DEFAULTS, **d.get('settings', {})}
+                    if settings != old_settings:
+                        invalidate()
+                    d['settings'] = settings
+                    d['selectedAudioPresetId'] = item['id']
+            elif action == 'voice':
                 # Only nonsecret speech choices. A changed choice reopens requirements.
                 if not any(key in payload for key in ('provider', 'voice', 'rate')):
                     raise ValueError('请至少设置配音服务、音色或语速之一')
@@ -454,6 +504,7 @@ class Workflow:
                 old_settings = {**AUDIO_DEFAULTS, **BGM_DEFAULTS, **CREATIVE_DEFAULTS, **IMAGE_DEFAULTS, **d.get('settings', {})}
                 if settings != old_settings:
                     invalidate()
+                    d.pop('selectedAudioPresetId', None)
                 d['settings'] = settings
             elif action == 'save':
                 value = str(payload.get('text', ''))
@@ -464,6 +515,8 @@ class Workflow:
                 if value != stage['text'] or (settings is not None and settings != old_settings):
                     invalidate()
                     stage['text'] = value
+                    if settings is not None and settings != old_settings:
+                        d.pop('selectedAudioPresetId', None)
                 if settings is not None:
                     d['settings'] = settings
                 if s == 'requirements' and payload.get('title'):
@@ -475,7 +528,8 @@ class Workflow:
                     invalidate()
                 digest = hashlib.sha256(source.read_bytes()).hexdigest()
                 soundtrack_sha = None
-                if s in ('production', 'export') and source.suffix.lower() in ('.mp4', '.webm') and d.get('settings', {}).get('bgm_mode', 'none') != 'none':
+                settings = d.get('settings', {})
+                if s in ('production', 'export') and source.suffix.lower() in ('.mp4', '.webm') and (settings.get('bgm_mode', 'none') != 'none' or (settings.get('audio_mode', 'silent') != 'silent' and settings.get('voice_gain_db', 0) != 0)):
                     from scripts.soundtrack import validate_ready
                     current_mix = validate_ready(self.root)
                     try:

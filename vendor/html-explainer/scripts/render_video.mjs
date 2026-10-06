@@ -374,14 +374,16 @@ async function main() {
   const generatedOutput = args.out ? path.resolve(projectDir,args.out)
     : path.join(projectDir,'out',args.preview > 0 ? 'preview.mp4' : `${pj.slug || 'video'}.mp4`);
   const generatedFiles = new Set([generatedOutput,generatedOutput+'.render.json',generatedOutput+'.soundtrack.json']);
-  if (pj.bgm_mode !== undefined && !['none','ai','upload'].includes(pj.bgm_mode)) die('Invalid BGM mode');
+  if (pj.bgm_mode !== undefined && !['none','ai','upload','preset'].includes(pj.bgm_mode)) die('Invalid BGM mode');
   if (pj.bgm_ducking !== undefined && typeof pj.bgm_ducking !== 'boolean') die('Invalid BGM ducking setting');
+  if (pj.voice_gain_db !== undefined && (typeof pj.voice_gain_db !== 'number' || !Number.isFinite(pj.voice_gain_db) || pj.voice_gain_db < -24 || pj.voice_gain_db > 6)) die('Invalid voice gain');
+  if (pj.bgm_ducking_strength !== undefined && !['gentle','standard','strong'].includes(pj.bgm_ducking_strength)) die('Invalid ducking strength');
   const workflowPath = path.join(projectDir, '.studio', 'workflow.json');
   const briefSettings = () => fs.existsSync(workflowPath) ? JSON.stringify(JSON.parse(fs.readFileSync(workflowPath, 'utf8')).settings || {}) : null;
   const initialBrief = briefSettings();
   if (initialBrief !== null) {
     const saved = JSON.parse(initialBrief);
-    const defaults = {bgm_mode:'none',bgm_direction:'',bgm_upload:'',bgm_gain_db:0,bgm_ducking:true,bgm_fade_out:1.5};
+    const defaults = {bgm_mode:'none',bgm_direction:'',bgm_upload:'',bgm_gain_db:0,bgm_ducking:true,bgm_fade_out:1.5,voice_gain_db:0,bgm_preset_id:'',bgm_ducking_strength:'standard'};
     for (const [key, value] of Object.entries(defaults)) if ((saved[key] ?? value) !== (pj[key] ?? value)) die('BGM settings changed; run engine configure and rebuild soundtrack');
   }
   const requireUnchangedInputs = () => {
@@ -405,7 +407,7 @@ async function main() {
     if (!present) die('Spoken audio is missing or empty; run synthesize and timeline before render. No silent fallback was used.');
   };
   requireSpeechAudio();
-  const requiresSoundtrack = (pj.bgm_mode && pj.bgm_mode !== 'none') || (pj.sound_effects && pj.sound_effects.length);
+  const requiresSoundtrack = (pj.bgm_mode && pj.bgm_mode !== 'none') || (pj.sound_effects && pj.sound_effects.length) || (requiresSpeech && (pj.voice_gain_db ?? 0) !== 0);
   const requireSoundtrack = () => {
     if (!requiresSoundtrack) return;
     const helper = path.resolve(SKILL_ROOT, '../../scripts/soundtrack.py');
