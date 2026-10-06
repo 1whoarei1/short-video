@@ -1,5 +1,7 @@
 # 复现 Edge 云希 +40% 配音样片
 
+本文只复现旧的独立技术样例，不代表新视频的内容、53/71/92.5秒长度、音色或语速默认。新制作按用户本次重点与项目设置执行 [创作与验收参考](creative-method.md)。
+
 以下命令在刚克隆仓库的根目录执行，适用于 Python 3.10+、Node.js 20+、FFmpeg 和 Chrome/Chromium/Edge。Windows 可将 `python` 替换为 `py -3`。需要系统中文字体；浏览器不在常见位置时，按 README 设置 `BROWSER_PATH`。
 
 原 `examples/processed-meat/` 仍是 92.5 秒无声样片。下面创建独立的 `workspace/edge-sample/`，不修改原文稿、场景、配置或字幕。目标目录已存在时复制命令会报错，避免覆盖之前的工作。

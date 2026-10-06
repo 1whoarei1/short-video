@@ -6,6 +6,8 @@
 
 UI 负责输入、审核、批注和版本；Codex 负责调研、写稿、创作 HTML、渲染和检查。没有模型 API 配置，没有强制画面组件模板。默认制作 **无声、带字幕视频**，也可选择 **Microsoft Edge 或 Azure Speech 配音**，按真实音频时间生成字幕和场景时长。接入说明见 [Edge TTS](docs/edge-tts.md) 和 [Azure TTS](docs/azure-tts.md)。
 
+仓库现有 [旁白技能](.agents/skills/video-narration/SKILL.md)、[视频工作流](.agents/skills/video-workflow/SKILL.md) 与 [图片素材技能](.agents/skills/video-image-assets/SKILL.md) 直接读取 [创作与验收参考](docs/creative-method.md)：突出用户要讲的一件事，以图形推进解释，保持全片设计语言，按真实声音定时并检查成片。可选方法服务当前内容，不固定模板、音色、时长或底色。
+
 ## 新对话里开始
 
 1. 克隆仓库并在 Codex 中打开这个项目目录
