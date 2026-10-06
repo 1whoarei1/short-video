@@ -14,7 +14,7 @@ const {spawn,spawnSync}=require('child_process'),fs=require('fs'),os=require('os
   const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto(url);await page.waitForFunction(()=>document.querySelector('#stageTitle').textContent==='需求沟通');
   await revealBriefControl(page,'#materialFile');await page.locator('#materialFile').setInputFiles(path.join(workspace,'personal.mp4'));await page.locator('#uploadMaterial').click();
-  await page.waitForFunction(()=>document.querySelector('#saved').textContent.includes('保存')||document.querySelectorAll('.artifact').length>0);
+  await page.waitForFunction(()=>!busy&&document.querySelector('#artifacts video')&&document.querySelector('#materialFile').value==='');
   await page.locator('#settingsButton').click();await page.locator('#customThemeName').fill('个人动态测试');await page.locator('#customThemePrompt').fill('原创动态图形，仅供本人使用');
   await page.waitForFunction(()=>document.querySelector('#customThemeAnimation').options.length===2);
   await page.locator('#customThemeAnimation').selectOption({index:1});await page.locator('#createTheme').click();await page.waitForFunction(()=>document.querySelector('#themeSaveFeedback').textContent.includes('已保存'));
