@@ -50,3 +50,5 @@ jobs:
           node tests/voice-speed-ui-smoke.cjs
           node tests/bgm-ui-smoke.cjs
           node tests/mobile-layout-ui.cjs
+      - name: Rebuild the public publishing example in this checkout
+        run: python examples/publishing-package-demo/build.py

@@ -1,6 +1,6 @@
 # 发布材料验收（2026-10-06）
 
-使用隔离工作区、合成项目和通用演示数据；没有修改此前已交付的视频、用户图片或个人技能。没有调用真实TTS、生图服务或第三方发布平台。
+以下是2026-10-06发布功能开发时的历史实测记录，不是之后每次提交的完整复验。使用隔离工作区、合成项目和通用演示数据；没有修改此前已交付的视频、用户图片或个人技能。没有调用真实TTS、生图服务或第三方发布平台。当前干净检出步骤见[验收说明](clean-checkout-verification.md)。
 
 ## 实际执行
 
@@ -17,7 +17,17 @@
 
 [通用示例](../examples/publishing-package-demo/README.md)横版为1600×1200，竖版为1200×1600；独立HTML分别使用并置柱图与上下增量分解。原图和400px缩略图已查看，标题清楚，来源登记为`code-generated` / `html-css-chromium`。
 
-[真实ZIP](../examples/publishing-package-demo/publish/demo-package.zip)含标题、简介、话题、双封面、逐文件SHA-256清单、封面HTML与渲染报告，以及一段1080×1920、24fps、48帧、2秒的无声合成播放验收片。独立临时项目用公开的工作流和发布接口完成auto流程，最终`nextAction=complete`且`publishing.ready=true`；没有新增人工审核点。ZIP解压、每项哈希和视频全片解码通过。
+当时生成并检查了真实ZIP，包含标题、简介、话题、双封面、逐文件SHA-256清单、封面HTML与渲染报告，以及一段1080×1920、24fps、48帧、2秒的无声合成播放验收片。独立临时项目用公开的工作流和发布接口完成auto流程，最终`nextAction=complete`且`publishing.ready=true`；没有新增人工审核点。ZIP解压、每项哈希和视频全片解码通过。
+
+仓库保留通用文案与独立封面源码，运行时ZIP、重复封面输出、哈希收据和状态不再作为检出必需文件。使用[示例复现说明](../examples/publishing-package-demo/README.md)重新构建，结果以本次真实生成文件和检查为准，不沿用历史包哈希。
+
+准备好[渲染与图片依赖](new-machine-setup.md)后，从仓库根目录运行：
+
+```powershell
+py -3 examples/publishing-package-demo/build.py --browser 'C:\Program Files\Google\Chrome\Application\chrome.exe'
+```
+
+浏览器路径换成本机实际值，已设置`BROWSER_PATH`时可省略`--browser`。生成器每次创建独立且被Git忽略的`examples/publishing-package-demo/out/run-*`目录，输出真实双封面、合成播放视频、`verification.json`及该目录内`publishing/delivery/publishing-package.zip`。它不覆盖旧项目、不安装依赖、不调用TTS或生图服务；此公开合成样例使用明确的测试自审，不作为正常用户项目的审批旁路。
 
 ## 验收范围
 
