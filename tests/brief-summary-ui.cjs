@@ -1,4 +1,5 @@
 'use strict';
+const {revealBriefControl}=require('./brief-ui-helpers.cjs');
 // Summary freshness after button-driven changes must not depend on a tab switch.
 const {chromium}=require('../vendor/html-explainer/node/node_modules/playwright-core');
 const {spawn}=require('child_process');
@@ -21,14 +22,13 @@ const fs=require('fs'),os=require('os'),path=require('path'),assert=require('ass
     await page.waitForFunction(()=>document.querySelector('#stageTitle').textContent==='需求沟通');
     const initial=(await(await fetch(url+'/api/state')).json()).project;
     await page.locator('#briefTabVisual').click();
+    await revealBriefControl(page,'[name="soundMode"][value="voiced"]');
     await page.locator('[name="soundMode"][value="voiced"]').check();
     await page.locator('#edge_rate').fill('30');
-    await page.locator('#chooseVoice').click();
     await page.locator('[data-voice-id="zh-CN-XiaoyiNeural"] button').click();
     assert.equal(await page.locator('#edge_voice').inputValue(),'zh-CN-XiaoyiNeural');
     assert.equal(await page.locator('#edge_rate').inputValue(),'30');
     assert.equal(await page.locator('#briefSummaryAudio').innerText(),`${await page.locator('#selectedVoiceName').innerText()} · +30%`);
-    await page.locator('#chooseVoice').click();
     await page.locator('#resetVoicePreviewRate').click();
     assert.equal(await page.locator('#edge_rate').inputValue(),'0');
     assert.equal(await page.locator('#briefSummaryAudio').innerText(),`${await page.locator('#selectedVoiceName').innerText()} · 0%`);

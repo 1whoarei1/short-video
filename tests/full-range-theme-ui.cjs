@@ -26,9 +26,9 @@ const {spawn,spawnSync}=require('child_process'),fs=require('fs'),os=require('os
   assert.equal(await page.locator('#selectedThemeName').innerText(),'原创方向');const video=page.locator('#themeDetailMedia video');await video.waitFor();
   await video.evaluate(v=>new Promise((resolve,reject)=>{if(v.readyState>=1)return resolve();v.onloadedmetadata=resolve;v.onerror=()=>reject(Error('video load failed'));}));
   assert(await video.evaluate(v=>v.controls&&v.muted&&v.loop&&v.duration>1));await video.evaluate(v=>v.play());await page.waitForTimeout(250);assert(await video.evaluate(v=>v.currentTime>0));await video.evaluate(v=>new Promise((resolve,reject)=>{v.pause();v.addEventListener('seeked',resolve,{once:true});v.addEventListener('error',()=>reject(Error('seek failed')),{once:true});v.currentTime=1;}));assert(await video.evaluate(v=>v.paused&&v.currentTime===1&&!v.seeking&&v.readyState>=2&&!v.error));
-  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:'/tmp/full-range-theme-mobile.png'});
+  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:path.join(os.tmpdir(),'full-range-theme-mobile.png')});
   await page.locator('#selectDetailTheme').click();await page.waitForFunction(()=>!document.querySelector('#themeDialog').open);assert.equal(await page.locator('#selectedThemeName').innerText(),'个人动态测试');
-  await page.setViewportSize({width:1440,height:1000});await page.screenshot({path:'/tmp/full-range-theme-desktop.png'});
+  await page.setViewportSize({width:1440,height:1000});await page.screenshot({path:path.join(os.tmpdir(),'full-range-theme-desktop.png')});
   assert.deepEqual(errors,[]);console.log('PASS real H.264/yuvj420p full-range project video upload, optional selector, immutable save/export, native play/pause/seek, no selection until confirmation, mobile/desktop and no script errors');
  }finally{if(browser)await browser.close();server.kill();}
 })().catch(e=>{console.error(e);process.exit(1)});

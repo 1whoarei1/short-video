@@ -12,7 +12,7 @@ const {spawn,spawnSync}=require('child_process'),fs=require('fs'),os=require('os
   const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto(url);await page.waitForFunction(()=>document.querySelector('#stageTitle').textContent==='需求沟通');
   await revealBriefControl(page,'#materialFile');await page.locator('#materialFile').setInputFiles(path.join(workspace,'personal.webm'));await page.locator('#uploadMaterial').click();
-  await page.waitForFunction(()=>document.querySelector('#saved').textContent.includes('保存')||document.querySelectorAll('.artifact').length>0);
+  await page.waitForFunction(()=>!busy&&document.querySelector('#artifacts video')&&document.querySelector('#materialFile').value==='');
   await page.locator('#settingsButton').click();await page.locator('#customThemeName').fill('个人动态测试');await page.locator('#customThemePrompt').fill('原创动态图形，仅供本人使用');
   await page.waitForFunction(()=>document.querySelector('#customThemeAnimation').options.length===2);
   await page.locator('#customThemeAnimation').selectOption({index:1});await page.locator('#createTheme').click();await page.waitForFunction(()=>document.querySelector('#themeSaveFeedback').textContent.includes('已保存'));
@@ -24,9 +24,9 @@ const {spawn,spawnSync}=require('child_process'),fs=require('fs'),os=require('os
   assert.equal(await page.locator('#selectedThemeName').innerText(),'原创方向');const video=page.locator('#themeDetailMedia video');await video.waitFor();
   await video.evaluate(v=>new Promise((resolve,reject)=>{if(v.readyState>=1)return resolve();v.onloadedmetadata=resolve;v.onerror=()=>reject(Error('video load failed'));}));
   assert(await video.evaluate(v=>v.controls&&v.muted&&v.loop&&v.duration>1));await video.evaluate(v=>v.play());await page.waitForTimeout(250);assert(await video.evaluate(v=>v.currentTime>0));await video.evaluate(v=>{v.pause();v.currentTime=1;});assert(await video.evaluate(v=>v.paused&&v.currentTime===1));
-  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:'/tmp/custom-theme-animation-mobile.png'});
+  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:path.join(os.tmpdir(),'custom-theme-animation-mobile.png')});
   await page.locator('#selectDetailTheme').click();await page.waitForFunction(()=>!document.querySelector('#themeDialog').open);assert.equal(await page.locator('#selectedThemeName').innerText(),'个人动态测试');
-  await page.setViewportSize({width:1440,height:1000});await page.screenshot({path:'/tmp/custom-theme-animation-desktop.png'});
+  await page.setViewportSize({width:1440,height:1000});await page.screenshot({path:path.join(os.tmpdir(),'custom-theme-animation-desktop.png')});
   assert.deepEqual(errors,[]);console.log('PASS project video upload, optional selector, immutable save/export, native play/pause/seek, no selection until confirmation, mobile/desktop and no script errors');
  }finally{if(browser)await browser.close();server.kill();}
 })().catch(e=>{console.error(e);process.exit(1)});

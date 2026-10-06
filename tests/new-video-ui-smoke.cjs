@@ -15,7 +15,7 @@ const root=path.resolve(__dirname,'..'),pause=ms=>new Promise(r=>setTimeout(r,ms
   const loaded=()=>page.waitForFunction(()=>document.querySelector('#stageTitle').textContent==='需求沟通');
   const catalog=async()=>(await(await fetch(base+'/api/projects')).json());
   const count=async()=>(await catalog()).projects.length;
-  const closed=()=>page.waitForFunction(()=>!document.querySelector('#newVideoDialog').open&&!history.state?.dialog);
+  const closed=()=>page.waitForFunction(()=>{const dialog=document.querySelector('#newVideoDialog');return Boolean(dialog)&&!dialog.open&&!history.state?.dialog;});
   await page.goto(base+'/?project=default');await loaded();const initialCount=await count();
   await revealBriefControl(page, '#projectTitle'); await page.locator('#projectTitle').fill('旧视频保留');await revealBriefControl(page, '#editor'); await page.locator('#editor').fill('Original requirements and materials stay in this project');await revealBriefControl(page, '#bgm_mode'); await page.locator('#bgm_mode').selectOption('ai');
   await revealBriefControl(page, '#save'); await page.locator('#save').click();await page.waitForFunction(()=>document.querySelector('#saved').textContent.startsWith('已保存'));
@@ -24,7 +24,7 @@ const root=path.resolve(__dirname,'..'),pause=ms=>new Promise(r=>setTimeout(r,ms
   page.once('dialog',d=>d.dismiss());await revealBriefControl(page, '#createVideo'); await page.locator('#createVideo').click();assert.equal(await count(),initialCount);assert.equal(await page.locator('#editor').inputValue(),'Unsaved old draft');
   page.once('dialog',d=>d.dismiss());await page.keyboard.press('Escape');assert(await page.locator('#newVideoDialog').isVisible());
   page.once('dialog',d=>d.accept());await revealBriefControl(page, '#closeNewVideo'); await page.locator('#closeNewVideo').click();await closed();assert.equal(await page.locator('#editor').inputValue(),'Unsaved old draft');
-  await revealBriefControl(page, '#newVideo'); await page.locator('#newVideo').click();assert.equal(await page.locator('#newVideoName').inputValue(),'第二支视频');
+  await revealBriefControl(page, '#newVideo'); await page.locator('#newVideo').click();await page.waitForFunction(()=>document.querySelector('#newVideoDialog')?.open&&history.state?.dialog==='newVideoDialog');assert.equal(await page.locator('#newVideoName').inputValue(),'第二支视频');
   page.once('dialog',d=>d.accept());await page.goBack();await closed();assert.equal(await count(),initialCount);
   await revealBriefControl(page, '#newVideo'); await page.locator('#newVideo').click();page.once('dialog',d=>d.accept());await page.locator('#createVideo').dblclick();
   await page.waitForURL(/project=[a-f0-9]{32}/);await loaded();const key=new URL(page.url()).searchParams.get('project');
