@@ -43,6 +43,8 @@ jobs:
           node tests/renderer-stability.cjs
           node tests/causal-motion.cjs
           node tests/cover-check-smoke.cjs
+          node tests/publishing-cover-smoke.cjs
+          node tests/publishing-ui-smoke.cjs
           node tests/ui-smoke.cjs
           node tests/audio-presets-browser.cjs
           node tests/voice-speed-ui-smoke.cjs
