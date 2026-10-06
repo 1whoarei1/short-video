@@ -25,7 +25,8 @@
 - 不提交密钥、私密素材、node_modules、用户 workspace 历史或缓存。发布前确认文件范围。
 
 ## 自由作曲与整片声音
-- 背景音乐独立于配音：需求 `bgm_mode=none|ai|upload`、`bgm_direction`、`bgm_upload`。默认 none；silent 配音仍可有 BGM。没有音乐模型 API；由当前 Codex 自由创作任意 MIDI、编曲、源代码、分轨与 cue map。FluidSynth/FluidR3 GM 只提供真实采样演奏，不复制《初光》的固定旋律、结构或配器。
+- 背景音乐独立于配音：需求 `bgm_mode=none|ai|upload|preset`、`bgm_direction`、`bgm_upload`、`bgm_preset_id`。默认 none；silent 配音仍可有 BGM。没有音乐模型 API；由当前 Codex 自由创作任意 MIDI、编曲、源代码、分轨与 cue map。FluidSynth/FluidR3 GM 只提供真实采样演奏，不复制《初光》的固定旋律、结构或配器。
+- 需求页“声音与音乐”统一试听、音量和组合预设。五条内置原创循环是约16–18秒短样，preset 模式重复到实际时间轴长度；不能称作另行创作的长曲。组合只在用户明确应用或创建新项目选用时改变设置，不自动覆盖旧项目；不保存凭据。规则见 `docs/audio-presets.md`。`voice_gain_db` 只改变混音，保持原 TTS 与时间轴；改变音色或语速才重新合成。浏览器试听与 FFmpeg 从 `web/presets/audio-mix.json` 读取共享基准、避让策略。
 - 先运行 `python scripts/setup_bgm.py` 检查；依用户安装授权再运行 `--install-soundfont`。官方来源、许可证、校验与 Windows 指引见 `docs/bgm-setup.md`。网页不自动下载，不把音色库提交 Git。
 - 当前项目路径：未指定 `--workspace` 的 `python -m app.cli status` 跟随网页当前项目；读取返回的 `workspace`，领取任务后所有命令固定传入该绝对路径。用户切换项目不能把进行中的制作写进另一项目。
 - 内容与真实 TTS 决定镜头时长；音乐不能拉长视频、机械伸缩旁白。手动/半自动在静态预览阶段同时注册画面和音乐短样。全自动直接创作整曲、制作和核对成片，不要求静态图片或音乐短样审核，不新增阶段。
