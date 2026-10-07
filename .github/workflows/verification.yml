@@ -42,6 +42,7 @@ jobs:
         run: |
           node tests/renderer-stability.cjs
           node tests/causal-motion.cjs
+          MOTION_RENDER=1 node tests/continuous-motion.cjs
           node tests/cover-check-smoke.cjs
           node tests/publishing-cover-smoke.cjs
           node tests/publishing-ui-smoke.cjs

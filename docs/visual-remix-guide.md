@@ -62,6 +62,7 @@ Canvas 或异步创建图片时，可以把加载/解码任务放入 `window.__a
 
 ## 已有可运行实践
 
+- [continuous-motion](../examples/continuous-motion/README.md)：同一主体连续变形，光标按真实锚点完成操作，外壳与内容分层交接；配套 [连续运动实践](continuous-motion.md) 说明共享几何、速度继承、确定性采样和成片检查。按内容拆用，不沿用固定外观或时长
 - `examples/causal-motion/`：10 秒两镜头示意，把新引入的 HXM 动作组成触发、建图、原因标注与结论；同一圆点和基期柱跨镜头保留，使用已有 engine-bridge 接上真实 `__tl`。打开 `index.html` 可看短预览，README 有导出、倒序 seek 测试和实测代表帧
 - `examples/strawberry-remix/`：实际生成的草莓图片，结合纸张、局部观察与路径，重组为六幕 24 秒短片
 - `examples/mountain-letter/`：借用山脊、松枝、触感版画与折纸鸟，以一封信贯穿重新创作的 28 秒短片；用持续主体连接三个不同场景
